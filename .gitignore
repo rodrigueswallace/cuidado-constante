@@ -1,0 +1,24 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
+
+# Android / iOS (se gerar)
+android/
+ios/
+
+# Env
+.env
+.env.*
+
+# Build
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
