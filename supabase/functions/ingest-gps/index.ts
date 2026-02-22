@@ -1,9 +1,14 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAdminClient } from '../_shared/supabase.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-};
+interface IngestGpsBody {
+  collar_id: string;
+  lat: number;
+  lng: number;
+  battery?: number | null;
+  ts: string;
+  signature: string;
+}
 
 async function hmacSha256Hex(secret: string, message: string) {
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
@@ -13,40 +18,75 @@ async function hmacSha256Hex(secret: string, message: string) {
   return [...new Uint8Array(signature)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+function invalid(body: Partial<IngestGpsBody>) {
+  return (
+    !body.collar_id ||
+    typeof body.lat !== 'number' ||
+    typeof body.lng !== 'number' ||
+    !body.ts ||
+    !body.signature ||
+    Number.isNaN(body.lat) ||
+    Number.isNaN(body.lng)
+  );
+}
+
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'method_not_allowed' }), { status: 405, headers: corsHeaders });
+  }
 
   try {
-    const payload = await req.json();
-    const { collar_id, lat, lng, battery, ts, signature } = payload;
+    const body = (await req.json()) as Partial<IngestGpsBody>;
 
-    if (!collar_id || typeof lat !== 'number' || typeof lng !== 'number' || !ts || !signature) {
-      return new Response(JSON.stringify({ error: 'payload inválido' }), { status: 400, headers: corsHeaders });
+    if (invalid(body)) {
+      return new Response(JSON.stringify({ error: 'payload_invalido' }), { status: 400, headers: corsHeaders });
     }
 
-    const sharedSecret = Deno.env.get('COLLAR_SHARED_SECRET') ?? '';
-    const expected = await hmacSha256Hex(sharedSecret, `${collar_id}|${lat}|${lng}|${ts}`);
-
-    if (expected !== signature) {
-      return new Response(JSON.stringify({ error: 'assinatura inválida' }), { status: 401, headers: corsHeaders });
+    const sharedSecret = Deno.env.get('COLLAR_SHARED_SECRET');
+    if (!sharedSecret) {
+      return new Response(JSON.stringify({ error: 'server_misconfigured' }), { status: 500, headers: corsHeaders });
     }
 
-    const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const canonical = `${body.collar_id}|${body.lat}|${body.lng}|${body.ts}`;
+    const expected = await hmacSha256Hex(sharedSecret, canonical);
+    if (expected !== body.signature) {
+      return new Response(JSON.stringify({ error: 'assinatura_invalida' }), { status: 401, headers: corsHeaders });
+    }
 
-    const { data: collar, error: collarError } = await supabase.from('collars').select('id').eq('id', collar_id).maybeSingle();
+    const supabase = createAdminClient();
+
+    const { data: collar, error: collarError } = await supabase
+      .from('collars')
+      .select('id')
+      .eq('id', body.collar_id)
+      .maybeSingle();
 
     if (collarError || !collar) {
-      return new Response(JSON.stringify({ error: 'coleira não encontrada' }), { status: 404, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: 'coleira_nao_encontrada' }), { status: 404, headers: corsHeaders });
     }
 
-    const { error: insertError } = await supabase.from('gps_events').insert({ collar_id, lat, lng, battery: battery ?? null, ts });
+    const payload = {
+      collar_id: body.collar_id,
+      lat: body.lat,
+      lng: body.lng,
+      battery: body.battery ?? null,
+      ts: body.ts
+    };
 
-    if (insertError) throw insertError;
+    const { error: eventError } = await supabase.from('gps_events').insert(payload);
+    if (eventError) throw eventError;
 
     const { error: updateError } = await supabase
       .from('collars')
-      .update({ last_seen: ts, battery: battery ?? null })
-      .eq('id', collar_id);
+      .update({
+        last_seen: body.ts,
+        battery: body.battery ?? null
+      })
+      .eq('id', body.collar_id);
 
     if (updateError) throw updateError;
 

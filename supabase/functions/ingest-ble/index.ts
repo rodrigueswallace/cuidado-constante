@@ -1,49 +1,65 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAdminClient, createUserClient } from '../_shared/supabase.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-};
+interface IngestBleBody {
+  collar_id: string;
+  rssi: number;
+  battery?: number | null;
+  ts: string;
+}
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'method_not_allowed' }), { status: 405, headers: corsHeaders });
+  }
 
   try {
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) return new Response(JSON.stringify({ error: 'auth obrigatório' }), { status: 401, headers: corsHeaders });
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'auth_obrigatorio' }), { status: 401, headers: corsHeaders });
+    }
 
-    const supabaseUser = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
+    const userClient = createUserClient(authHeader);
     const {
       data: { user },
       error: userError
-    } = await supabaseUser.auth.getUser();
+    } = await userClient.auth.getUser();
 
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'usuário inválido' }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: 'usuario_invalido' }), { status: 401, headers: corsHeaders });
     }
 
-    const payload = await req.json();
-    const { collar_id, rssi, battery, ts } = payload;
+    const body = (await req.json()) as Partial<IngestBleBody>;
 
-    const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    if (!body.collar_id || typeof body.rssi !== 'number' || !body.ts || Number.isNaN(body.rssi)) {
+      return new Response(JSON.stringify({ error: 'payload_invalido' }), { status: 400, headers: corsHeaders });
+    }
 
-    const { data: collar, error: collarError } = await supabaseAdmin
+    const supabase = createAdminClient();
+
+    const { data: collar, error: collarError } = await supabase
       .from('collars')
       .select('id, pets!inner(owner_user_id)')
-      .eq('id', collar_id)
+      .eq('id', body.collar_id)
       .eq('pets.owner_user_id', user.id)
       .maybeSingle();
 
     if (collarError || !collar) {
-      return new Response(JSON.stringify({ error: 'coleira não autorizada' }), { status: 403, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: 'coleira_nao_autorizada' }), { status: 403, headers: corsHeaders });
     }
 
-    const { error } = await supabaseAdmin.from('ble_events').insert({ collar_id, rssi, battery: battery ?? null, ts });
+    const { error: insertError } = await supabase.from('ble_events').insert({
+      collar_id: body.collar_id,
+      rssi: body.rssi,
+      battery: body.battery ?? null,
+      ts: body.ts
+    });
 
-    if (error) throw error;
+    if (insertError) throw insertError;
 
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders });
   } catch (error) {
