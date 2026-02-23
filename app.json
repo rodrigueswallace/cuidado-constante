@@ -5,6 +5,13 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "cuidado-constante",
+
+
+
+    "splash": {
+      "backgroundColor": "#FFFFFF"
+    },
+
     "plugins": [
       [
         "expo-location",
@@ -17,18 +24,14 @@
     "android": {
       "package": "com.cuidadoconstante.app",
       "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION",
-        "BLUETOOTH_SCAN",
-        "BLUETOOTH_CONNECT",
-        "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_LOCATION",
-        "INTERNET",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_LOCATION"
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.INTERNET"
       ]
     },
     "ios": {
