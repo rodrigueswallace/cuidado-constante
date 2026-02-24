@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cuidado Constante - Add Collar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen" aria-label="AddCollarScreen">
+      <h1>Adicionar coleira</h1>
+
+      <div class="tabs" role="tablist" aria-label="Métodos de cadastro">
+        <button id="tab-scan" role="tab" class="tab active" aria-selected="true">Escanear</button>
+        <button id="tab-type" role="tab" class="tab" aria-selected="false">Digitar serial</button>
+      </div>
+
+      <section id="panel-scan" role="tabpanel" class="panel active">
+        <p>Simulação de leitura por QR/Scanner:</p>
+        <button id="scan-simulate">Simular leitura válida</button>
+      </section>
+
+      <section id="panel-type" role="tabpanel" class="panel">
+        <form id="serial-form">
+          <label for="serial-input">Serial</label>
+          <input id="serial-input" name="serial" placeholder="Ex: COL-1234-ABCD" />
+
+          <label for="code-input">Código</label>
+          <input id="code-input" name="code" placeholder="Ex: 654321" />
+
+          <button type="submit">Vincular</button>
+        </form>
+      </section>
+
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
