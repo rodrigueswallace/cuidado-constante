@@ -1,0 +1,44 @@
+# =====================
+# Node / NPM
+# =====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =====================
+# Expo / React Native
+# =====================
+.expo/
+dist/
+build/
+web-build/
+
+# =====================
+# Environment / Secrets
+# =====================
+.env
+.env.*
+src/config/env.ts
+
+# =====================
+# OS / Editor
+# =====================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+# =====================
+# Logs
+# =====================
+logs/
+*.log
+
+# =====================
+# Temp
+# =====================
+tmp/
+temp/
+.cache/
