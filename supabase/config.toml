@@ -1,0 +1,10 @@
+project_id = "cuidado-constante"
+
+[functions.ingest-gps]
+verify_jwt = false
+
+[functions.ingest-ble]
+verify_jwt = true
+
+[functions.get-latest-gps]
+verify_jwt = true
