@@ -24,3 +24,22 @@ export async function fetchLatestGps(collarId: string) {
   if (error) throw error;
   return data;
 }
+
+export async function fetchActiveCollarId() {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+
+  const userId = userData.user?.id;
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('active_collar')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  const activeCollar = data?.active_collar;
+  return typeof activeCollar === 'string' ? activeCollar : null;
+}

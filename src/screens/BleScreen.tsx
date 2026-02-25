@@ -2,16 +2,18 @@ import React from 'react';
 import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { useBleTracking } from '@/hooks/useBleTracking';
+import { useAppStore } from '@/store/appStore';
 
-const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
-const COLLAR_ID = '00000000-0000-0000-0000-000000000001';
+const BLE_SERVICE_UUID = process.env.EXPO_PUBLIC_BLE_SERVICE_UUID ?? '';
 
 export function BleScreen() {
-  const { devices, rssi, battery, estimatedDistance, scan, connect } = useBleTracking(SERVICE_UUID);
+  const { activeCollarId } = useAppStore();
+  const { devices, rssi, battery, estimatedDistance, scan, connect } = useBleTracking(BLE_SERVICE_UUID);
 
   return (
     <View style={styles.container}>
-      <Button title="Escanear BLE" onPress={scan} />
+      {!activeCollarId ? <Text>Nenhuma coleira cadastrada</Text> : null}
+      <Button title="Escanear BLE" onPress={scan} disabled={!activeCollarId || !BLE_SERVICE_UUID} />
       <Text>RSSI: {rssi ?? '--'} dBm</Text>
       <Text>Bateria: {battery ?? '--'}%</Text>
       <Text>Proximidade estimada: {estimatedDistance ? `${estimatedDistance.toFixed(1)}m` : '--'}</Text>
@@ -22,7 +24,7 @@ export function BleScreen() {
         renderItem={({ item }) => (
           <View style={styles.row}>
             <Text>{item.name || item.localName || item.id}</Text>
-            <Button title="Conectar" onPress={() => connect(item, COLLAR_ID)} />
+            <Button title="Conectar" onPress={() => activeCollarId && connect(item, activeCollarId)} disabled={!activeCollarId} />
           </View>
         )}
       />
