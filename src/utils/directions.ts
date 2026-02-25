@@ -1,5 +1,16 @@
-import { env } from '@/config/env';
+
 import { DirectionsRoute } from '@/types/domain';
+
+function required(value: string | undefined, key: string) {
+  if (!value) throw new Error(`Variável ${key} não configurada.`);
+  return value;
+}
+
+const GOOGLE_MAPS_API_KEY = required(
+  process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+  'EXPO_PUBLIC_GOOGLE_MAPS_API_KEY'
+);
+
 
 const decodePolyline = (encoded: string) => {
   let index = 0;
@@ -38,8 +49,18 @@ const decodePolyline = (encoded: string) => {
   return coordinates;
 };
 
-export async function fetchDirections(origin: string, destination: string): Promise<DirectionsRoute | null> {
-  const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${env.googleMapsApiKey}`;
+
+export async function fetchDirections(
+  origin: string,
+  destination: string
+): Promise<DirectionsRoute | null> {
+  const url =
+    `https://maps.googleapis.com/maps/api/directions/json` +
+    `?origin=${encodeURIComponent(origin)}` +
+    `&destination=${encodeURIComponent(destination)}` +
+    `&key=${GOOGLE_MAPS_API_KEY}`;
+
+
   const response = await fetch(url);
   const json = await response.json();
 
@@ -51,6 +72,8 @@ export async function fetchDirections(origin: string, destination: string): Prom
   return {
     polyline: decodePolyline(route.overview_polyline.points),
     distanceMeters: leg.distance.value,
-    durationSeconds: leg.duration.value
+
+    durationSeconds: leg.duration.value,
   };
 }
+
