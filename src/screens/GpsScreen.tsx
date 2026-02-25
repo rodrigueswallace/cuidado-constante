@@ -4,12 +4,12 @@ import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
 import { useGpsTracking } from '@/hooks/useGpsTracking';
+import { useAppStore } from '@/store/appStore';
 import { haversineMeters } from '@/utils/geo';
 
-const MOCK_COLLAR_ID = '00000000-0000-0000-0000-000000000001';
-
 export function GpsScreen() {
-  const { events, route, userLocation, recalcRoute, refresh } = useGpsTracking(MOCK_COLLAR_ID, 120);
+  const { activeCollarId, routeThrottleSeconds } = useAppStore();
+  const { events, route, userLocation, recalcRoute, refresh } = useGpsTracking(activeCollarId, routeThrottleSeconds);
   const pet = events[0];
 
 
@@ -28,6 +28,11 @@ export function GpsScreen() {
 
   return (
     <View style={styles.container}>
+      {!activeCollarId ? (
+        <View style={styles.emptyState}>
+          <Text>Nenhuma coleira cadastrada</Text>
+        </View>
+      ) : (
       <MapView style={styles.map}>
         {pet && <Marker coordinate={{ latitude: pet.lat, longitude: pet.lng }} title="Coleira" />}
         {userLocation && (
@@ -42,14 +47,15 @@ export function GpsScreen() {
         )}
         {route?.polyline && <Polyline coordinates={route.polyline} strokeColor="#E91E63" strokeWidth={4} />}
       </MapView>
+      )}
 
       <View style={styles.footer}>
 
         <Button title="Adicionar coleira/dispositivo" onPress={handleAddCollar} />
 
         <Text>Distância pet-usuário: {distance ? `${Math.round(distance)}m` : '--'}</Text>
-        <Button title="Atualizar posição" onPress={refresh} />
-        <Button title="Recalcular rota" onPress={() => recalcRoute(true)} />
+        <Button title="Atualizar posição" onPress={refresh} disabled={!activeCollarId} />
+        <Button title="Recalcular rota" onPress={() => recalcRoute(true)} disabled={!activeCollarId} />
       </View>
     </View>
   );
@@ -58,5 +64,6 @@ export function GpsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
+  emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   footer: { padding: 12, gap: 8, backgroundColor: '#fff' }
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -7,11 +7,22 @@ import { AuthScreen } from '@/screens/AuthScreen';
 import { BleScreen } from '@/screens/BleScreen';
 import { ConfigScreen } from '@/screens/ConfigScreen';
 import { GpsScreen } from '@/screens/GpsScreen';
+import { useAppStore } from '@/store/appStore';
 
 const Tab = createBottomTabNavigator();
 
 export function RootNavigator() {
   const { loading, session } = useAuth();
+  const { hydrate, refreshActiveCollar } = useAppStore();
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    if (!session) return;
+    refreshActiveCollar();
+  }, [refreshActiveCollar, session]);
 
   if (loading) {
     return (
