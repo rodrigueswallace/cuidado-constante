@@ -1,22 +1,32 @@
-import React from 'react';
-import { Alert, Button, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
 import { useGpsTracking } from '@/hooks/useGpsTracking';
+import { useAppStore } from '@/store/appStore';
 import { haversineMeters } from '@/utils/geo';
 
-const MOCK_COLLAR_ID = '00000000-0000-0000-0000-000000000001';
-
 export function GpsScreen() {
-  const { events, route, userLocation, recalcRoute, refresh } = useGpsTracking(MOCK_COLLAR_ID, 120);
+  const navigation = useNavigation<any>();
+  const { activeCollarId, routeThrottleSeconds, hydrate } = useAppStore();
+  const { events, route, userLocation, recalcRoute, refresh } = useGpsTracking(activeCollarId, routeThrottleSeconds);
   const pet = events[0];
 
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   const handleAddCollar = () => {
-    Alert.alert('Adicionar coleira/dispositivo', 'Fluxo de cadastro será implementado na próxima etapa.');
+    navigation.navigate('AddCollar');
   };
-
 
   const distance =
     userLocation && pet
@@ -44,9 +54,7 @@ export function GpsScreen() {
       </MapView>
 
       <View style={styles.footer}>
-
         <Button title="Adicionar coleira/dispositivo" onPress={handleAddCollar} />
-
         <Text>Distância pet-usuário: {distance ? `${Math.round(distance)}m` : '--'}</Text>
         <Button title="Atualizar posição" onPress={refresh} />
         <Button title="Recalcular rota" onPress={() => recalcRoute(true)} />

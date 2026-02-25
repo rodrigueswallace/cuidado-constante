@@ -4,9 +4,11 @@ import { create } from 'zustand';
 import { ingestBleEvent, IngestBlePayload } from '@/services/edgeApi';
 
 interface AppState {
+  activeCollarId: string | null;
   gpsPollSeconds: number;
   routeThrottleSeconds: number;
   pendingBleEvents: IngestBlePayload[];
+  setActiveCollarId: (value: string | null) => Promise<void>;
   setGpsPollSeconds: (value: number) => void;
   setRouteThrottleSeconds: (value: number) => void;
   enqueueBleEvent: (event: IngestBlePayload) => Promise<void>;
@@ -15,11 +17,22 @@ interface AppState {
 }
 
 const BLE_QUEUE_KEY = 'ble_queue_v1';
+const ACTIVE_COLLAR_KEY = 'active_collar_v1';
 
 export const useAppStore = create<AppState>((set, get) => ({
+  activeCollarId: '00000000-0000-0000-0000-000000000001',
   gpsPollSeconds: 30,
   routeThrottleSeconds: 120,
   pendingBleEvents: [],
+  setActiveCollarId: async (value) => {
+    set({ activeCollarId: value });
+    if (value) {
+      await AsyncStorage.setItem(ACTIVE_COLLAR_KEY, value);
+      return;
+    }
+
+    await AsyncStorage.removeItem(ACTIVE_COLLAR_KEY);
+  },
   setGpsPollSeconds: (value) => set({ gpsPollSeconds: value }),
   setRouteThrottleSeconds: (value) => set({ routeThrottleSeconds: value }),
   enqueueBleEvent: async (event) => {
@@ -44,7 +57,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   hydrate: async () => {
     const raw = await AsyncStorage.getItem(BLE_QUEUE_KEY);
+    const activeCollarId = await AsyncStorage.getItem(ACTIVE_COLLAR_KEY);
     const pendingBleEvents: IngestBlePayload[] = raw ? JSON.parse(raw) : [];
-    set({ pendingBleEvents });
+    set({ pendingBleEvents, activeCollarId: activeCollarId ?? get().activeCollarId });
   }
 }));
