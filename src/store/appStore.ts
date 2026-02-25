@@ -7,7 +7,6 @@ interface AppState {
   activeCollarId: string | null;
   gpsPollSeconds: number;
   routeThrottleSeconds: number;
-  activeCollarId: string | null;
   pendingBleEvents: IngestBlePayload[];
   setActiveCollarId: (value: string | null) => Promise<void>;
   setGpsPollSeconds: (value: number) => void;
@@ -19,15 +18,12 @@ interface AppState {
 }
 
 const BLE_QUEUE_KEY = 'ble_queue_v1';
-
 const ACTIVE_COLLAR_KEY = 'active_collar_v1';
 
-
 export const useAppStore = create<AppState>((set, get) => ({
-  activeCollarId: '00000000-0000-0000-0000-000000000001',
+  activeCollarId: null,
   gpsPollSeconds: 30,
   routeThrottleSeconds: 120,
-  activeCollarId: null,
   pendingBleEvents: [],
   setActiveCollarId: async (value) => {
     set({ activeCollarId: value });
@@ -72,7 +68,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     await AsyncStorage.removeItem(ACTIVE_COLLAR_KEY);
   },
   hydrate: async () => {
-
     const [rawQueue, rawActiveCollar] = await Promise.all([
       AsyncStorage.getItem(BLE_QUEUE_KEY),
       AsyncStorage.getItem(ACTIVE_COLLAR_KEY)
@@ -82,6 +77,5 @@ export const useAppStore = create<AppState>((set, get) => ({
     const activeCollarId = rawActiveCollar || null;
 
     set({ pendingBleEvents, activeCollarId });
-
   }
 }));

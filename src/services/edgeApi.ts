@@ -38,8 +38,35 @@ export async function fetchActiveCollarId() {
     .eq('id', userId)
     .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    if (error.message.includes("Could not find the table 'public.profiles'")) {
+      return null;
+    }
+
+    throw error;
+  }
 
   const activeCollar = data?.active_collar;
   return typeof activeCollar === 'string' ? activeCollar : null;
+}
+
+interface RegisterCollarPayload {
+  pet_id: string;
+  serial: string;
+  activation_code: string;
+}
+
+interface RegisterCollarResponse {
+  collar_id: string;
+  serial: string;
+  ble_service_uuid: string;
+}
+
+export async function registerCollar(payload: RegisterCollarPayload) {
+  const { data, error } = await supabase.functions.invoke<RegisterCollarResponse>('register-collar', {
+    body: payload
+  });
+
+  if (error) throw error;
+  return data;
 }
