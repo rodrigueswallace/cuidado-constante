@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Cuidado Constante",
+    "slug": "cuidado-constante",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "cuidado-constante",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "isAndroidForegroundServiceEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "Precisamos da localização em segundo plano para rastrear seu pet."
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.cuidadoconstante.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_CONNECT",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "INTERNET"
+      ],
+      "googleServicesFile": "./google-services.json"
+    },
+    "ios": {
+      "bundleIdentifier": "com.cuidadoconstante.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "Usamos Bluetooth para detectar proximidade da coleira.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Localização em segundo plano para rotas até seu pet.",
+        "NSLocationWhenInUseUsageDescription": "Localização para mostrar distância entre você e seu pet."
+      }
+    }
+  }
+}
