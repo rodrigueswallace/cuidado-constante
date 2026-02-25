@@ -1,3 +1,4 @@
+
 import { DirectionsRoute } from '@/types/domain';
 
 function required(value: string | undefined, key: string) {
@@ -9,6 +10,7 @@ const GOOGLE_MAPS_API_KEY = required(
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
   'EXPO_PUBLIC_GOOGLE_MAPS_API_KEY'
 );
+
 
 const decodePolyline = (encoded: string) => {
   let index = 0;
@@ -47,6 +49,7 @@ const decodePolyline = (encoded: string) => {
   return coordinates;
 };
 
+
 export async function fetchDirections(
   origin: string,
   destination: string
@@ -56,6 +59,7 @@ export async function fetchDirections(
     `?origin=${encodeURIComponent(origin)}` +
     `&destination=${encodeURIComponent(destination)}` +
     `&key=${GOOGLE_MAPS_API_KEY}`;
+
 
   const response = await fetch(url);
   const json = await response.json();
@@ -68,6 +72,8 @@ export async function fetchDirections(
   return {
     polyline: decodePolyline(route.overview_polyline.points),
     distanceMeters: leg.distance.value,
+
     durationSeconds: leg.duration.value,
   };
 }
+
