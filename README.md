@@ -10,6 +10,7 @@ MVP Android-first para rastreamento de pets com GPS + 4G + BLE, app em Expo e ba
   - `supabase/functions/ingest-gps`
   - `supabase/functions/ingest-ble`
   - `supabase/functions/get-latest-gps`
+  - `supabase/functions/register-collar`
 - Shared helpers:
   - `supabase/functions/_shared/cors.ts`
   - `supabase/functions/_shared/supabase.ts`
@@ -48,6 +49,7 @@ supabase secrets set \
 supabase functions deploy ingest-gps
 supabase functions deploy ingest-ble
 supabase functions deploy get-latest-gps
+supabase functions deploy register-collar
 ```
 
 ## Teste rápido das functions
@@ -93,6 +95,39 @@ POST autenticado:
   "collar_id": "uuid"
 }
 ```
+
+
+### register-collar
+
+POST autenticado por Bearer token (JWT obrigatório) para validar `serial` + `activation_code` e vincular a coleira a um pet do usuário logado.
+
+Payload:
+
+```json
+{
+  "pet_id": "uuid",
+  "serial": "COL-1234-ABCD",
+  "activation_code": "654321"
+}
+```
+
+Resposta de sucesso (`200`):
+
+```json
+{
+  "collar_id": "uuid",
+  "serial": "COL-1234-ABCD",
+  "ble_service_uuid": "0000fff0-0000-1000-8000-00805f9b34fb"
+}
+```
+
+Fluxo sugerido de cadastro no app:
+
+1. Usuário escolhe o pet e informa `serial` + `activation_code` da coleira.
+2. App chama `register-collar` com JWT do usuário.
+3. Backend confirma que o pet pertence ao usuário autenticado.
+4. Backend valida `serial` + `activation_code`, vincula a coleira ao pet e retorna `collar_id`, `serial` e `ble_service_uuid`.
+5. App salva essa coleira como ativa localmente para BLE/GPS.
 
 ## App mobile
 
