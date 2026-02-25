@@ -9,8 +9,9 @@ create table if not exists public.pets (
 
 create table if not exists public.collars (
   id uuid primary key default gen_random_uuid(),
-  pet_id uuid not null references public.pets(id) on delete cascade,
+  pet_id uuid references public.pets(id) on delete cascade,
   serial text not null unique,
+  activation_code text not null,
   ble_service_uuid text not null,
   last_seen timestamptz,
   battery numeric(5,2) check (battery is null or (battery >= 0 and battery <= 100)),
@@ -38,6 +39,7 @@ create table if not exists public.ble_events (
 
 create index if not exists idx_pets_owner on public.pets(owner_user_id);
 create index if not exists idx_collars_pet on public.collars(pet_id);
+create index if not exists idx_collars_serial_activation on public.collars(serial, activation_code);
 create index if not exists idx_collars_last_seen on public.collars(last_seen desc);
 create index if not exists idx_gps_events_collar_ts on public.gps_events(collar_id, ts desc);
 create index if not exists idx_ble_events_collar_ts on public.ble_events(collar_id, ts desc);
