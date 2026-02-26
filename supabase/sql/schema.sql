@@ -37,17 +37,25 @@ create table if not exists public.ble_events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  active_collar uuid references public.collars(id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists idx_pets_owner on public.pets(owner_user_id);
 create index if not exists idx_collars_pet on public.collars(pet_id);
 create index if not exists idx_collars_serial_activation on public.collars(serial, activation_code);
 create index if not exists idx_collars_last_seen on public.collars(last_seen desc);
 create index if not exists idx_gps_events_collar_ts on public.gps_events(collar_id, ts desc);
 create index if not exists idx_ble_events_collar_ts on public.ble_events(collar_id, ts desc);
+create index if not exists idx_profiles_active_collar on public.profiles(active_collar);
 
 alter table public.pets enable row level security;
 alter table public.collars enable row level security;
 alter table public.gps_events enable row level security;
 alter table public.ble_events enable row level security;
+alter table public.profiles enable row level security;
 
 create or replace function public.is_owner_of_collar(target_collar_id uuid)
 returns boolean
@@ -67,6 +75,17 @@ $$;
 
 revoke all on function public.is_owner_of_collar(uuid) from public;
 grant execute on function public.is_owner_of_collar(uuid) to authenticated;
+
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'pets' and policyname = 'pets_insert_owner') then
+    create policy pets_insert_owner
+      on public.pets
+      for insert
+      to authenticated
+      with check (owner_user_id = auth.uid());
+  end if;
+end $$;
 
 do $$
 begin
@@ -110,6 +129,52 @@ end $$;
 
 do $$
 begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_select_own') then
+    create policy profiles_select_own
+      on public.profiles
+      for select
+      to authenticated
+      using (id = auth.uid());
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_insert_own') then
+    create policy profiles_insert_own
+      on public.profiles
+      for insert
+      to authenticated
+      with check (
+        id = auth.uid()
+        and (
+          active_collar is null
+          or public.is_owner_of_collar(active_collar)
+        )
+      );
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_update_own') then
+    create policy profiles_update_own
+      on public.profiles
+      for update
+      to authenticated
+      using (id = auth.uid())
+      with check (
+        id = auth.uid()
+        and (
+          active_collar is null
+          or public.is_owner_of_collar(active_collar)
+        )
+      );
+  end if;
+end $$;
+
+do $$
+begin
   if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'ble_events' and policyname = 'ble_events_select_owner') then
     create policy ble_events_select_owner
       on public.ble_events
@@ -120,11 +185,14 @@ begin
 end $$;
 
 grant select on public.pets to authenticated;
+grant insert on public.pets to authenticated;
 grant select on public.collars to authenticated;
 grant select on public.gps_events to authenticated;
 grant select on public.ble_events to authenticated;
+grant select, insert, update on public.profiles to authenticated;
 
-revoke insert, update, delete on public.pets from authenticated;
+revoke update, delete on public.pets from authenticated;
 revoke insert, update, delete on public.collars from authenticated;
 revoke insert, update, delete on public.gps_events from authenticated;
 revoke insert, update, delete on public.ble_events from authenticated;
+revoke delete on public.profiles from authenticated;

@@ -40,7 +40,7 @@ export async function fetchActiveCollarId() {
 
   if (error) {
     if (error.message.includes("Could not find the table 'public.profiles'")) {
-      return null;
+      throw new Error('profiles_table_missing');
     }
 
     throw error;
@@ -48,6 +48,24 @@ export async function fetchActiveCollarId() {
 
   const activeCollar = data?.active_collar;
   return typeof activeCollar === 'string' ? activeCollar : null;
+}
+
+export async function saveActiveCollarId(activeCollarId: string | null) {
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+
+  const userId = userData.user?.id;
+  if (!userId) throw new Error('user_not_authenticated');
+
+  const { error } = await supabase.from('profiles').upsert(
+    {
+      id: userId,
+      active_collar: activeCollarId
+    },
+    { onConflict: 'id' }
+  );
+
+  if (error) throw error;
 }
 
 interface RegisterCollarPayload {

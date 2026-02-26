@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
-import { fetchActiveCollarId, ingestBleEvent, IngestBlePayload } from '@/services/edgeApi';
+import { fetchActiveCollarId, ingestBleEvent, IngestBlePayload, saveActiveCollarId } from '@/services/edgeApi';
 
 interface AppState {
   activeCollarId: string | null;
@@ -26,6 +26,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   routeThrottleSeconds: 120,
   pendingBleEvents: [],
   setActiveCollarId: async (value) => {
+    await saveActiveCollarId(value);
     set({ activeCollarId: value });
     if (value) {
       await AsyncStorage.setItem(ACTIVE_COLLAR_KEY, value);
@@ -57,15 +58,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     await AsyncStorage.setItem(BLE_QUEUE_KEY, JSON.stringify(failed));
   },
   refreshActiveCollar: async () => {
-    const activeCollarId = await fetchActiveCollarId();
-    set({ activeCollarId });
+    try {
+      const activeCollarId = await fetchActiveCollarId();
+      set({ activeCollarId });
 
-    if (activeCollarId) {
-      await AsyncStorage.setItem(ACTIVE_COLLAR_KEY, activeCollarId);
-      return;
+      if (activeCollarId) {
+        await AsyncStorage.setItem(ACTIVE_COLLAR_KEY, activeCollarId);
+        return;
+      }
+
+      await AsyncStorage.removeItem(ACTIVE_COLLAR_KEY);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('profiles_table_missing')) {
+        // Keep local active collar when backend profile persistence is unavailable.
+        return;
+      }
+
+      throw error;
     }
-
-    await AsyncStorage.removeItem(ACTIVE_COLLAR_KEY);
   },
   hydrate: async () => {
     const [rawQueue, rawActiveCollar] = await Promise.all([
