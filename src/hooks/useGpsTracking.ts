@@ -12,16 +12,45 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
   const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [route, setRoute] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const lastRouteAt = useRef(0);
   const lastRouteDistance = useRef(0);
 
+  const getFriendlyGpsError = (unknownError: unknown) => {
+    const message = unknownError instanceof Error ? unknownError.message : String(unknownError);
+
+    if (
+      message.includes('JWT') ||
+      message.includes('Invalid JWT') ||
+      message.includes('auth_obrigatorio') ||
+      message.includes('401')
+    ) {
+      return 'Sessão expirada. Faça login novamente para carregar a localização da coleira.';
+    }
+
+    if (message.includes('Failed to send a request to the Edge Function')) {
+      return 'Não foi possível conectar ao servidor de GPS. Verifique a internet e tente novamente.';
+    }
+
+    return 'Não foi possível carregar a localização da coleira agora.';
+  };
+
   const refresh = useCallback(async () => {
-    if (!collarId) return;
+    if (!collarId) {
+      setEvents([]);
+      setError('Nenhuma coleira ativa vinculada.');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
     try {
       const data = await fetchLatestGps(collarId);
       setEvents(data.events ?? []);
+    } catch (unknownError) {
+      setEvents([]);
+      setError(getFriendlyGpsError(unknownError));
     } finally {
       setLoading(false);
     }
@@ -85,6 +114,7 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
     userLocation,
     route,
     loading,
+    error,
     refresh,
     recalcRoute
   };

@@ -11,20 +11,29 @@ import { haversineMeters } from '@/utils/geo';
 export function GpsScreen() {
 
   const navigation = useNavigation<any>();
-  const { activeCollarId, routeThrottleSeconds, hydrate } = useAppStore();
+  const { activeCollarId, routeThrottleSeconds, hydrate, refreshActiveCollar } = useAppStore();
   const mapRef = useRef<MapView | null>(null);
 
-  const { events, route, userLocation, recalcRoute, refresh } = useGpsTracking(activeCollarId, routeThrottleSeconds);
+  const { events, route, userLocation, recalcRoute, refresh, loading, error } = useGpsTracking(activeCollarId, routeThrottleSeconds);
   const pet = events[0];
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
+  const syncAndRefresh = useCallback(async () => {
+    try {
+      await refreshActiveCollar();
+    } catch {
+      // Keep local active collar if profile sync fails.
+    }
+    await refresh();
+  }, [refresh, refreshActiveCollar]);
+
   useFocusEffect(
     useCallback(() => {
-      refresh();
-    }, [refresh])
+      syncAndRefresh();
+    }, [syncAndRefresh])
   );
 
   const handleAddCollar = () => {
@@ -83,7 +92,9 @@ export function GpsScreen() {
         <Text>Eventos GPS recebidos: {events.length}</Text>
         <Text>Último ponto da coleira: {pet ? `${pet.lat.toFixed(6)}, ${pet.lng.toFixed(6)}` : '--'}</Text>
         <Text>DistÃ¢ncia pet-usuÃ¡rio: {distance ? `${Math.round(distance)}m` : '--'}</Text>
-        <Button title="Atualizar posiÃ§Ã£o" onPress={refresh} disabled={!activeCollarId} />
+        {loading && <Text>Atualizando localização...</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+        <Button title="Atualizar posiÃ§Ã£o" onPress={syncAndRefresh} disabled={!activeCollarId} />
         <Button title="Recalcular rota" onPress={() => recalcRoute(true)} disabled={!activeCollarId} />
       </View>
     </View>
@@ -94,6 +105,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  footer: { padding: 12, gap: 8, backgroundColor: '#fff' }
+  footer: { padding: 12, gap: 8, backgroundColor: '#fff' },
+  errorText: { color: '#B00020' }
 });
 
