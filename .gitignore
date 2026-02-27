@@ -28,3 +28,7 @@ logs/
 .cache/
 tmp/
 temp/
+
+
+img-log/*
+!img-log/.gitkeep

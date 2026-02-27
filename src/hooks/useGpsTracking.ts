@@ -13,6 +13,10 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
   const [route, setRoute] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastRequestedCollarId, setLastRequestedCollarId] = useState<string | null>(null);
+  const [lastFetchAt, setLastFetchAt] = useState<string | null>(null);
+  const [lastResultCount, setLastResultCount] = useState<number | null>(null);
+  const [lastRawError, setLastRawError] = useState<string | null>(null);
 
   const lastRouteAt = useRef(0);
   const lastRouteDistance = useRef(0);
@@ -40,17 +44,28 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
     if (!collarId) {
       setEvents([]);
       setError('Nenhuma coleira ativa vinculada.');
+      setLastRequestedCollarId(null);
+      setLastFetchAt(new Date().toISOString());
+      setLastResultCount(0);
+      setLastRawError('collar_id ausente no app');
       return;
     }
 
     setLoading(true);
     setError(null);
+    setLastRawError(null);
+    setLastRequestedCollarId(collarId);
+    setLastFetchAt(new Date().toISOString());
     try {
       const data = await fetchLatestGps(collarId);
-      setEvents(data.events ?? []);
+      const nextEvents = data?.events ?? [];
+      setEvents(nextEvents);
+      setLastResultCount(nextEvents.length);
     } catch (unknownError) {
       setEvents([]);
       setError(getFriendlyGpsError(unknownError));
+      setLastResultCount(0);
+      setLastRawError(unknownError instanceof Error ? unknownError.message : String(unknownError));
     } finally {
       setLoading(false);
     }
@@ -115,6 +130,10 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
     route,
     loading,
     error,
+    lastRequestedCollarId,
+    lastFetchAt,
+    lastResultCount,
+    lastRawError,
     refresh,
     recalcRoute
   };

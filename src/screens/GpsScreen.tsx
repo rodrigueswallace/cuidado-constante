@@ -14,7 +14,8 @@ export function GpsScreen() {
   const { activeCollarId, routeThrottleSeconds, hydrate, refreshActiveCollar } = useAppStore();
   const mapRef = useRef<MapView | null>(null);
 
-  const { events, route, userLocation, recalcRoute, refresh, loading, error } = useGpsTracking(activeCollarId, routeThrottleSeconds);
+  const { events, route, userLocation, recalcRoute, refresh, loading, error, lastRequestedCollarId, lastFetchAt, lastResultCount, lastRawError } =
+    useGpsTracking(activeCollarId, routeThrottleSeconds);
   const pet = events[0];
 
   useEffect(() => {
@@ -94,6 +95,10 @@ export function GpsScreen() {
         <Text>DistÃ¢ncia pet-usuÃ¡rio: {distance ? `${Math.round(distance)}m` : '--'}</Text>
         {loading && <Text>Atualizando localização...</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
+        <Text style={styles.debugText}>Debug collar consultada: {lastRequestedCollarId ?? '--'}</Text>
+        <Text style={styles.debugText}>Debug último fetch: {lastFetchAt ?? '--'}</Text>
+        <Text style={styles.debugText}>Debug qtd retornada: {lastResultCount ?? '--'}</Text>
+        {lastRawError ? <Text style={styles.debugText}>Debug erro bruto: {lastRawError}</Text> : null}
         <Button title="Atualizar posiÃ§Ã£o" onPress={syncAndRefresh} disabled={!activeCollarId} />
         <Button title="Recalcular rota" onPress={() => recalcRoute(true)} disabled={!activeCollarId} />
       </View>
@@ -106,6 +111,7 @@ const styles = StyleSheet.create({
   map: { flex: 1 },
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   footer: { padding: 12, gap: 8, backgroundColor: '#fff' },
-  errorText: { color: '#B00020' }
+  errorText: { color: '#B00020' },
+  debugText: { color: '#444', fontSize: 12 }
 });
 
