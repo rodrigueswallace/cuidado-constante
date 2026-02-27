@@ -3,7 +3,7 @@ import { validateSerial, validateCode } from './validation.js';
 
 const tabScan = document.getElementById('tab-scan');
 const tabType = document.getElementById('tab-type');
-const panelScan = document.getElementById('panel-scan');
+const panelScan = document.getElementById('panel-scan'); 
 const panelType = document.getElementById('panel-type');
 const feedback = document.getElementById('feedback');
 const form = document.getElementById('serial-form');

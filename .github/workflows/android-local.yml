@@ -29,15 +29,11 @@ jobs:
 
       - run: npm i -g eas-cli@latest
 
-      - name: Check env presence
+      - name: Check URL shape (safe)
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
-          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
-          EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY }}
-          EXPO_PUBLIC_COLLAR_SHARED_SECRET: ${{ secrets.EXPO_PUBLIC_COLLAR_SHARED_SECRET }}
         run: |
-          node -e "console.log('URL?', !!process.env.EXPO_PUBLIC_SUPABASE_URL); console.log('ANON?', !!process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY); console.log('MAPS?', !!process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY); console.log('COLLAR?', !!process.env.EXPO_PUBLIC_COLLAR_SHARED_SECRET)"
-          node -e "console.log('URL prefix:', (process.env.EXPO_PUBLIC_SUPABASE_URL||'').slice(0,8))"
+          node -e "const u=process.env.EXPO_PUBLIC_SUPABASE_URL||''; console.log('len', u.length); console.log('lastCharCode', u.charCodeAt(u.length-1)); console.log('hasWhitespaceEnds', u !== u.trim()); console.log('hasQuote', u.includes('\"') || u.includes(\"'\")); console.log('hasNewline', /\\r|\\n/.test(u));"
 
       - name: Build APK locally
         env:
