@@ -13,7 +13,7 @@ interface AppState {
   setRouteThrottleSeconds: (value: number) => void;
   enqueueBleEvent: (event: IngestBlePayload) => Promise<void>;
   flushBleQueue: () => Promise<void>;
-  refreshActiveCollar: () => Promise<void>;
+  refreshActiveCollar: () => Promise<string | null>;
   hydrate: () => Promise<void>;
 }
 
@@ -64,14 +64,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       if (activeCollarId) {
         await AsyncStorage.setItem(ACTIVE_COLLAR_KEY, activeCollarId);
-        return;
+        return activeCollarId;
       }
 
       await AsyncStorage.removeItem(ACTIVE_COLLAR_KEY);
+      return null;
     } catch (error) {
       if (error instanceof Error && error.message.includes('profiles_table_missing')) {
         // Keep local active collar when backend profile persistence is unavailable.
-        return;
+        return get().activeCollarId;
       }
 
       throw error;

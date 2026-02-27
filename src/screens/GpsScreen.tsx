@@ -5,6 +5,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
 import { useGpsTracking } from '@/hooks/useGpsTracking';
+import { supabase } from '@/services/supabase';
 import { useAppStore } from '@/store/appStore';
 import { haversineMeters } from '@/utils/geo';
 
@@ -13,6 +14,7 @@ export function GpsScreen() {
   const navigation = useNavigation<any>();
   const { activeCollarId, routeThrottleSeconds, hydrate, refreshActiveCollar } = useAppStore();
   const mapRef = useRef<MapView | null>(null);
+  const [debugUserId, setDebugUserId] = React.useState<string | null>(null);
 
   const { events, route, userLocation, recalcRoute, refresh, loading, error, lastRequestedCollarId, lastFetchAt, lastResultCount, lastRawError } =
     useGpsTracking(activeCollarId, routeThrottleSeconds);
@@ -22,14 +24,21 @@ export function GpsScreen() {
     hydrate();
   }, [hydrate]);
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setDebugUserId(data.user?.id ?? null);
+    });
+  }, []);
+
   const syncAndRefresh = useCallback(async () => {
+    let syncedCollarId: string | null = activeCollarId;
     try {
-      await refreshActiveCollar();
+      syncedCollarId = await refreshActiveCollar();
     } catch {
       // Keep local active collar if profile sync fails.
     }
-    await refresh();
-  }, [refresh, refreshActiveCollar]);
+    await refresh(syncedCollarId ?? null);
+  }, [activeCollarId, refresh, refreshActiveCollar]);
 
   useFocusEffect(
     useCallback(() => {
@@ -96,6 +105,7 @@ export function GpsScreen() {
         {loading && <Text>Atualizando localização...</Text>}
         {error && <Text style={styles.errorText}>{error}</Text>}
         <Text style={styles.debugText}>Debug collar consultada: {lastRequestedCollarId ?? '--'}</Text>
+        <Text style={styles.debugText}>Debug user logado: {debugUserId ?? '--'}</Text>
         <Text style={styles.debugText}>Debug último fetch: {lastFetchAt ?? '--'}</Text>
         <Text style={styles.debugText}>Debug qtd retornada: {lastResultCount ?? '--'}</Text>
         {lastRawError ? <Text style={styles.debugText}>Debug erro bruto: {lastRawError}</Text> : null}

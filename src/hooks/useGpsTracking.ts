@@ -40,8 +40,10 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
     return 'Não foi possível carregar a localização da coleira agora.';
   };
 
-  const refresh = useCallback(async () => {
-    if (!collarId) {
+  const refresh = useCallback(async (collarIdOverride?: string | null) => {
+    const targetCollarId = collarIdOverride ?? collarId;
+
+    if (!targetCollarId) {
       setEvents([]);
       setError('Nenhuma coleira ativa vinculada.');
       setLastRequestedCollarId(null);
@@ -54,10 +56,10 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
     setLoading(true);
     setError(null);
     setLastRawError(null);
-    setLastRequestedCollarId(collarId);
+    setLastRequestedCollarId(targetCollarId);
     setLastFetchAt(new Date().toISOString());
     try {
-      const data = await fetchLatestGps(collarId);
+      const data = await fetchLatestGps(targetCollarId);
       const nextEvents = data?.events ?? [];
       setEvents(nextEvents);
       setLastResultCount(nextEvents.length);
