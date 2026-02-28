@@ -27,7 +27,9 @@ function getFriendlyRegisterError(errorMessage: string) {
   if (
     errorMessage.includes('token_invalido_ou_expirado') ||
     errorMessage.includes('usuario_invalido') ||
-    errorMessage.includes('auth_obrigatorio')
+    errorMessage.includes('auth_obrigatorio') ||
+    errorMessage.includes('nao_autorizado') ||
+    errorMessage.includes('token_de_outro_projeto')
   ) {
     return 'Sessão expirada. Faça login novamente e tente ativar a coleira.';
   }
@@ -183,4 +185,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   }
 });
+
 

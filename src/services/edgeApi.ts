@@ -7,6 +7,26 @@ export interface IngestBlePayload {
   ts: string;
 }
 
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+function getProjectRefFromUrl(url: string) {
+  try {
+    return new URL(url).hostname.split('.')[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function callEdgeFunction<T>(fn: string, payload: unknown): Promise<T> {
   const getValidAccessToken = async () => {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -22,6 +42,24 @@ async function callEdgeFunction<T>(fn: string, payload: unknown): Promise<T> {
 
     const accessToken = session?.access_token;
     if (!accessToken) throw new Error('token_invalido_ou_expirado');
+
+    const payloadClaims = decodeJwtPayload(accessToken);
+    const tokenRef = typeof payloadClaims?.ref === 'string' ? payloadClaims.ref : null;
+    const tokenIss = typeof payloadClaims?.iss === 'string' ? payloadClaims.iss : null;
+    const expectedRef = getProjectRefFromUrl(supabaseUrl);
+
+    console.log('EDGE JWT =>', {
+      fn,
+      tokenRef,
+      tokenIss,
+      expectedRef
+    });
+
+    if (expectedRef && tokenRef && tokenRef !== expectedRef) {
+      await supabase.auth.signOut();
+      throw new Error('token_de_outro_projeto');
+    }
+
     return accessToken;
   };
 
@@ -61,7 +99,10 @@ async function callEdgeFunction<T>(fn: string, payload: unknown): Promise<T> {
   if (!response.ok) {
     console.log('EDGE ERROR =>', { status: response.status, body: parsed });
 
-    if (response.status === 401) throw new Error('nao_autorizado');
+    if (response.status === 401) {
+      await supabase.auth.signOut();
+      throw new Error('nao_autorizado');
+    }
 
     const message = parsed?.error || parsed?.message || `http_${response.status}`;
     throw new Error(String(message));
