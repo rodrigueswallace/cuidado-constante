@@ -16,32 +16,47 @@ export function useBleTracking(serviceUuid: string) {
 
   const scan = () => {
     setDevices([]);
-    manager.startDeviceScan([serviceUuid], null, (_error, device) => {
+    console.log('BLE SCAN => start', { serviceUuid });
+    manager.startDeviceScan([serviceUuid], null, (scanError, device) => {
+      if (scanError) {
+        console.log('BLE SCAN ERROR =>', { message: scanError.message, code: scanError.errorCode });
+        return;
+      }
       if (!device?.id) return;
       setDevices((prev) => (prev.some((d) => d.id === device.id) ? prev : [...prev, device]));
     });
-    setTimeout(() => manager.stopDeviceScan(), 8000);
+    setTimeout(() => {
+      manager.stopDeviceScan();
+      console.log('BLE SCAN => stop');
+    }, 8000);
   };
 
   const connect = async (device: Device, collarId: string) => {
-    const conn = await manager.connectToDevice(device.id);
-    await conn.discoverAllServicesAndCharacteristics();
-    connected.current = conn;
+    try {
+      console.log('BLE CONNECT =>', { deviceId: device.id, collarId });
+      const conn = await manager.connectToDevice(device.id);
+      await conn.discoverAllServicesAndCharacteristics();
+      connected.current = conn;
 
-    const newRssi = await conn.readRSSI();
-    setRssi(newRssi.rssi ?? null);
+      const newRssi = await conn.readRSSI();
+      setRssi(newRssi.rssi ?? null);
 
-    const batteryValue = 75;
-    setBattery(batteryValue);
+      const batteryValue = 75;
+      setBattery(batteryValue);
 
-    await enqueueBleEvent({
-      collar_id: collarId,
-      rssi: newRssi.rssi ?? -100,
-      battery: batteryValue,
-      ts: new Date().toISOString()
-    });
+      await enqueueBleEvent({
+        collar_id: collarId,
+        rssi: newRssi.rssi ?? -100,
+        battery: batteryValue,
+        ts: new Date().toISOString()
+      });
 
-    await flushBleQueue();
+      await flushBleQueue();
+      console.log('BLE CONNECT OK =>', { deviceId: device.id, rssi: newRssi.rssi ?? null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log('BLE CONNECT ERROR =>', { deviceId: device.id, error: message });
+    }
   };
 
   return {

@@ -143,3 +143,19 @@ Para BLE/background em Android físico:
 npx expo prebuild
 npm run android
 ```
+
+## Status atual do prototipo
+
+Configuracao de JWT usada no ambiente que funcionou:
+- `ingest-gps`: `verify_jwt = false` (entrada do dispositivo por assinatura HMAC)
+- `get-latest-gps`: `verify_jwt = false` (JWT validado dentro da function)
+- `register-collar`: `verify_jwt = false` (JWT validado dentro da function)
+- `ingest-ble`: `verify_jwt = true`
+
+## Teste de 1 ponto GPS
+
+1. Defina `collar_id`, `lat`, `lng` e `ts`.
+2. Monte `canonical = "collar_id|lat|lng|ts"`.
+3. Gere `signature` em HMAC SHA-256 hex com `COLLAR_SHARED_SECRET`.
+4. Envie `POST /functions/v1/ingest-gps`.
+5. No app, abra `GPS` e toque em `Atualizar posicao`.

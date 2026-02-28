@@ -56,7 +56,6 @@ async function callEdgeFunction<T>(fn: string, payload: unknown): Promise<T> {
     });
 
     if (expectedRef && tokenRef && tokenRef !== expectedRef) {
-      await supabase.auth.signOut();
       throw new Error('token_de_outro_projeto');
     }
 
@@ -99,10 +98,7 @@ async function callEdgeFunction<T>(fn: string, payload: unknown): Promise<T> {
   if (!response.ok) {
     console.log('EDGE ERROR =>', { status: response.status, body: parsed });
 
-    if (response.status === 401) {
-      await supabase.auth.signOut();
-      throw new Error('nao_autorizado');
-    }
+    if (response.status === 401) throw new Error('nao_autorizado');
 
     const message = parsed?.error || parsed?.message || `http_${response.status}`;
     throw new Error(String(message));

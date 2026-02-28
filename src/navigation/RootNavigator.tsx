@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -10,16 +10,42 @@ import { BleScreen } from '@/screens/BleScreen';
 import { ConfigScreen } from '@/screens/ConfigScreen';
 import { GpsScreen } from '@/screens/GpsScreen';
 import { useAppStore } from '@/store/appStore';
+import { colors } from '@/theme/tokens';
 
 const Tab = createBottomTabNavigator();
 const Stack = createSimpleStackNavigator();
 
 function MainTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="GPS" component={GpsScreen} />
-      <Tab.Screen name="BLE" component={BleScreen} />
-      <Tab.Screen name="Config" component={ConfigScreen} />
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: {
+          borderTopColor: '#D6DFEA',
+          height: 62,
+          paddingTop: 6,
+          paddingBottom: 8,
+          backgroundColor: '#FFFFFF'
+        }
+      }}
+    >
+      <Tab.Screen
+        name="GPS"
+        component={GpsScreen}
+        options={{ tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>G</Text> }}
+      />
+      <Tab.Screen
+        name="BLE"
+        component={BleScreen}
+        options={{ tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>B</Text> }}
+      />
+      <Tab.Screen
+        name="Config"
+        component={ConfigScreen}
+        options={{ tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>C</Text> }}
+      />
     </Tab.Navigator>
   );
 }
@@ -54,3 +80,5 @@ export function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
+
