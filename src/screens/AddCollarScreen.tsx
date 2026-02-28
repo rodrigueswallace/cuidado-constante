@@ -24,6 +24,14 @@ function getFriendlyRegisterError(errorMessage: string) {
     return 'Pet inválido para este usuário. Atualize o app e tente novamente.';
   }
 
+  if (
+    errorMessage.includes('token_invalido_ou_expirado') ||
+    errorMessage.includes('usuario_invalido') ||
+    errorMessage.includes('auth_obrigatorio')
+  ) {
+    return 'Sess�o expirada. Fa�a login novamente e tente ativar a coleira.';
+  }
+
   if (errorMessage.includes('Failed to send a request to the Edge Function')) {
     return 'Não foi possível conectar ao servidor de cadastro da coleira.';
   }
@@ -175,3 +183,4 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   }
 });
+

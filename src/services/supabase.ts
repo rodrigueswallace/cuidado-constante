@@ -13,12 +13,12 @@ function required(value: string | undefined, key: string) {
   return v;
 }
 
-const supabaseUrl = required(
+export const supabaseUrl = required(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
   "EXPO_PUBLIC_SUPABASE_URL"
 );
 
-const supabaseAnonKey = required(
+export const supabaseAnonKey = required(
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
   "EXPO_PUBLIC_SUPABASE_ANON_KEY"
 );
