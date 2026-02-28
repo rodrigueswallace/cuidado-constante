@@ -1,25 +1,112 @@
-import React, { useEffect } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Location from 'expo-location';
 
 import { AppButton } from '@/components/ui/AppButton';
 import { AppCard } from '@/components/ui/AppCard';
+import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { authService } from '@/services/auth';
 import { brandConfig } from '@/services/branding';
+import { supabase } from '@/services/supabase';
 import { useAppStore } from '@/store/appStore';
 import { colors, spacing } from '@/theme/tokens';
 
 export function ConfigScreen() {
   const { gpsPollSeconds, routeThrottleSeconds, setGpsPollSeconds, setRouteThrottleSeconds, hydrate, pendingBleEvents, flushBleQueue } = useAppStore();
+  const [email, setEmail] = useState('');
+  const [profileName, setProfileName] = useState('');
+  const [petId, setPetId] = useState<string | null>(null);
+  const [petName, setPetName] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPet, setSavingPet] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
+  useEffect(() => {
+    const loadConfigData = async () => {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      setEmail(user?.email ?? '');
+      setProfileName((user?.user_metadata?.full_name as string) ?? '');
+
+      if (!user) return;
+      const { data: pets } = await supabase
+        .from('pets')
+        .select('id, name')
+        .eq('owner_user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1);
+
+      if (pets && pets.length > 0) {
+        setPetId(pets[0].id);
+        setPetName(pets[0].name);
+      }
+    };
+
+    loadConfigData();
+  }, []);
+
   const checkPerms = async () => {
     const loc = await Location.getForegroundPermissionsAsync();
     Alert.alert('Permissao de localizacao', loc.status);
+  };
+
+  const saveProfile = async () => {
+    if (savingProfile) return;
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: profileName.trim() }
+      });
+      if (error) throw error;
+      Alert.alert('Perfil', 'Nome atualizado com sucesso.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      Alert.alert('Perfil', message);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const savePet = async () => {
+    if (!petId || savingPet) return;
+    setSavingPet(true);
+    try {
+      const { error } = await supabase.from('pets').update({ name: petName.trim() }).eq('id', petId);
+      if (error) throw error;
+      Alert.alert('Pet', 'Nome do pet atualizado.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      Alert.alert('Pet', message);
+    } finally {
+      setSavingPet(false);
+    }
+  };
+
+  const changePassword = async () => {
+    if (newPassword.trim().length < 6 || savingPassword) {
+      Alert.alert('Senha', 'Use pelo menos 6 caracteres.');
+      return;
+    }
+    setSavingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword.trim() });
+      if (error) throw error;
+      setNewPassword('');
+      Alert.alert('Senha', 'Senha atualizada com sucesso.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      Alert.alert('Senha', message);
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
   const retryBleQueue = async () => {
@@ -37,12 +124,34 @@ export function ConfigScreen() {
 
   return (
     <AppScreen>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Configuracoes</Text>
 
         <AppCard>
           <Text style={styles.sectionTitle}>Conta</Text>
-          <Text style={styles.muted}>Perfil e troca de senha entram na proxima etapa.</Text>
+          <Text style={styles.value}>Email: {email || '--'}</Text>
+          <AppInput label="Nome de exibicao" value={profileName} onChangeText={setProfileName} />
+          <View style={styles.blockTop}>
+            <AppButton title={savingProfile ? 'Salvando...' : 'Salvar perfil'} onPress={saveProfile} disabled={savingProfile} variant="secondary" />
+          </View>
+          <AppInput label="Nova senha" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
+          <View style={styles.blockTop}>
+            <AppButton title={savingPassword ? 'Atualizando...' : 'Trocar senha'} onPress={changePassword} disabled={savingPassword} />
+          </View>
+        </AppCard>
+
+        <AppCard>
+          <Text style={styles.sectionTitle}>Pet</Text>
+          {petId ? (
+            <>
+              <AppInput label="Nome do pet" value={petName} onChangeText={setPetName} />
+              <View style={styles.blockTop}>
+                <AppButton title={savingPet ? 'Salvando...' : 'Salvar pet'} onPress={savePet} disabled={savingPet} variant="secondary" />
+              </View>
+            </>
+          ) : (
+            <Text style={styles.muted}>Nenhum pet encontrado. Cadastre uma coleira para criar o primeiro pet.</Text>
+          )}
         </AppCard>
 
         <AppCard>
@@ -78,16 +187,17 @@ export function ConfigScreen() {
         </AppCard>
 
         <AppButton title="Sair da conta" onPress={() => authService.signOut()} />
-      </View>
+      </ScrollView>
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, gap: spacing.sm },
+  container: { gap: spacing.sm, paddingBottom: spacing.lg },
   title: { color: colors.text, fontSize: 22, fontWeight: '800' },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', marginBottom: spacing.xs },
   muted: { color: colors.textMuted },
   value: { color: colors.textMuted, marginBottom: spacing.xs },
-  row: { flexDirection: 'row', gap: spacing.sm }
+  row: { flexDirection: 'row', gap: spacing.sm },
+  blockTop: { marginTop: spacing.xs }
 });

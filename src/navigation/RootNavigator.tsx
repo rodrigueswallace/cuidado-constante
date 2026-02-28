@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useAuth } from '@/hooks/useAuth';
 import { createSimpleStackNavigator } from '@/navigation/SimpleStackNavigator';
@@ -40,7 +41,7 @@ function MainTabs() {
         component={GpsScreen}
         options={{
           tabBarLabel: 'GPS',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>G</Text>
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="map-marker-path" color={color} size={size} />
         }}
       />
       <Tab.Screen
@@ -48,7 +49,7 @@ function MainTabs() {
         component={BleScreen}
         options={{
           tabBarLabel: 'BLE',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>B</Text>
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bluetooth-connect" color={color} size={size} />
         }}
       />
       <Tab.Screen
@@ -56,7 +57,7 @@ function MainTabs() {
         component={ConfigScreen}
         options={{
           tabBarLabel: 'Config',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>C</Text>
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="cog-outline" color={color} size={size} />
         }}
       />
     </Tab.Navigator>

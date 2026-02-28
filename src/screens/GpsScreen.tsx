@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MapView, { Marker, Polyline } from 'react-native-maps';
 
@@ -13,6 +14,7 @@ import { haversineMeters } from '@/utils/geo';
 
 export function GpsScreen() {
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const { activeCollarId, routeThrottleSeconds, hydrate, refreshActiveCollar } = useAppStore();
   const mapRef = useRef<MapView | null>(null);
 
@@ -68,6 +70,7 @@ export function GpsScreen() {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       {!activeCollarId ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Nenhuma coleira cadastrada</Text>
@@ -76,7 +79,7 @@ export function GpsScreen() {
           </View>
         </View>
       ) : (
-        <MapView ref={mapRef} style={styles.map}>
+        <MapView ref={mapRef} style={[styles.map, { marginTop: -insets.top }]}>
           {pet && <Marker coordinate={{ latitude: pet.lat, longitude: pet.lng }} title="Coleira" />}
           {userLocation && <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }} title="Voce" />}
           {events.length > 1 && (
@@ -90,7 +93,7 @@ export function GpsScreen() {
         </MapView>
       )}
 
-      <View style={styles.footerWrap}>
+      <View style={[styles.footerWrap, { bottom: spacing.md + insets.bottom }]}>
         <AppCard>
           <View style={styles.footer}>
             <AppButton title="Adicionar coleira" onPress={handleAddCollar} variant="secondary" />
@@ -118,8 +121,7 @@ const styles = StyleSheet.create({
   footerWrap: {
     position: 'absolute',
     left: spacing.md,
-    right: spacing.md,
-    bottom: spacing.md
+    right: spacing.md
   },
   footer: { gap: spacing.xs },
   item: { color: colors.text },
