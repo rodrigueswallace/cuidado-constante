@@ -8,59 +8,62 @@ export interface IngestBlePayload {
 }
 
 async function callEdgeFunction<T>(fn: string, payload: unknown): Promise<T> {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  const getValidAccessToken = async () => {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw new Error('erro_ao_obter_sessao');
 
-  if (sessionError) {
-    throw new Error('erro_ao_obter_sessao');
-  }
+    let session = sessionData.session;
+    const nearExpiry = !!session?.expires_at && session.expires_at * 1000 <= Date.now() + 60_000;
+    if (!session || nearExpiry) {
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) throw new Error('token_invalido_ou_expirado');
+      session = refreshData.session;
+    }
 
-  const accessToken = sessionData.session?.access_token;
+    const accessToken = session?.access_token;
+    if (!accessToken) throw new Error('token_invalido_ou_expirado');
+    return accessToken;
+  };
 
-  if (!accessToken) {
-    throw new Error('token_invalido_ou_expirado');
-  }
+  const doRequest = async (accessToken: string) => {
+    console.log('EDGE CALL =>', { fn, hasToken: !!accessToken, tokenLen: accessToken.length });
+    const response = await fetch(`${supabaseUrl}/functions/v1/${fn}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(payload)
+    });
 
-  console.log('EDGE CALL =>', {
-    fn,
-    hasToken: !!accessToken,
-    tokenLen: accessToken.length
-  });
+    const rawText = await response.text();
+    let parsed: any = null;
+    try {
+      parsed = rawText ? JSON.parse(rawText) : null;
+    } catch {
+      parsed = { raw: rawText };
+    }
 
-  const response = await fetch(`${supabaseUrl}/functions/v1/${fn}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: supabaseAnonKey,
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(payload)
-  });
+    return { response, parsed };
+  };
 
-  const rawText = await response.text();
+  let token = await getValidAccessToken();
+  let { response, parsed } = await doRequest(token);
 
-  let parsed: any = null;
-
-  try {
-    parsed = rawText ? JSON.parse(rawText) : null;
-  } catch {
-    parsed = { raw: rawText };
+  if (response.status === 401) {
+    const { data: refreshData } = await supabase.auth.refreshSession();
+    const refreshedToken = refreshData.session?.access_token;
+    if (!refreshedToken) throw new Error('token_invalido_ou_expirado');
+    ({ response, parsed } = await doRequest(refreshedToken));
   }
 
   if (!response.ok) {
-    console.log('EDGE ERROR =>', {
-      status: response.status,
-      body: parsed
-    });
+    console.log('EDGE ERROR =>', { status: response.status, body: parsed });
 
-    if (response.status === 401) {
-      throw new Error('nao_autorizado');
-    }
+    if (response.status === 401) throw new Error('nao_autorizado');
 
-    const message =
-      parsed?.error ||
-      parsed?.message ||
-      `http_${response.status}`;
-
+    const message = parsed?.error || parsed?.message || `http_${response.status}`;
     throw new Error(String(message));
   }
 
