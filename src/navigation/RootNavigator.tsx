@@ -22,6 +22,10 @@ function MainTabs() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          marginBottom: 2
+        },
         tabBarStyle: {
           borderTopColor: '#D6DFEA',
           height: 62,
@@ -34,17 +38,26 @@ function MainTabs() {
       <Tab.Screen
         name="GPS"
         component={GpsScreen}
-        options={{ tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>G</Text> }}
+        options={{
+          tabBarLabel: 'GPS',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>G</Text>
+        }}
       />
       <Tab.Screen
         name="BLE"
         component={BleScreen}
-        options={{ tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>B</Text> }}
+        options={{
+          tabBarLabel: 'BLE',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>B</Text>
+        }}
       />
       <Tab.Screen
         name="Config"
         component={ConfigScreen}
-        options={{ tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>C</Text> }}
+        options={{
+          tabBarLabel: 'Config',
+          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 13, fontWeight: '700' }}>C</Text>
+        }}
       />
     </Tab.Navigator>
   );

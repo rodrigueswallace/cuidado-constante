@@ -138,7 +138,7 @@ export function AddCollarScreen() {
   return (
     <AppScreen>
       <View style={styles.container}>
-        <Text style={styles.title}>Adicionar coleira/dispositivo</Text>
+        <Text style={styles.title}>Adicionar coleira</Text>
         <AppCard>
           <View style={styles.form}>
             <AppInput value={petName} onChangeText={setPetName} label="Nome do pet" editable={!submitting && !loadingPets} />

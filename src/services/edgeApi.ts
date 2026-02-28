@@ -1,4 +1,5 @@
 import { supabase, supabaseAnonKey, supabaseUrl } from '@/services/supabase';
+import { GpsEvent } from '@/types/domain';
 
 export interface IngestBlePayload {
   collar_id: string;
@@ -120,7 +121,7 @@ export async function ingestBleEvent(payload: IngestBlePayload) {
 ================================= */
 
 export async function fetchLatestGps(collarId: string) {
-  return callEdgeFunction<{ events: unknown[] }>(
+  return callEdgeFunction<{ events: GpsEvent[] }>(
     'get-latest-gps',
     { collar_id: collarId }
   );

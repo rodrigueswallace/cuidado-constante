@@ -12,7 +12,12 @@ const BLE_SERVICE_UUID = process.env.EXPO_PUBLIC_BLE_SERVICE_UUID ?? '';
 
 export function BleScreen() {
   const { activeCollarId } = useAppStore();
-  const { devices, rssi, battery, estimatedDistance, scan, connect } = useBleTracking(BLE_SERVICE_UUID);
+  const { devices, rssi, battery, estimatedDistance, scan, connect, isScanning, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
+
+  const scanButtonLabel = isScanning ? 'Escaneando...' : 'Escanear BLE';
+  const scanInfo = !BLE_SERVICE_UUID
+    ? 'UUID de servico nao configurado. Scan geral habilitado.'
+    : `Filtro UUID ativo: ${BLE_SERVICE_UUID}`;
 
   return (
     <AppScreen>
@@ -23,8 +28,10 @@ export function BleScreen() {
           <Text style={styles.label}>Coleira ativa</Text>
           <Text style={styles.value}>{activeCollarId ?? '--'}</Text>
           {!activeCollarId ? <Text style={styles.warn}>Cadastre uma coleira para conectar BLE.</Text> : null}
+          <Text style={styles.muted}>{scanInfo}</Text>
+          {scanStatus ? <Text style={styles.status}>{scanStatus}</Text> : null}
           <View style={styles.actions}>
-            <AppButton title="Escanear BLE" onPress={scan} disabled={!activeCollarId || !BLE_SERVICE_UUID} />
+            <AppButton title={scanButtonLabel} onPress={scan} disabled={!activeCollarId || isScanning} />
           </View>
         </AppCard>
 
@@ -62,6 +69,7 @@ const styles = StyleSheet.create({
   value: { color: colors.text, marginBottom: spacing.xs },
   warn: { color: colors.danger, marginTop: spacing.xs },
   muted: { color: colors.textMuted },
+  status: { color: colors.textMuted, marginTop: spacing.xs },
   actions: { marginTop: spacing.xs },
   row: {
     paddingVertical: spacing.sm,

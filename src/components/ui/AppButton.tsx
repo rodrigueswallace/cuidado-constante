@@ -31,13 +31,21 @@ export function AppButton({ title, onPress, disabled = false, variant = 'primary
 const styles = StyleSheet.create({
   base: {
     borderRadius: radius.sm,
+    minHeight: 44,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   primary: { backgroundColor: colors.primary },
   secondary: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 },
-  label: { fontWeight: '700', letterSpacing: 0.2 },
+  label: {
+    width: '100%',
+    textAlign: 'center',
+    fontWeight: '700',
+    letterSpacing: 0.2,
+    includeFontPadding: false
+  },
   labelPrimary: { color: '#FFFFFF' },
   labelSecondary: { color: colors.text },
   pressed: { opacity: 0.9 },

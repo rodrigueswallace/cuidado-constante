@@ -29,16 +29,16 @@ export function AppLogo() {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   badge: {
-    width: 42,
-    height: 42,
+    width: 48,
+    height: 48,
     borderRadius: radius.lg,
     backgroundColor: colors.primaryDark,
     justifyContent: 'center',
     alignItems: 'center'
   },
   logoImage: {
-    width: 42,
-    height: 42,
+    width: 48,
+    height: 48,
     borderRadius: radius.lg,
     backgroundColor: colors.surface
   },

@@ -72,7 +72,7 @@ export function GpsScreen() {
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Nenhuma coleira cadastrada</Text>
           <View style={styles.emptyAction}>
-            <AppButton title="Adicionar coleira/dispositivo" onPress={handleAddCollar} />
+            <AppButton title="Adicionar coleira" onPress={handleAddCollar} />
           </View>
         </View>
       ) : (
@@ -93,7 +93,7 @@ export function GpsScreen() {
       <View style={styles.footerWrap}>
         <AppCard>
           <View style={styles.footer}>
-            <AppButton title="Adicionar coleira/dispositivo" onPress={handleAddCollar} variant="secondary" />
+            <AppButton title="Adicionar coleira" onPress={handleAddCollar} variant="secondary" />
             <Text style={styles.item}>Coleira ativa: {activeCollarId ?? '--'}</Text>
             <Text style={styles.item}>Eventos GPS recebidos: {events.length}</Text>
             <Text style={styles.item}>Ultimo ponto da coleira: {pet ? `${pet.lat.toFixed(6)}, ${pet.lng.toFixed(6)}` : '--'}</Text>
@@ -115,7 +115,12 @@ const styles = StyleSheet.create({
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.md },
   emptyText: { color: colors.text, fontWeight: '700' },
   emptyAction: { marginTop: spacing.sm, width: '100%' },
-  footerWrap: { paddingHorizontal: spacing.md, paddingBottom: spacing.md, paddingTop: spacing.xs, backgroundColor: colors.bg },
+  footerWrap: {
+    position: 'absolute',
+    left: spacing.md,
+    right: spacing.md,
+    bottom: spacing.md
+  },
   footer: { gap: spacing.xs },
   item: { color: colors.text },
   info: { color: colors.textMuted },

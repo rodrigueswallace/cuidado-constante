@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 
 import { useAppStore } from '@/store/appStore';
@@ -7,26 +8,82 @@ import { estimateProximityFromRssi } from '@/utils/geo';
 export function useBleTracking(serviceUuid: string) {
   const manager = useMemo(() => new BleManager(), []);
   const connected = useRef<Device | null>(null);
+  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [devices, setDevices] = useState<Device[]>([]);
   const [rssi, setRssi] = useState<number | null>(null);
   const [battery, setBattery] = useState<number | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string | null>(null);
 
   const { enqueueBleEvent, flushBleQueue } = useAppStore();
 
-  const scan = () => {
+  useEffect(() => {
+    return () => {
+      if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+      manager.stopDeviceScan();
+      manager.destroy();
+    };
+  }, [manager]);
+
+  const requestBlePermissions = async () => {
+    if (Platform.OS !== 'android') return true;
+
+    if (Platform.Version < 31) {
+      const coarse = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+      const fine = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+      return coarse === PermissionsAndroid.RESULTS.GRANTED || fine === PermissionsAndroid.RESULTS.GRANTED;
+    }
+
+    const result = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+    ]);
+
+    return (
+      result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] === PermissionsAndroid.RESULTS.GRANTED &&
+      result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] === PermissionsAndroid.RESULTS.GRANTED &&
+      result[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] === PermissionsAndroid.RESULTS.GRANTED
+    );
+  };
+
+  const scan = async () => {
+    if (isScanning) return;
+
+    const granted = await requestBlePermissions();
+    if (!granted) {
+      const message = 'Permissoes de Bluetooth/localizacao negadas.';
+      setScanStatus(message);
+      console.log('BLE SCAN ERROR =>', { message });
+      return;
+    }
+
     setDevices([]);
-    console.log('BLE SCAN => start', { serviceUuid });
-    manager.startDeviceScan([serviceUuid], null, (scanError, device) => {
+    setIsScanning(true);
+    setScanStatus('Escaneando dispositivos...');
+
+    const filters = serviceUuid ? [serviceUuid] : null;
+    console.log('BLE SCAN => start', { serviceUuid: serviceUuid || 'ANY' });
+
+    manager.startDeviceScan(filters, null, (scanError, device) => {
       if (scanError) {
+        const message = scanError.message || 'Falha ao escanear BLE.';
+        setScanStatus(message);
         console.log('BLE SCAN ERROR =>', { message: scanError.message, code: scanError.errorCode });
+        setIsScanning(false);
+        manager.stopDeviceScan();
         return;
       }
       if (!device?.id) return;
       setDevices((prev) => (prev.some((d) => d.id === device.id) ? prev : [...prev, device]));
     });
-    setTimeout(() => {
+
+    if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+    scanTimerRef.current = setTimeout(() => {
       manager.stopDeviceScan();
+      setIsScanning(false);
+      setScanStatus('Scan concluido.');
       console.log('BLE SCAN => stop');
     }, 8000);
   };
@@ -55,6 +112,7 @@ export function useBleTracking(serviceUuid: string) {
       console.log('BLE CONNECT OK =>', { deviceId: device.id, rssi: newRssi.rssi ?? null });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      setScanStatus(`Falha ao conectar: ${message}`);
       console.log('BLE CONNECT ERROR =>', { deviceId: device.id, error: message });
     }
   };
@@ -63,6 +121,8 @@ export function useBleTracking(serviceUuid: string) {
     devices,
     rssi,
     battery,
+    isScanning,
+    scanStatus,
     estimatedDistance: rssi ? estimateProximityFromRssi(rssi) : null,
     scan,
     connect
