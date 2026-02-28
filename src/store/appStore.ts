@@ -12,7 +12,7 @@ interface AppState {
   setGpsPollSeconds: (value: number) => void;
   setRouteThrottleSeconds: (value: number) => void;
   enqueueBleEvent: (event: IngestBlePayload) => Promise<void>;
-  flushBleQueue: () => Promise<void>;
+  flushBleQueue: () => Promise<{ sent: number; failed: number }>;
   refreshActiveCollar: () => Promise<string | null>;
   hydrate: () => Promise<void>;
 }
@@ -56,6 +56,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set({ pendingBleEvents: failed });
     await AsyncStorage.setItem(BLE_QUEUE_KEY, JSON.stringify(failed));
+    return { sent: queue.length - failed.length, failed: failed.length };
   },
   refreshActiveCollar: async () => {
     try {

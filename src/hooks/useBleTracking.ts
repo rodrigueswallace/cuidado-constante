@@ -108,7 +108,8 @@ export function useBleTracking(serviceUuid: string) {
         ts: new Date().toISOString()
       });
 
-      await flushBleQueue();
+      const flushResult = await flushBleQueue();
+      console.log('BLE INGEST =>', { sent: flushResult.sent, failed: flushResult.failed, queueAfter: flushResult.failed });
       console.log('BLE CONNECT OK =>', { deviceId: device.id, rssi: newRssi.rssi ?? null });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

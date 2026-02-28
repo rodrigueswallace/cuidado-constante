@@ -11,7 +11,7 @@ import { useAppStore } from '@/store/appStore';
 import { colors, spacing } from '@/theme/tokens';
 
 export function ConfigScreen() {
-  const { gpsPollSeconds, routeThrottleSeconds, setGpsPollSeconds, setRouteThrottleSeconds, hydrate, pendingBleEvents } = useAppStore();
+  const { gpsPollSeconds, routeThrottleSeconds, setGpsPollSeconds, setRouteThrottleSeconds, hydrate, pendingBleEvents, flushBleQueue } = useAppStore();
 
   useEffect(() => {
     hydrate();
@@ -20,6 +20,19 @@ export function ConfigScreen() {
   const checkPerms = async () => {
     const loc = await Location.getForegroundPermissionsAsync();
     Alert.alert('Permissao de localizacao', loc.status);
+  };
+
+  const retryBleQueue = async () => {
+    try {
+      const before = pendingBleEvents.length;
+      const result = await flushBleQueue();
+      console.log('BLE QUEUE RETRY =>', { before, sent: result.sent, failed: result.failed });
+      Alert.alert('Fila BLE', `Enviados: ${result.sent}\nFalharam: ${result.failed}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log('BLE QUEUE RETRY ERROR =>', { error: message });
+      Alert.alert('Fila BLE', 'Falha ao reenviar eventos da fila.');
+    }
   };
 
   return (
@@ -61,6 +74,7 @@ export function ConfigScreen() {
         <AppCard>
           <Text style={styles.sectionTitle}>Fila BLE offline</Text>
           <Text style={styles.value}>{pendingBleEvents.length} evento(s)</Text>
+          <AppButton title="Reenviar fila BLE" onPress={retryBleQueue} variant="secondary" disabled={pendingBleEvents.length === 0} />
         </AppCard>
 
         <AppButton title="Sair da conta" onPress={() => authService.signOut()} />
