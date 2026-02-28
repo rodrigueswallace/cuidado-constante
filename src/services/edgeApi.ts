@@ -8,8 +8,18 @@ export interface IngestBlePayload {
 }
 
 export async function ingestBleEvent(payload: IngestBlePayload) {
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  const accessToken = session?.access_token;
+  if (!accessToken) throw new Error('token_invalido_ou_expirado');
+
   const { data, error } = await supabase.functions.invoke('ingest-ble', {
-    body: payload
+    body: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
   });
 
   if (error) throw error;
@@ -17,8 +27,18 @@ export async function ingestBleEvent(payload: IngestBlePayload) {
 }
 
 export async function fetchLatestGps(collarId: string) {
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  const accessToken = session?.access_token;
+  if (!accessToken) throw new Error('token_invalido_ou_expirado');
+
   const { data, error } = await supabase.functions.invoke('get-latest-gps', {
-    body: { collar_id: collarId }
+    body: { collar_id: collarId },
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
   });
 
   if (error) throw error;
@@ -81,8 +101,18 @@ interface RegisterCollarResponse {
 }
 
 export async function registerCollar(payload: RegisterCollarPayload) {
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  const accessToken = session?.access_token;
+  if (!accessToken) throw new Error('token_invalido_ou_expirado');
+
   const { data, error } = await supabase.functions.invoke<RegisterCollarResponse>('register-collar', {
-    body: payload
+    body: payload,
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
   });
 
   if (error) throw error;

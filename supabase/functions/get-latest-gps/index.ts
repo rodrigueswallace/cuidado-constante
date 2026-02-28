@@ -17,6 +17,15 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createUserClient(authHeader);
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'token_invalido_ou_expirado' }), { status: 401, headers: corsHeaders });
+    }
+
     const body = (await req.json()) as { collar_id?: string };
 
     if (!body.collar_id) {
