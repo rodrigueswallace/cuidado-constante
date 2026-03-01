@@ -84,7 +84,7 @@ export function AddCollarScreen() {
 
   const ensurePetId = async () => {
     const existingPet = pets.find((pet) => pet.name === petName.trim());
-    if (existingPet) return existingPet.id;
+    if (existingPet) return { petId: existingPet.id, createdNow: false };
 
     const {
       data: { user },
@@ -104,18 +104,20 @@ export function AddCollarScreen() {
     if (error) throw error;
 
     setPets((prev) => [...prev, data]);
-    return data.id;
+    return { petId: data.id, createdNow: true };
   };
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
 
     setSubmitting(true);
+    let createdPetId: string | null = null;
     try {
-      const petId = await ensurePetId();
+      const petRef = await ensurePetId();
+      if (petRef.createdNow) createdPetId = petRef.petId;
 
       const result = await registerCollar({
-        pet_id: petId,
+        pet_id: petRef.petId,
         serial: serial.trim().toUpperCase(),
         activation_code: activationCode.trim()
       });
@@ -128,6 +130,22 @@ export function AddCollarScreen() {
       Alert.alert('Coleira ativada', `Coleira ${result.serial} vinculada com sucesso.`);
       navigation.goBack();
     } catch (err) {
+      const rawMessage = err instanceof Error ? err.message : String(err);
+      const shouldRollbackNewPet =
+        !!createdPetId &&
+        (rawMessage.includes('serial_ou_codigo_invalido') ||
+          rawMessage.includes('coleira_ja_vinculada') ||
+          rawMessage.includes('pet_nao_autorizado'));
+
+      if (shouldRollbackNewPet && createdPetId) {
+        try {
+          await supabase.from('pets').delete().eq('id', createdPetId);
+          setPets((prev) => prev.filter((pet) => pet.id !== createdPetId));
+        } catch {
+          // Keep UX stable even if rollback fails.
+        }
+      }
+
       const message = err instanceof Error ? getFriendlyRegisterError(err.message) : 'Nao foi possivel ativar a coleira.';
       Alert.alert('Erro ao ativar', message);
     } finally {

@@ -9,6 +9,7 @@ export function useBleTracking(serviceUuid: string) {
   const manager = useMemo(() => new BleManager(), []);
   const connected = useRef<Device | null>(null);
   const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rssiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [devices, setDevices] = useState<Device[]>([]);
   const [rssi, setRssi] = useState<number | null>(null);
@@ -21,6 +22,7 @@ export function useBleTracking(serviceUuid: string) {
   useEffect(() => {
     return () => {
       if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+      if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       manager.stopDeviceScan();
       manager.destroy();
     };
@@ -91,7 +93,15 @@ export function useBleTracking(serviceUuid: string) {
   const connect = async (device: Device, collarId: string) => {
     try {
       console.log('BLE CONNECT =>', { deviceId: device.id, collarId });
-      const conn = await manager.connectToDevice(device.id);
+      const current = connected.current;
+      let conn: Device;
+
+      if (current?.id === device.id) {
+        conn = current;
+      } else {
+        conn = await manager.connectToDevice(device.id);
+      }
+
       await conn.discoverAllServicesAndCharacteristics();
       connected.current = conn;
 
@@ -111,6 +121,20 @@ export function useBleTracking(serviceUuid: string) {
       const flushResult = await flushBleQueue();
       console.log('BLE INGEST =>', { sent: flushResult.sent, failed: flushResult.failed, queueAfter: flushResult.failed });
       console.log('BLE CONNECT OK =>', { deviceId: device.id, rssi: newRssi.rssi ?? null });
+
+      if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
+      rssiTimerRef.current = setInterval(async () => {
+        try {
+          const latest = await connected.current?.readRSSI();
+          if (typeof latest?.rssi === 'number') {
+            setRssi(latest.rssi);
+            console.log('BLE RSSI =>', { deviceId: connected.current?.id, rssi: latest.rssi });
+          }
+        } catch (pollError) {
+          const message = pollError instanceof Error ? pollError.message : String(pollError);
+          console.log('BLE RSSI ERROR =>', { error: message });
+        }
+      }, 3000);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setScanStatus(`Falha ao conectar: ${message}`);

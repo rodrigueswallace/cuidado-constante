@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Device } from 'react-native-ble-plx';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton } from '@/components/ui/AppButton';
 import { AppCard } from '@/components/ui/AppCard';
@@ -13,6 +14,7 @@ const BLE_SERVICE_UUID = process.env.EXPO_PUBLIC_BLE_SERVICE_UUID ?? '';
 const BLE_DEVICE_NAME_PREFIX = process.env.EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX?.trim() ?? '';
 
 export function BleScreen() {
+  const insets = useSafeAreaInsets();
   const { activeCollarId } = useAppStore();
   const { devices, rssi, battery, estimatedDistance, scan, connect, isScanning, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
   const isExpectedDevice = (device: Device) => {
@@ -44,7 +46,7 @@ export function BleScreen() {
 
   return (
     <AppScreen>
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: Math.max(insets.top, spacing.sm) }]}>
         <Text style={styles.title}>BLE</Text>
 
         <AppCard>
