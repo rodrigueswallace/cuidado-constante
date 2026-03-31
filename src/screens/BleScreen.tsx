@@ -16,11 +16,15 @@ const BLE_DEVICE_NAME_PREFIX = process.env.EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX?.t
 export function BleScreen() {
   const insets = useSafeAreaInsets();
   const { activeCollarId } = useAppStore();
-  const { devices, rssi, battery, estimatedDistance, scan, connect, isScanning, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
+  const { devices, rssi, battery, estimatedDistance, scan, connect, isScanning, isConnecting, connectedDeviceId, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
   const isExpectedDevice = (device: Device) => {
     if (!BLE_DEVICE_NAME_PREFIX) return false;
     const name = (device.name || device.localName || '').toLowerCase();
     return name.includes(BLE_DEVICE_NAME_PREFIX.toLowerCase());
+  };
+  const getDeviceName = (device: Device) => {
+    const resolvedName = device.name?.trim() || device.localName?.trim();
+    return resolvedName || 'Dispositivo sem nome';
   };
 
   const sortedDevices = useMemo(() => {
@@ -77,10 +81,15 @@ export function BleScreen() {
             renderItem={({ item }) => (
               <View style={styles.row}>
                 <View style={styles.deviceLabelWrap}>
-                  <Text style={styles.deviceName}>{item.name || item.localName || item.id}</Text>
+                  <Text style={styles.deviceName}>{getDeviceName(item)}</Text>
                   {isExpectedDevice(item) ? <Text style={styles.deviceHint}>Possivel coleira</Text> : null}
                 </View>
-                <AppButton title="Conectar" onPress={() => activeCollarId && connect(item, activeCollarId)} disabled={!activeCollarId} variant="secondary" />
+                <AppButton
+                  title={connectedDeviceId === item.id ? 'Conectado' : isConnecting ? 'Conectando...' : 'Conectar'}
+                  onPress={() => activeCollarId && connect(item, activeCollarId)}
+                  disabled={!activeCollarId || isConnecting || connectedDeviceId === item.id}
+                  variant="secondary"
+                />
               </View>
             )}
           />

@@ -15,6 +15,8 @@ export function useBleTracking(serviceUuid: string) {
   const [rssi, setRssi] = useState<number | null>(null);
   const [battery, setBattery] = useState<number | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectedDeviceId, setConnectedDeviceId] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
 
   const { enqueueBleEvent, flushBleQueue } = useAppStore();
@@ -91,7 +93,18 @@ export function useBleTracking(serviceUuid: string) {
   };
 
   const connect = async (device: Device, collarId: string) => {
+    if (isConnecting) return;
+
     try {
+      setIsConnecting(true);
+      if (scanTimerRef.current) {
+        clearTimeout(scanTimerRef.current);
+        scanTimerRef.current = null;
+      }
+      manager.stopDeviceScan();
+      setIsScanning(false);
+      setScanStatus(`Conectando em ${device.name || device.localName || 'dispositivo BLE'}...`);
+
       console.log('BLE CONNECT =>', { deviceId: device.id, collarId });
       const current = connected.current;
       let conn: Device;
@@ -99,11 +112,15 @@ export function useBleTracking(serviceUuid: string) {
       if (current?.id === device.id) {
         conn = current;
       } else {
+        if (current) {
+          await manager.cancelDeviceConnection(current.id).catch(() => undefined);
+        }
         conn = await manager.connectToDevice(device.id);
       }
 
       await conn.discoverAllServicesAndCharacteristics();
       connected.current = conn;
+      setConnectedDeviceId(conn.id);
 
       const newRssi = await conn.readRSSI();
       setRssi(newRssi.rssi ?? null);
@@ -121,6 +138,7 @@ export function useBleTracking(serviceUuid: string) {
       const flushResult = await flushBleQueue();
       console.log('BLE INGEST =>', { sent: flushResult.sent, failed: flushResult.failed, queueAfter: flushResult.failed });
       console.log('BLE CONNECT OK =>', { deviceId: device.id, rssi: newRssi.rssi ?? null });
+      setScanStatus(`Conectado a ${conn.name || conn.localName || 'dispositivo BLE'}.`);
 
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       rssiTimerRef.current = setInterval(async () => {
@@ -138,7 +156,10 @@ export function useBleTracking(serviceUuid: string) {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setScanStatus(`Falha ao conectar: ${message}`);
+      setConnectedDeviceId(null);
       console.log('BLE CONNECT ERROR =>', { deviceId: device.id, error: message });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -147,6 +168,8 @@ export function useBleTracking(serviceUuid: string) {
     rssi,
     battery,
     isScanning,
+    isConnecting,
+    connectedDeviceId,
     scanStatus,
     estimatedDistance: rssi ? estimateProximityFromRssi(rssi) : null,
     scan,
