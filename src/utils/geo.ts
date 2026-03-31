@@ -19,3 +19,12 @@ export function estimateProximityFromRssi(rssi: number) {
   const ratio = rssi / txPower;
   return ratio < 1 ? ratio ** 10 : 0.89976 * ratio ** 7.7095 + 0.111;
 }
+
+export function describeBleProximity(rssi: number | null) {
+  if (typeof rssi !== 'number') return '--';
+  if (rssi >= -55) return 'Muito perto';
+  if (rssi >= -67) return 'Perto';
+  if (rssi >= -75) return 'Proximo';
+  if (rssi >= -85) return 'Distante';
+  return 'Muito distante';
+}

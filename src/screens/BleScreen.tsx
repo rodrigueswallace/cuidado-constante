@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Device } from 'react-native-ble-plx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,20 +7,68 @@ import { AppButton } from '@/components/ui/AppButton';
 import { AppCard } from '@/components/ui/AppCard';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { useBleTracking } from '@/hooks/useBleTracking';
+import { supabase } from '@/services/supabase';
 import { useAppStore } from '@/store/appStore';
 import { colors, spacing } from '@/theme/tokens';
+import { describeBleProximity } from '@/utils/geo';
 
-const BLE_SERVICE_UUID = process.env.EXPO_PUBLIC_BLE_SERVICE_UUID ?? '';
 const BLE_DEVICE_NAME_PREFIX = process.env.EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX?.trim() ?? '';
+
+interface ActiveCollarMeta {
+  serial: string;
+  ble_service_uuid: string;
+}
 
 export function BleScreen() {
   const insets = useSafeAreaInsets();
   const { activeCollarId } = useAppStore();
-  const { devices, rssi, battery, estimatedDistance, scan, connect, isScanning, isConnecting, connectedDeviceId, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
+  const [activeCollarMeta, setActiveCollarMeta] = useState<ActiveCollarMeta | null>(null);
+  const resolvedServiceUuid = activeCollarMeta?.ble_service_uuid?.trim() || process.env.EXPO_PUBLIC_BLE_SERVICE_UUID?.trim() || '';
+  const expectedNameParts = useMemo(
+    () => [activeCollarMeta?.serial?.trim(), BLE_DEVICE_NAME_PREFIX].filter((value): value is string => !!value),
+    [activeCollarMeta?.serial]
+  );
+  const { devices, rssi, battery, scan, connect, isScanning, isConnecting, connectedDeviceId, scanStatus } = useBleTracking(resolvedServiceUuid);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadActiveCollarMeta = async () => {
+      if (!activeCollarId) {
+        if (mounted) setActiveCollarMeta(null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('collars')
+        .select('serial, ble_service_uuid')
+        .eq('id', activeCollarId)
+        .maybeSingle();
+
+      if (!mounted) return;
+
+      if (error || !data) {
+        setActiveCollarMeta(null);
+        return;
+      }
+
+      setActiveCollarMeta({
+        serial: data.serial,
+        ble_service_uuid: data.ble_service_uuid
+      });
+    };
+
+    loadActiveCollarMeta();
+
+    return () => {
+      mounted = false;
+    };
+  }, [activeCollarId]);
+
   const isExpectedDevice = (device: Device) => {
-    if (!BLE_DEVICE_NAME_PREFIX) return false;
     const name = (device.name || device.localName || '').toLowerCase();
-    return name.includes(BLE_DEVICE_NAME_PREFIX.toLowerCase());
+    if (!name) return false;
+    return expectedNameParts.some((part) => name.includes(part.toLowerCase()));
   };
   const getDeviceName = (device: Device) => {
     const resolvedName = device.name?.trim() || device.localName?.trim();
@@ -28,25 +76,28 @@ export function BleScreen() {
   };
 
   const sortedDevices = useMemo(() => {
-    return [...devices].sort((a, b) => {
-      const aExpected = isExpectedDevice(a) ? 1 : 0;
-      const bExpected = isExpectedDevice(b) ? 1 : 0;
-      if (aExpected !== bExpected) return bExpected - aExpected;
+    const filtered = devices.filter((device) => {
+      if (connectedDeviceId === device.id) return true;
+      if (expectedNameParts.length === 0) return true;
+      return isExpectedDevice(device);
+    });
 
+    return filtered.sort((a, b) => {
       const aRssi = a.rssi ?? -999;
       const bRssi = b.rssi ?? -999;
       return bRssi - aRssi;
     });
-  }, [devices]);
+  }, [connectedDeviceId, devices, expectedNameParts]);
 
-  const hintText = BLE_DEVICE_NAME_PREFIX
-    ? `Priorizando dispositivos com nome contendo: ${BLE_DEVICE_NAME_PREFIX}`
-    : 'Defina EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX para priorizar a coleira correta.';
+  const hintText = expectedNameParts.length > 0
+    ? `Mostrando apenas dispositivos com nome compativel com a coleira: ${expectedNameParts.join(', ')}`
+    : 'Nenhum identificador de nome da coleira foi configurado; o filtro depende do UUID BLE.';
 
   const scanButtonLabel = isScanning ? 'Escaneando...' : 'Escanear BLE';
-  const scanInfo = !BLE_SERVICE_UUID
-    ? 'UUID de servico nao configurado. Scan geral habilitado.'
-    : `Filtro UUID ativo: ${BLE_SERVICE_UUID}`;
+  const scanInfo = !resolvedServiceUuid
+    ? 'UUID de servico nao configurado para a coleira ativa. Scan geral habilitado.'
+    : `Filtro UUID ativo: ${resolvedServiceUuid}`;
+  const proximityText = describeBleProximity(rssi);
 
   return (
     <AppScreen>
@@ -68,7 +119,7 @@ export function BleScreen() {
           <Text style={styles.sectionTitle}>Sinal atual</Text>
           <Text style={styles.value}>RSSI: {rssi ?? '--'} dBm</Text>
           <Text style={styles.value}>Bateria: {battery ?? '--'}%</Text>
-          <Text style={styles.value}>Proximidade estimada: {estimatedDistance ? `${estimatedDistance.toFixed(1)}m` : '--'}</Text>
+          <Text style={styles.value}>Proximidade estimada: {proximityText}</Text>
           <Text style={styles.muted}>{hintText}</Text>
         </AppCard>
 
