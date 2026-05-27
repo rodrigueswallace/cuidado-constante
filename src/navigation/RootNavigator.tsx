@@ -65,7 +65,7 @@ function MainTabs() {
 }
 
 export function RootNavigator() {
-  const { loading, session } = useAuth();
+  const { loading, session, isRecoveringPassword, clearPasswordRecovery } = useAuth();
   const { hydrate, refreshActiveCollar } = useAppStore();
 
   useEffect(() => {
@@ -83,6 +83,10 @@ export function RootNavigator() {
         <ActivityIndicator />
       </View>
     );
+  }
+
+  if (isRecoveringPassword) {
+    return <AuthScreen recoveryMode onRecoveryComplete={clearPasswordRecovery} />;
   }
 
   if (!session) return <AuthScreen />;
