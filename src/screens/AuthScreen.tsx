@@ -16,6 +16,28 @@ interface AuthScreenProps {
   onRecoveryComplete?: () => void;
 }
 
+function getFriendlyAuthError(errorMessage: string) {
+  const normalized = errorMessage.toLowerCase();
+
+  if (normalized.includes('over_email_send_rate_limit') || normalized.includes('email rate limit exceeded')) {
+    return 'Muitas tentativas de envio de email. Aguarde alguns minutos antes de tentar novamente.';
+  }
+
+  if (normalized.includes('user already registered')) {
+    return 'Este email ja esta cadastrado. Tente entrar ou recuperar sua senha.';
+  }
+
+  if (normalized.includes('invalid login credentials')) {
+    return 'Email ou senha invalidos.';
+  }
+
+  if (normalized.includes('password should be at least')) {
+    return 'A senha precisa ter pelo menos 6 caracteres.';
+  }
+
+  return errorMessage;
+}
+
 export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,6 +75,32 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     setPetForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const resetSignUpFlow = () => {
+    setIsSignUp(false);
+    setSignUpStep(1);
+    setConfirmPassword('');
+    setTutorForm({
+      fullName: '',
+      phone: '',
+      email: '',
+      password: ''
+    });
+    setPetForm({
+      name: '',
+      species: '',
+      birthDate: '',
+      color: '',
+      sex: '',
+      weightKg: '',
+      size: '',
+      microchip: '',
+      breed: '',
+      notes: ''
+    });
+    setEmail('');
+    setPassword('');
+  };
+
   const submit = async () => {
     if (!email.trim() || !password) {
       Alert.alert('Erro', 'Preencha email e senha.');
@@ -63,7 +111,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     const { error } = await authService.signIn(email.trim(), password);
     setLoading(false);
 
-    if (error) Alert.alert('Erro', error.message);
+    if (error) Alert.alert('Erro', getFriendlyAuthError(error.message));
   };
 
   const validateTutorStep = () => {
@@ -106,17 +154,20 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     setLoading(false);
 
     if (error) {
-      Alert.alert('Erro', error.message);
+      Alert.alert('Erro', getFriendlyAuthError(error.message));
       return;
     }
 
     if (!data.session) {
-      Alert.alert('Conta criada', 'Verifique seu email para confirmar a conta. Depois, faça login no app.');
-      resetSignUpFlow();
+      Alert.alert(
+        'Cadastro em analise',
+        'Se este email ainda nao estiver cadastrado, enviaremos uma confirmacao para continuar. Se ele ja existir, tente entrar ou use "Esqueci minha senha".'
+      );
       return;
     }
 
     Alert.alert('Cadastro concluido', 'Seu cadastro e o primeiro pet foram criados com sucesso.');
+    resetSignUpFlow();
   };
 
   const submitForgotPassword = async () => {
@@ -130,7 +181,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     setLoading(false);
 
     if (error) {
-      Alert.alert('Erro', error.message);
+      Alert.alert('Erro', getFriendlyAuthError(error.message));
       return;
     }
 
@@ -157,14 +208,14 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     setLoading(false);
 
     if (error) {
-      Alert.alert('Erro', error.message);
+      Alert.alert('Erro', getFriendlyAuthError(error.message));
       return;
     }
 
     onRecoveryComplete?.();
     setPassword('');
     setConfirmPassword('');
-    Alert.alert('Senha atualizada', 'Sua senha foi redefinida. Faça login com a nova senha.');
+    Alert.alert('Senha atualizada', 'Sua senha foi redefinida. Faca login com a nova senha.');
   };
 
   const isPasswordRecovery = recoveryMode;
@@ -177,41 +228,15 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
       ? 'Criar conta'
       : isPetStep
         ? 'Cadastrar pet'
-      : isEmailRecoveryRequest
-        ? 'Esqueci minha senha'
-        : 'Entrar na conta';
+        : isEmailRecoveryRequest
+          ? 'Esqueci minha senha'
+          : 'Entrar na conta';
 
   const signUpProgressLabel = useMemo(() => {
     if (isTutorStep) return 'Tutor';
     if (isPetStep) return 'Pet';
     return null;
   }, [isPetStep, isTutorStep]);
-
-  const resetSignUpFlow = () => {
-    setIsSignUp(false);
-    setSignUpStep(1);
-    setConfirmPassword('');
-    setTutorForm({
-      fullName: '',
-      phone: '',
-      email: '',
-      password: ''
-    });
-    setPetForm({
-      name: '',
-      species: '',
-      birthDate: '',
-      color: '',
-      sex: '',
-      weightKg: '',
-      size: '',
-      microchip: '',
-      breed: '',
-      notes: ''
-    });
-    setEmail('');
-    setPassword('');
-  };
 
   return (
     <AppScreen>
@@ -304,7 +329,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
             ) : (
               <>
                 <AppInput label="Senha" placeholder="Sua senha" secureTextEntry onChangeText={setPassword} value={password} />
-                <AppButton title={isSignUp ? 'Cadastrar' : 'Entrar'} onPress={submit} disabled={loading} />
+                <AppButton title="Entrar" onPress={submit} disabled={loading} />
                 <AppButton
                   title="Criar conta"
                   onPress={() => {
@@ -315,11 +340,9 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
                   variant="secondary"
                   disabled={loading}
                 />
-                {!isSignUp ? (
-                  <Pressable onPress={() => setIsForgotPassword(true)} style={styles.linkWrapper}>
-                    <Text style={styles.link}>Esqueci minha senha</Text>
-                  </Pressable>
-                ) : null}
+                <Pressable onPress={() => setIsForgotPassword(true)} style={styles.linkWrapper}>
+                  <Text style={styles.link}>Esqueci minha senha</Text>
+                </Pressable>
               </>
             )}
           </View>

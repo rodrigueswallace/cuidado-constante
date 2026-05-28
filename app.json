@@ -3,29 +3,31 @@
     "name": "Cuidado Constante",
     "slug": "cuidado-constante",
     "version": "0.1.0",
+    "icon": "./assets/branding-logo.png",
     "orientation": "portrait",
     "scheme": "cuidado-constante",
-
-
-
-
     "splash": {
+      "image": "./assets/branding-logo.png",
+      "resizeMode": "contain",
+      "imageWidth": 220,
       "backgroundColor": "#FFFFFF"
     },
-
     "plugins": [
       [
         "expo-location",
         {
           "isAndroidForegroundServiceEnabled": true,
-          "locationAlwaysAndWhenInUsePermission": "Precisamos da localização em segundo plano para rastrear seu pet."
+          "locationAlwaysAndWhenInUsePermission": "Precisamos da localizacao em segundo plano para rastrear seu pet."
         }
       ]
     ],
     "android": {
       "package": "com.cuidadoconstante.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/branding-logo.png",
+        "backgroundColor": "#FFFFFF"
+      },
       "permissions": [
-
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_BACKGROUND_LOCATION",
@@ -35,22 +37,19 @@
         "android.permission.FOREGROUND_SERVICE_LOCATION",
         "android.permission.INTERNET"
       ]
-
     },
     "ios": {
       "bundleIdentifier": "com.cuidadoconstante.app",
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "Usamos Bluetooth para detectar proximidade da coleira.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Localização em segundo plano para rotas até seu pet.",
-        "NSLocationWhenInUseUsageDescription": "Localização para mostrar distância entre você e seu pet."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Localizacao em segundo plano para rotas ate seu pet.",
+        "NSLocationWhenInUseUsageDescription": "Localizacao para mostrar distancia entre voce e seu pet."
       }
-
     },
     "extra": {
       "eas": {
         "projectId": "3d9595ff-1ded-409f-a7a1-49313662fb3d"
       }
-
     }
   }
 }
