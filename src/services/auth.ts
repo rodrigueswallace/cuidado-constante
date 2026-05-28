@@ -25,6 +25,7 @@ export const authService = {
       email: tutor.email,
       password: tutor.password,
       options: {
+        emailRedirectTo: 'cuidado-constante://auth-callback',
         data: {
           full_name: tutor.fullName.trim(),
           phone: tutor.phone.trim(),
