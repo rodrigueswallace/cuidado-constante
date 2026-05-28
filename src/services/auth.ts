@@ -1,4 +1,5 @@
 import { supabase } from '@/services/supabase';
+import { PetSignUpPayload, TutorSignUpPayload } from '@/types/auth';
 
 function extractTokensFromUrl(url: string) {
   const normalized = url.replace('#', '?');
@@ -19,7 +20,27 @@ function extractTokensFromUrl(url: string) {
 
 export const authService = {
   signIn: (email: string, password: string) => supabase.auth.signInWithPassword({ email, password }),
-  signUp: (email: string, password: string) => supabase.auth.signUp({ email, password }),
+  signUp: (tutor: TutorSignUpPayload, pet: PetSignUpPayload) =>
+    supabase.auth.signUp({
+      email: tutor.email,
+      password: tutor.password,
+      options: {
+        data: {
+          full_name: tutor.fullName.trim(),
+          phone: tutor.phone.trim(),
+          pet_name: pet.name.trim(),
+          pet_species: pet.species.trim() || null,
+          pet_birth_date: pet.birthDate.trim() || null,
+          pet_color: pet.color.trim() || null,
+          pet_sex: pet.sex.trim() || null,
+          pet_weight_kg: pet.weightKg.trim() || null,
+          pet_size: pet.size.trim() || null,
+          pet_microchip: pet.microchip.trim() || null,
+          pet_breed: pet.breed.trim() || null,
+          pet_notes: pet.notes.trim() || null
+        }
+      }
+    }),
   resetPasswordForEmail: (email: string) =>
     supabase.auth.resetPasswordForEmail(email, {
       redirectTo: 'cuidado-constante://reset-password'

@@ -4,6 +4,15 @@ create table if not exists public.pets (
   id uuid primary key default gen_random_uuid(),
   owner_user_id uuid not null references auth.users(id) on delete cascade,
   name text not null check (char_length(name) >= 1),
+  species text,
+  birth_date date,
+  color text,
+  sex text,
+  weight_kg numeric(6,2),
+  size text,
+  microchip text,
+  breed text,
+  notes text,
   created_at timestamptz not null default now()
 );
 
@@ -39,6 +48,8 @@ create table if not exists public.ble_events (
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
+  full_name text,
+  phone text,
   active_collar uuid references public.collars(id) on delete set null,
   updated_at timestamptz not null default now()
 );
@@ -196,3 +207,77 @@ revoke insert, update, delete on public.collars from authenticated;
 revoke insert, update, delete on public.gps_events from authenticated;
 revoke insert, update, delete on public.ble_events from authenticated;
 revoke delete on public.profiles from authenticated;
+
+create or replace function public.handle_new_user_onboarding()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  raw_birth_date text;
+  parsed_birth_date date;
+begin
+  raw_birth_date := nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_birth_date', '')), '');
+
+  if raw_birth_date is not null then
+    begin
+      parsed_birth_date := raw_birth_date::date;
+    exception
+      when others then
+        parsed_birth_date := null;
+    end;
+  end if;
+
+  insert into public.profiles (id, full_name, phone)
+  values (
+    new.id,
+    nullif(trim(coalesce(new.raw_user_meta_data ->> 'full_name', '')), ''),
+    nullif(trim(coalesce(new.raw_user_meta_data ->> 'phone', '')), '')
+  )
+  on conflict (id) do update
+    set full_name = excluded.full_name,
+        phone = excluded.phone,
+        updated_at = now();
+
+  if nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_name', '')), '') is not null then
+    insert into public.pets (
+      owner_user_id,
+      name,
+      species,
+      birth_date,
+      color,
+      sex,
+      weight_kg,
+      size,
+      microchip,
+      breed,
+      notes
+    )
+    values (
+      new.id,
+      trim(new.raw_user_meta_data ->> 'pet_name'),
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_species', '')), ''),
+      parsed_birth_date,
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_color', '')), ''),
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_sex', '')), ''),
+      case
+        when nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_weight_kg', '')), '') is null then null
+        else (new.raw_user_meta_data ->> 'pet_weight_kg')::numeric
+      end,
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_size', '')), ''),
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_microchip', '')), ''),
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_breed', '')), ''),
+      nullif(trim(coalesce(new.raw_user_meta_data ->> 'pet_notes', '')), '')
+    );
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created_onboarding on auth.users;
+
+create trigger on_auth_user_created_onboarding
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user_onboarding();
