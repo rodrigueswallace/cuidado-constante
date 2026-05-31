@@ -7,10 +7,17 @@ interface AppState {
   activeCollarId: string | null;
   gpsPollSeconds: number;
   routeThrottleSeconds: number;
+  bleAlarmLevel: 'very_near' | 'near' | 'far' | 'very_far' | 'disconnected';
+  isBleAlarmPlaying: boolean;
+  activeBleAlarmKey: string | null;
+  silencedBleAlarmKey: string | null;
   pendingBleEvents: IngestBlePayload[];
   setActiveCollarId: (value: string | null) => Promise<void>;
   setGpsPollSeconds: (value: number) => void;
   setRouteThrottleSeconds: (value: number) => void;
+  setBleAlarmLevel: (value: AppState['bleAlarmLevel']) => Promise<void>;
+  setBleAlarmPlayback: (playing: boolean, key: string | null) => void;
+  setSilencedBleAlarmKey: (key: string | null) => void;
   enqueueBleEvent: (event: IngestBlePayload) => Promise<void>;
   flushBleQueue: () => Promise<{ sent: number; failed: number }>;
   refreshActiveCollar: () => Promise<string | null>;
@@ -19,11 +26,16 @@ interface AppState {
 
 const BLE_QUEUE_KEY = 'ble_queue_v1';
 const ACTIVE_COLLAR_KEY = 'active_collar_v1';
+const BLE_ALARM_LEVEL_KEY = 'ble_alarm_level_v1';
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeCollarId: null,
   gpsPollSeconds: 30,
   routeThrottleSeconds: 120,
+  bleAlarmLevel: 'near',
+  isBleAlarmPlaying: false,
+  activeBleAlarmKey: null,
+  silencedBleAlarmKey: null,
   pendingBleEvents: [],
   setActiveCollarId: async (value) => {
     await saveActiveCollarId(value);
@@ -37,6 +49,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   setGpsPollSeconds: (value) => set({ gpsPollSeconds: value }),
   setRouteThrottleSeconds: (value) => set({ routeThrottleSeconds: value }),
+  setBleAlarmLevel: async (value) => {
+    set({ bleAlarmLevel: value });
+    await AsyncStorage.setItem(BLE_ALARM_LEVEL_KEY, value);
+  },
+  setBleAlarmPlayback: (playing, key) => set({ isBleAlarmPlaying: playing, activeBleAlarmKey: key }),
+  setSilencedBleAlarmKey: (key) => set({ silencedBleAlarmKey: key }),
   enqueueBleEvent: async (event) => {
     const next = [...get().pendingBleEvents, event];
     set({ pendingBleEvents: next });
@@ -80,14 +98,23 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
   hydrate: async () => {
-    const [rawQueue, rawActiveCollar] = await Promise.all([
+    const [rawQueue, rawActiveCollar, rawBleAlarmLevel] = await Promise.all([
       AsyncStorage.getItem(BLE_QUEUE_KEY),
-      AsyncStorage.getItem(ACTIVE_COLLAR_KEY)
+      AsyncStorage.getItem(ACTIVE_COLLAR_KEY),
+      AsyncStorage.getItem(BLE_ALARM_LEVEL_KEY)
     ]);
 
     const pendingBleEvents: IngestBlePayload[] = rawQueue ? JSON.parse(rawQueue) : [];
     const activeCollarId = rawActiveCollar || null;
+    const bleAlarmLevel =
+      rawBleAlarmLevel === 'very_near' ||
+      rawBleAlarmLevel === 'near' ||
+      rawBleAlarmLevel === 'far' ||
+      rawBleAlarmLevel === 'very_far' ||
+      rawBleAlarmLevel === 'disconnected'
+        ? rawBleAlarmLevel
+        : 'near';
 
-    set({ pendingBleEvents, activeCollarId });
+    set({ pendingBleEvents, activeCollarId, bleAlarmLevel });
   }
 }));

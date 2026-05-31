@@ -16,6 +16,7 @@ export function useBleTracking(serviceUuid: string) {
   const [battery, setBattery] = useState<number | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
+  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
   const { enqueueBleEvent, flushBleQueue } = useAppStore();
 
@@ -24,6 +25,7 @@ export function useBleTracking(serviceUuid: string) {
       if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       manager.stopDeviceScan();
+      connected.current?.cancelConnection().catch(() => null);
       manager.destroy();
     };
   }, [manager]);
@@ -104,6 +106,8 @@ export function useBleTracking(serviceUuid: string) {
 
       await conn.discoverAllServicesAndCharacteristics();
       connected.current = conn;
+      setConnectedDevice(conn);
+      setScanStatus(`Conectado a ${conn.name || conn.localName || conn.id}.`);
 
       const newRssi = await conn.readRSSI();
       setRssi(newRssi.rssi ?? null);
@@ -121,6 +125,15 @@ export function useBleTracking(serviceUuid: string) {
       const flushResult = await flushBleQueue();
       console.log('BLE INGEST =>', { sent: flushResult.sent, failed: flushResult.failed, queueAfter: flushResult.failed });
       console.log('BLE CONNECT OK =>', { deviceId: device.id, rssi: newRssi.rssi ?? null });
+
+      manager.onDeviceDisconnected(conn.id, (disconnectError) => {
+        connected.current = null;
+        setConnectedDevice(null);
+        setRssi(null);
+        setBattery(null);
+        if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
+        setScanStatus(disconnectError ? `Desconectado: ${disconnectError.message}` : 'Dispositivo desconectado.');
+      });
 
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       rssiTimerRef.current = setInterval(async () => {
@@ -142,14 +155,34 @@ export function useBleTracking(serviceUuid: string) {
     }
   };
 
+  const disconnect = async () => {
+    const current = connected.current;
+    if (!current) return;
+
+    try {
+      await current.cancelConnection();
+    } catch {
+      // Keep local state consistent even if the native disconnect errors.
+    } finally {
+      connected.current = null;
+      setConnectedDevice(null);
+      setRssi(null);
+      setBattery(null);
+      if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
+      setScanStatus('Dispositivo desconectado.');
+    }
+  };
+
   return {
     devices,
     rssi,
     battery,
+    connectedDevice,
     isScanning,
     scanStatus,
     estimatedDistance: rssi ? estimateProximityFromRssi(rssi) : null,
     scan,
-    connect
+    connect,
+    disconnect
   };
 }
