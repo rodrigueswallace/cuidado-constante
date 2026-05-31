@@ -8,7 +8,6 @@ import { estimateProximityFromRssi } from '@/utils/geo';
 export function useBleTracking(serviceUuid: string) {
   const manager = useMemo(() => new BleManager(), []);
   const connected = useRef<Device | null>(null);
-  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rssiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [devices, setDevices] = useState<Device[]>([]);
@@ -17,12 +16,12 @@ export function useBleTracking(serviceUuid: string) {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStatus, setScanStatus] = useState<string | null>(null);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const { enqueueBleEvent, flushBleQueue } = useAppStore();
 
   useEffect(() => {
     return () => {
-      if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       manager.stopDeviceScan();
       connected.current?.cancelConnection().catch(() => null);
@@ -82,18 +81,13 @@ export function useBleTracking(serviceUuid: string) {
       if (!device?.id) return;
       setDevices((prev) => (prev.some((d) => d.id === device.id) ? prev : [...prev, device]));
     });
-
-    if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
-    scanTimerRef.current = setTimeout(() => {
-      manager.stopDeviceScan();
-      setIsScanning(false);
-      setScanStatus('Scan concluido.');
-      console.log('BLE SCAN => stop');
-    }, 8000);
   };
 
   const connect = async (device: Device, collarId: string) => {
+    if (isConnecting) return;
+
     try {
+      setIsConnecting(true);
       console.log('BLE CONNECT =>', { deviceId: device.id, collarId });
       const current = connected.current;
       let conn: Device;
@@ -101,9 +95,13 @@ export function useBleTracking(serviceUuid: string) {
       if (current?.id === device.id) {
         conn = current;
       } else {
+        setScanStatus(`Pareando com ${device.name || device.localName || device.id}...`);
         conn = await manager.connectToDevice(device.id);
       }
 
+      manager.stopDeviceScan();
+      setIsScanning(false);
+      setScanStatus(`Conectando com ${conn.name || conn.localName || conn.id}...`);
       await conn.discoverAllServicesAndCharacteristics();
       connected.current = conn;
       setConnectedDevice(conn);
@@ -133,6 +131,7 @@ export function useBleTracking(serviceUuid: string) {
         setBattery(null);
         if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
         setScanStatus(disconnectError ? `Desconectado: ${disconnectError.message}` : 'Dispositivo desconectado.');
+        setIsConnecting(false);
       });
 
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
@@ -152,6 +151,8 @@ export function useBleTracking(serviceUuid: string) {
       const message = error instanceof Error ? error.message : String(error);
       setScanStatus(`Falha ao conectar: ${message}`);
       console.log('BLE CONNECT ERROR =>', { deviceId: device.id, error: message });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -170,6 +171,7 @@ export function useBleTracking(serviceUuid: string) {
       setBattery(null);
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       setScanStatus('Dispositivo desconectado.');
+      setIsConnecting(false);
     }
   };
 
@@ -178,6 +180,7 @@ export function useBleTracking(serviceUuid: string) {
     rssi,
     battery,
     connectedDevice,
+    isConnecting,
     isScanning,
     scanStatus,
     estimatedDistance: rssi ? estimateProximityFromRssi(rssi) : null,

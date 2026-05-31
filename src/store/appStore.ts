@@ -7,7 +7,7 @@ interface AppState {
   activeCollarId: string | null;
   gpsPollSeconds: number;
   routeThrottleSeconds: number;
-  bleAlarmLevel: 'very_near' | 'near' | 'far' | 'very_far' | 'disconnected';
+  bleAlarmLevel: 'very_far' | 'disconnected';
   isBleAlarmPlaying: boolean;
   activeBleAlarmKey: string | null;
   silencedBleAlarmKey: string | null;
@@ -32,7 +32,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   activeCollarId: null,
   gpsPollSeconds: 30,
   routeThrottleSeconds: 120,
-  bleAlarmLevel: 'near',
+  bleAlarmLevel: 'disconnected',
   isBleAlarmPlaying: false,
   activeBleAlarmKey: null,
   silencedBleAlarmKey: null,
@@ -107,13 +107,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     const pendingBleEvents: IngestBlePayload[] = rawQueue ? JSON.parse(rawQueue) : [];
     const activeCollarId = rawActiveCollar || null;
     const bleAlarmLevel =
-      rawBleAlarmLevel === 'very_near' ||
-      rawBleAlarmLevel === 'near' ||
-      rawBleAlarmLevel === 'far' ||
       rawBleAlarmLevel === 'very_far' ||
       rawBleAlarmLevel === 'disconnected'
         ? rawBleAlarmLevel
-        : 'near';
+        : 'disconnected';
 
     set({ pendingBleEvents, activeCollarId, bleAlarmLevel });
   }

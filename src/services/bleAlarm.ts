@@ -122,9 +122,7 @@ export async function handleBleAlarmNotificationResponse(response: Notifications
   }
 
   if (actionId === Notifications.DEFAULT_ACTION_IDENTIFIER) {
-    if (typeof data.bleAlarmKey === 'string') {
-      useAppStore.getState().setSilencedBleAlarmKey(data.bleAlarmKey);
-    }
+    await stopBleAlarm({ silenceCurrent: typeof data.bleAlarmKey === 'string' });
     openGpsTab();
   }
 }

@@ -17,9 +17,6 @@ const bluetoothConnectedImage = require('../../assets/ble/bluetooth-connected.jp
 const bluetoothDisconnectedImage = require('../../assets/ble/bluetooth-disconnected.jpeg');
 
 const ALARM_OPTIONS = [
-  { value: 'very_near', label: 'Muito proximo' },
-  { value: 'near', label: 'Proximo' },
-  { value: 'far', label: 'Distante' },
   { value: 'very_far', label: 'Muito distante' },
   { value: 'disconnected', label: 'Desconectado' }
 ] as const;
@@ -50,7 +47,7 @@ function normalizeAlarmLevel(label: string) {
 export function BleScreen() {
   const insets = useSafeAreaInsets();
   const { activeCollarId, bleAlarmLevel, isBleAlarmPlaying, activeBleAlarmKey, silencedBleAlarmKey, setBleAlarmLevel, setSilencedBleAlarmKey } = useAppStore();
-  const { devices, rssi, battery, connectedDevice, scan, connect, disconnect, isScanning, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
+  const { devices, rssi, battery, connectedDevice, scan, connect, disconnect, isScanning, isConnecting, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
   const alarmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isExpectedDevice = (device: Device) => {
     if (!BLE_DEVICE_NAME_PREFIX) return false;
@@ -83,12 +80,6 @@ export function BleScreen() {
       setSilencedBleAlarmKey(null);
     }
   }, [currentAlarmKey, setSilencedBleAlarmKey, silencedBleAlarmKey]);
-
-  useEffect(() => {
-    if (isBleAlarmPlaying && activeBleAlarmKey && activeBleAlarmKey !== currentAlarmKey) {
-      stopBleAlarm();
-    }
-  }, [activeBleAlarmKey, currentAlarmKey, isBleAlarmPlaying]);
 
   useEffect(() => {
     if (alarmTimerRef.current) {
@@ -134,7 +125,7 @@ export function BleScreen() {
           </View>
 
           <View style={styles.heroActions}>
-            <AppButton title={scanButtonLabel} onPress={scan} disabled={!activeCollarId || isScanning} />
+            <AppButton title={scanButtonLabel} onPress={scan} disabled={!activeCollarId || isScanning || isConnecting} />
             {isConnected ? <AppButton title="Desconectar" onPress={disconnect} variant="secondary" /> : null}
           </View>
 
@@ -216,9 +207,9 @@ export function BleScreen() {
                       {isExpectedDevice(item) ? <Text style={styles.deviceHint}>Possivel coleira</Text> : null}
                     </View>
                     <AppButton
-                      title={isCurrent ? 'Conectado' : 'Conectar'}
+                      title={isCurrent ? 'Conectado' : isConnecting ? 'Conectando...' : 'Conectar'}
                       onPress={() => activeCollarId && connect(item, activeCollarId)}
-                      disabled={!activeCollarId || isCurrent}
+                      disabled={!activeCollarId || isCurrent || isConnecting}
                       variant="secondary"
                     />
                   </View>
