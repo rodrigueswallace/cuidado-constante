@@ -207,3 +207,7 @@ export async function registerCollar(payload: RegisterCollarPayload) {
     payload
   );
 }
+
+export async function deleteAccount() {
+  return callEdgeFunction<{ ok: true }>('delete-account', {});
+}

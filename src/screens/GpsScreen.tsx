@@ -81,7 +81,7 @@ export function GpsScreen() {
       ) : (
         <MapView ref={mapRef} style={[styles.map, { marginTop: -insets.top }]}>
           {pet && <Marker coordinate={{ latitude: pet.lat, longitude: pet.lng }} title="Coleira" />}
-          {userLocation && <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }} title="Voce" />}
+          {userLocation && <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }} title="Você" />}
           {events.length > 1 && (
             <Polyline
               strokeColor="#1976D2"

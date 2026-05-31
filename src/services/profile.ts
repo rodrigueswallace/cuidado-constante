@@ -1,5 +1,6 @@
 import { supabase } from '@/services/supabase';
 import { PetProfileForm, TutorProfileForm } from '@/types/profile';
+import { isoDateToDisplay } from '@/utils/formats';
 
 async function getCurrentUserId() {
   const {
@@ -16,6 +17,14 @@ async function getCurrentUserId() {
 
 export async function fetchTutorProfile(): Promise<TutorProfileForm> {
   const userId = await getCurrentUserId();
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error('usuario_nao_autenticado');
+  }
 
   const { data, error } = await supabase
     .from('profiles')
@@ -27,7 +36,8 @@ export async function fetchTutorProfile(): Promise<TutorProfileForm> {
 
   return {
     fullName: typeof data?.full_name === 'string' ? data.full_name : '',
-    phone: typeof data?.phone === 'string' ? data.phone : ''
+    phone: typeof data?.phone === 'string' ? data.phone : '',
+    createdAt: typeof user.created_at === 'string' ? user.created_at.slice(0, 10) : ''
   };
 }
 
@@ -63,7 +73,7 @@ export async function fetchPrimaryPetProfile(): Promise<PetProfileForm> {
     id: data?.id ?? null,
     name: data?.name ?? '',
     species: data?.species ?? '',
-    birthDate: data?.birth_date ?? '',
+    birthDate: data?.birth_date ? isoDateToDisplay(data.birth_date) : '',
     color: data?.color ?? '',
     sex: data?.sex ?? '',
     weightKg: data?.weight_kg != null ? String(data.weight_kg) : '',

@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppButton } from '@/components/ui/AppButton';
 import { AppCard } from '@/components/ui/AppCard';
 import { AppInput } from '@/components/ui/AppInput';
 import { AppScreen } from '@/components/ui/AppScreen';
+import { openConfigTab } from '@/navigation/navigationRef';
 import { fetchPrimaryPetProfile, savePrimaryPetProfile } from '@/services/profile';
 import { PetProfileForm } from '@/types/profile';
-import { colors, spacing } from '@/theme/tokens';
+import { colors, radius, spacing } from '@/theme/tokens';
+import { cmInputToNumberString, displayDateToIso, formatCmInput, formatDateDigits, formatWeightInput, weightInputToNumberString } from '@/utils/formats';
 
 const EMPTY_FORM: PetProfileForm = {
   id: null,
   name: '',
-  species: '',
+  species: 'cachorro',
   birthDate: '',
   color: '',
   sex: '',
@@ -24,8 +25,12 @@ const EMPTY_FORM: PetProfileForm = {
   notes: ''
 };
 
+const SPECIES_OPTIONS = [
+  { value: 'cachorro', label: 'Cachorro' },
+  { value: 'gato', label: 'Gato' }
+] as const;
+
 export function EditPetScreen() {
-  const navigation = useNavigation<any>();
   const [form, setForm] = useState<PetProfileForm>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,7 +39,12 @@ export function EditPetScreen() {
     const load = async () => {
       try {
         const data = await fetchPrimaryPetProfile();
-        setForm(data);
+        setForm({
+          ...data,
+          species: data.species === 'gato' ? 'gato' : 'cachorro',
+          weightKg: data.weightKg ? formatWeightInput(data.weightKg) : '',
+          size: data.size ? formatCmInput(data.size) : ''
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Falha ao carregar dados do pet.';
         Alert.alert('Erro', message);
@@ -56,21 +66,22 @@ export function EditPetScreen() {
       return;
     }
 
-    if (form.birthDate.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(form.birthDate.trim())) {
-      Alert.alert('Erro', 'Use a data no formato AAAA-MM-DD.');
-      return;
-    }
-
-    if (form.weightKg.trim() && Number.isNaN(Number(form.weightKg.replace(',', '.')))) {
-      Alert.alert('Erro', 'Informe o peso usando apenas numeros.');
+    const birthDateIso = form.birthDate.trim() ? displayDateToIso(form.birthDate.trim()) : null;
+    if (form.birthDate.trim() && !birthDateIso) {
+      Alert.alert('Erro', 'Use a data no formato DD/MM/AAAA.');
       return;
     }
 
     setSaving(true);
     try {
-      await savePrimaryPetProfile({ ...form, weightKg: form.weightKg.replace(',', '.') });
+      await savePrimaryPetProfile({
+        ...form,
+        birthDate: birthDateIso ?? '',
+        weightKg: weightInputToNumberString(form.weightKg),
+        size: cmInputToNumberString(form.size)
+      });
       Alert.alert('Dados atualizados', 'Os dados do pet foram salvos com sucesso.');
-      navigation.goBack();
+      openConfigTab();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Falha ao salvar dados do pet.';
       Alert.alert('Erro', message);
@@ -82,25 +93,37 @@ export function EditPetScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Alterar dados pet</Text>
+        <Text style={styles.title}>Alterar dados do pet</Text>
         <AppCard>
           <View style={styles.form}>
             {loading ? (
               <ActivityIndicator color={colors.primary} />
             ) : (
               <>
-                <AppInput label="Nome" value={form.name} onChangeText={(value) => updateField('name', value)} editable={!saving} />
-                <AppInput label="Especie" value={form.species} onChangeText={(value) => updateField('species', value)} editable={!saving} />
-                <AppInput label="Data de nascimento" value={form.birthDate} onChangeText={(value) => updateField('birthDate', value)} placeholder="AAAA-MM-DD" editable={!saving} />
-                <AppInput label="Cor" value={form.color} onChangeText={(value) => updateField('color', value)} editable={!saving} />
-                <AppInput label="Sexo" value={form.sex} onChangeText={(value) => updateField('sex', value)} editable={!saving} />
-                <AppInput label="Peso em kg" value={form.weightKg} onChangeText={(value) => updateField('weightKg', value)} keyboardType="numeric" editable={!saving} />
-                <AppInput label="Tamanho" value={form.size} onChangeText={(value) => updateField('size', value)} editable={!saving} />
-                <AppInput label="Microchip" value={form.microchip} onChangeText={(value) => updateField('microchip', value)} editable={!saving} />
-                <AppInput label="Raca" value={form.breed} onChangeText={(value) => updateField('breed', value)} editable={!saving} />
-                <AppInput label="Observacao" value={form.notes} onChangeText={(value) => updateField('notes', value)} editable={!saving} />
+                <AppInput label="Nome" value={form.name} onChangeText={(value) => updateField('name', value)} editable={!saving} autoCapitalize="words" />
+                <View style={styles.selectorBlock}>
+                  <Text style={styles.selectorLabel}>Espécie</Text>
+                  <View style={styles.selectorRow}>
+                    {SPECIES_OPTIONS.map((option) => {
+                      const selected = form.species === option.value;
+                      return (
+                        <Pressable key={option.value} style={[styles.selectorOption, selected ? styles.selectorOptionSelected : null]} onPress={() => updateField('species', option.value)}>
+                          <Text style={[styles.selectorText, selected ? styles.selectorTextSelected : null]}>{option.label}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+                <AppInput label="Data de nascimento" value={form.birthDate} onChangeText={(value) => updateField('birthDate', formatDateDigits(value))} placeholder="DD/MM/AAAA" keyboardType="number-pad" editable={!saving} />
+                <AppInput label="Cor" value={form.color} onChangeText={(value) => updateField('color', value)} editable={!saving} autoCapitalize="words" />
+                <AppInput label="Sexo" value={form.sex} onChangeText={(value) => updateField('sex', value)} editable={!saving} autoCapitalize="words" />
+                <AppInput label="Peso" value={form.weightKg} onChangeText={(value) => updateField('weightKg', formatWeightInput(value))} keyboardType="number-pad" editable={!saving} placeholder="00.0" />
+                <AppInput label="Tamanho" value={form.size} onChangeText={(value) => updateField('size', formatCmInput(value))} keyboardType="number-pad" editable={!saving} placeholder="00 cm" />
+                <AppInput label="Microchip" value={form.microchip} onChangeText={(value) => updateField('microchip', value)} editable={!saving} autoCapitalize="characters" />
+                <AppInput label="Raça" value={form.breed} onChangeText={(value) => updateField('breed', value)} editable={!saving} autoCapitalize="words" />
+                <AppInput label="Observação" value={form.notes} onChangeText={(value) => updateField('notes', value)} editable={!saving} />
                 <AppButton title="Salvar dados" onPress={handleSave} disabled={saving} />
-                <AppButton title="Cancelar" onPress={() => navigation.goBack()} variant="secondary" disabled={saving} />
+                <AppButton title="Cancelar" onPress={openConfigTab} variant="secondary" disabled={saving} />
               </>
             )}
           </View>
@@ -113,5 +136,23 @@ export function EditPetScreen() {
 const styles = StyleSheet.create({
   container: { padding: spacing.md, gap: spacing.sm },
   title: { color: colors.text, fontSize: 22, fontWeight: '800' },
-  form: { gap: spacing.sm }
+  form: { gap: spacing.sm },
+  selectorBlock: { gap: spacing.xs },
+  selectorLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  selectorRow: { flexDirection: 'row', gap: spacing.sm },
+  selectorOption: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    backgroundColor: colors.surface
+  },
+  selectorOptionSelected: {
+    borderColor: colors.primary,
+    backgroundColor: '#EEF6FF'
+  },
+  selectorText: { color: colors.text, fontWeight: '600' },
+  selectorTextSelected: { color: colors.primaryDark }
 });

@@ -22,6 +22,8 @@ create table if not exists public.collars (
   serial text not null unique,
   activation_code text not null,
   ble_service_uuid text not null,
+  display_name text,
+  ble_device_name text,
   last_seen timestamptz,
   battery numeric(5,2) check (battery is null or (battery >= 0 and battery <= 100)),
   created_at timestamptz not null default now()
@@ -151,6 +153,32 @@ end $$;
 
 do $$
 begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'collars' and policyname = 'collars_update_owner') then
+    create policy collars_update_owner
+      on public.collars
+      for update
+      to authenticated
+      using (
+        exists (
+          select 1
+            from public.pets p
+           where p.id = collars.pet_id
+             and p.owner_user_id = auth.uid()
+        )
+      )
+      with check (
+        exists (
+          select 1
+            from public.pets p
+           where p.id = collars.pet_id
+             and p.owner_user_id = auth.uid()
+        )
+      );
+  end if;
+end $$;
+
+do $$
+begin
   if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'pets' and policyname = 'pets_update_owner') then
     create policy pets_update_owner
       on public.pets
@@ -211,12 +239,13 @@ grant select on public.pets to authenticated;
 grant insert on public.pets to authenticated;
 grant update on public.pets to authenticated;
 grant select on public.collars to authenticated;
+grant update on public.collars to authenticated;
 grant select on public.gps_events to authenticated;
 grant select on public.ble_events to authenticated;
 grant select, insert, update on public.profiles to authenticated;
 
 revoke delete on public.pets from authenticated;
-revoke insert, update, delete on public.collars from authenticated;
+revoke insert, delete on public.collars from authenticated;
 revoke insert, update, delete on public.gps_events from authenticated;
 revoke insert, update, delete on public.ble_events from authenticated;
 revoke delete on public.profiles from authenticated;

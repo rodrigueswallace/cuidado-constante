@@ -9,9 +9,12 @@ import { AddCollarScreen } from '@/screens/AddCollarScreen';
 import { AuthScreen } from '@/screens/AuthScreen';
 import { BleScreen } from '@/screens/BleScreen';
 import { ConfigScreen } from '@/screens/ConfigScreen';
+import { DeleteAccountScreen } from '@/screens/DeleteAccountScreen';
+import { EditDeviceScreen } from '@/screens/EditDeviceScreen';
 import { EditPetScreen } from '@/screens/EditPetScreen';
 import { EditTutorScreen } from '@/screens/EditTutorScreen';
 import { GpsScreen } from '@/screens/GpsScreen';
+import { ResetPasswordScreen } from '@/screens/ResetPasswordScreen';
 import { useAppStore } from '@/store/appStore';
 import { colors } from '@/theme/tokens';
 
@@ -58,7 +61,7 @@ function MainTabs() {
         name="Config"
         component={ConfigScreen}
         options={{
-          tabBarLabel: 'Config',
+          tabBarLabel: 'Configurações',
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="cog-outline" color={color} size={size} />
         }}
       />
@@ -99,6 +102,9 @@ export function RootNavigator() {
       <Stack.Screen name="AddCollar" component={AddCollarScreen} />
       <Stack.Screen name="EditTutor" component={EditTutorScreen} />
       <Stack.Screen name="EditPet" component={EditPetScreen} />
+      <Stack.Screen name="EditDevice" component={EditDeviceScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
     </Stack.Navigator>
   );
 }

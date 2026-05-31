@@ -1,6 +1,7 @@
 export interface TutorProfileForm {
   fullName: string;
   phone: string;
+  createdAt: string;
 }
 
 export interface PetProfileForm {

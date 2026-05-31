@@ -9,26 +9,32 @@ import { AppLogo } from '@/components/ui/AppLogo';
 import { AppScreen } from '@/components/ui/AppScreen';
 import { authService } from '@/services/auth';
 import { PetSignUpPayload, TutorSignUpPayload } from '@/types/auth';
-import { colors, spacing } from '@/theme/tokens';
+import { colors, radius, spacing } from '@/theme/tokens';
+import { cmInputToNumberString, displayDateToIso, formatCmInput, formatDateDigits, formatPhone, formatWeightInput, weightInputToNumberString } from '@/utils/formats';
 
 interface AuthScreenProps {
   recoveryMode?: boolean;
   onRecoveryComplete?: () => void;
 }
 
+const SPECIES_OPTIONS = [
+  { value: 'cachorro', label: 'Cachorro' },
+  { value: 'gato', label: 'Gato' }
+] as const;
+
 function getFriendlyAuthError(errorMessage: string) {
   const normalized = errorMessage.toLowerCase();
 
   if (normalized.includes('over_email_send_rate_limit') || normalized.includes('email rate limit exceeded')) {
-    return 'Muitas tentativas de envio de email. Aguarde alguns minutos antes de tentar novamente.';
+    return 'Muitas tentativas de envio de e-mail. Aguarde alguns minutos antes de tentar novamente.';
   }
 
   if (normalized.includes('user already registered')) {
-    return 'Este email ja esta cadastrado. Tente entrar ou recuperar sua senha.';
+    return 'Este e-mail já está cadastrado. Tente entrar ou recuperar sua senha.';
   }
 
   if (normalized.includes('invalid login credentials')) {
-    return 'Email ou senha invalidos.';
+    return 'E-mail ou senha inválidos.';
   }
 
   if (normalized.includes('password should be at least')) {
@@ -54,7 +60,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
   });
   const [petForm, setPetForm] = useState<PetSignUpPayload>({
     name: '',
-    species: '',
+    species: 'cachorro',
     birthDate: '',
     color: '',
     sex: '',
@@ -87,7 +93,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     });
     setPetForm({
       name: '',
-      species: '',
+      species: 'cachorro',
       birthDate: '',
       color: '',
       sex: '',
@@ -103,7 +109,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
 
   const submit = async () => {
     if (!email.trim() || !password) {
-      Alert.alert('Erro', 'Preencha email e senha.');
+      Alert.alert('Erro', 'Preencha e-mail e senha.');
       return;
     }
 
@@ -116,12 +122,12 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
 
   const validateTutorStep = () => {
     if (!tutorForm.fullName.trim() || !tutorForm.email.trim() || !tutorForm.phone.trim() || !tutorForm.password) {
-      Alert.alert('Erro', 'Preencha nome, email, celular e senha.');
+      Alert.alert('Erro', 'Preencha nome, e-mail, telefone e senha.');
       return false;
     }
 
     if (tutorForm.password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas nao conferem.');
+      Alert.alert('Erro', 'As senhas não conferem.');
       return false;
     }
 
@@ -136,20 +142,18 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
       return;
     }
 
-    if (petForm.birthDate.trim() && !/^\d{4}-\d{2}-\d{2}$/.test(petForm.birthDate.trim())) {
-      Alert.alert('Erro', 'Use a data no formato AAAA-MM-DD.');
-      return;
-    }
-
-    if (petForm.weightKg.trim() && Number.isNaN(Number(petForm.weightKg.replace(',', '.')))) {
-      Alert.alert('Erro', 'Informe o peso usando apenas numeros.');
+    const birthDateIso = petForm.birthDate.trim() ? displayDateToIso(petForm.birthDate.trim()) : null;
+    if (petForm.birthDate.trim() && !birthDateIso) {
+      Alert.alert('Erro', 'Use a data no formato DD/MM/AAAA.');
       return;
     }
 
     setLoading(true);
     const { data, error } = await authService.signUp(tutorForm, {
       ...petForm,
-      weightKg: petForm.weightKg.replace(',', '.')
+      birthDate: birthDateIso ?? '',
+      weightKg: weightInputToNumberString(petForm.weightKg),
+      size: cmInputToNumberString(petForm.size)
     });
     setLoading(false);
 
@@ -160,19 +164,19 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
 
     if (!data.session) {
       Alert.alert(
-        'Cadastro em analise',
-        'Se este email ainda nao estiver cadastrado, enviaremos uma confirmacao para continuar. Se ele ja existir, tente entrar ou use "Esqueci minha senha".'
+        'Cadastro em análise',
+        'Se este e-mail ainda não estiver cadastrado, enviaremos uma confirmação para continuar. Se ele já existir, tente entrar ou use "Esqueci minha senha".'
       );
       return;
     }
 
-    Alert.alert('Cadastro concluido', 'Seu cadastro e o primeiro pet foram criados com sucesso.');
+    Alert.alert('Cadastro concluído', 'Seu cadastro e o primeiro pet foram criados com sucesso.');
     resetSignUpFlow();
   };
 
   const submitForgotPassword = async () => {
     if (!email.trim()) {
-      Alert.alert('Erro', 'Informe seu email para recuperar a senha.');
+      Alert.alert('Erro', 'Informe seu e-mail para recuperar a senha.');
       return;
     }
 
@@ -185,7 +189,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
       return;
     }
 
-    Alert.alert('Email enviado', 'Enviamos um link para redefinir sua senha.');
+    Alert.alert('E-mail enviado', 'Enviamos um link para redefinir sua senha.');
     setIsForgotPassword(false);
   };
 
@@ -196,7 +200,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas nao conferem.');
+      Alert.alert('Erro', 'As senhas não conferem.');
       return;
     }
 
@@ -215,7 +219,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
     onRecoveryComplete?.();
     setPassword('');
     setConfirmPassword('');
-    Alert.alert('Senha atualizada', 'Sua senha foi redefinida. Faca login com a nova senha.');
+    Alert.alert('Senha atualizada', 'Sua senha foi redefinida. Faça login com a nova senha.');
   };
 
   const isPasswordRecovery = recoveryMode;
@@ -263,34 +267,46 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
                   {isTutorStep ? (
                     <>
                       <AppInput label="Nome completo" placeholder="Nome completo" autoCapitalize="words" onChangeText={(value) => updateTutor('fullName', value)} value={tutorForm.fullName} />
-                      <AppInput label="Email" placeholder="voce@email.com" autoCapitalize="none" onChangeText={(value) => updateTutor('email', value)} value={tutorForm.email} />
-                      <AppInput label="Celular" placeholder="Celular" keyboardType="phone-pad" onChangeText={(value) => updateTutor('phone', value)} value={tutorForm.phone} />
+                      <AppInput label="E-mail" placeholder="voce@email.com" autoCapitalize="none" onChangeText={(value) => updateTutor('email', value)} value={tutorForm.email} />
+                      <AppInput label="Telefone" placeholder="(00) 00000-0000" keyboardType="phone-pad" onChangeText={(value) => updateTutor('phone', formatPhone(value))} value={tutorForm.phone} />
                       <AppInput label="Senha" placeholder="Senha" secureTextEntry onChangeText={(value) => updateTutor('password', value)} value={tutorForm.password} />
                       <AppInput label="Confirme a senha" placeholder="Confirme a senha" secureTextEntry onChangeText={setConfirmPassword} value={confirmPassword} />
                     </>
                   ) : (
                     <>
                       <AppInput label="Nome" placeholder="Nome" autoCapitalize="words" onChangeText={(value) => updatePet('name', value)} value={petForm.name} />
-                      <AppInput label="Especie" placeholder="Especie" autoCapitalize="words" onChangeText={(value) => updatePet('species', value)} value={petForm.species} />
-                      <AppInput label="Data de nascimento (opcional)" placeholder="AAAA-MM-DD" onChangeText={(value) => updatePet('birthDate', value)} value={petForm.birthDate} />
+                      <View style={styles.selectorBlock}>
+                        <Text style={styles.selectorLabel}>Espécie</Text>
+                        <View style={styles.selectorRow}>
+                          {SPECIES_OPTIONS.map((option) => {
+                            const selected = petForm.species === option.value;
+                            return (
+                              <Pressable key={option.value} style={[styles.selectorOption, selected ? styles.selectorOptionSelected : null]} onPress={() => updatePet('species', option.value)}>
+                                <Text style={[styles.selectorText, selected ? styles.selectorTextSelected : null]}>{option.label}</Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </View>
+                      <AppInput label="Data de nascimento (opcional)" placeholder="DD/MM/AAAA" keyboardType="number-pad" onChangeText={(value) => updatePet('birthDate', formatDateDigits(value))} value={petForm.birthDate} />
                       <AppInput label="Cor (opcional)" placeholder="Cor" autoCapitalize="words" onChangeText={(value) => updatePet('color', value)} value={petForm.color} />
                       <AppInput label="Sexo (opcional)" placeholder="Sexo" autoCapitalize="words" onChangeText={(value) => updatePet('sex', value)} value={petForm.sex} />
-                      <AppInput label="Peso em kg (opcional)" placeholder="Peso" keyboardType="numeric" onChangeText={(value) => updatePet('weightKg', value)} value={petForm.weightKg} />
-                      <AppInput label="Tamanho (opcional)" placeholder="Tamanho" autoCapitalize="words" onChangeText={(value) => updatePet('size', value)} value={petForm.size} />
+                      <AppInput label="Peso (opcional)" placeholder="00.0" keyboardType="number-pad" onChangeText={(value) => updatePet('weightKg', formatWeightInput(value))} value={petForm.weightKg} />
+                      <AppInput label="Tamanho (opcional)" placeholder="00 cm" keyboardType="number-pad" onChangeText={(value) => updatePet('size', formatCmInput(value))} value={petForm.size} />
                       <AppInput label="Microchip (opcional)" placeholder="Microchip" autoCapitalize="characters" onChangeText={(value) => updatePet('microchip', value)} value={petForm.microchip} />
-                      <AppInput label="Raca (opcional)" placeholder="Raca" autoCapitalize="words" onChangeText={(value) => updatePet('breed', value)} value={petForm.breed} />
-                      <AppInput label="Observacao (opcional)" placeholder="Observacao" onChangeText={(value) => updatePet('notes', value)} value={petForm.notes} />
+                      <AppInput label="Raça (opcional)" placeholder="Raça" autoCapitalize="words" onChangeText={(value) => updatePet('breed', value)} value={petForm.breed} />
+                      <AppInput label="Observação (opcional)" placeholder="Observação" onChangeText={(value) => updatePet('notes', value)} value={petForm.notes} />
                     </>
                   )}
                 </>
               ) : (
-                <AppInput label="Email" placeholder="voce@email.com" autoCapitalize="none" onChangeText={setEmail} value={email} />
+                <AppInput label="E-mail" placeholder="voce@email.com" autoCapitalize="none" onChangeText={setEmail} value={email} />
               )
             ) : null}
 
             {isPasswordRecovery ? (
               <>
-                <Text style={styles.helper}>Digite sua nova senha para concluir a recuperacao.</Text>
+                <Text style={styles.helper}>Digite sua nova senha para concluir a recuperação.</Text>
                 <AppInput label="Nova senha" placeholder="Nova senha" secureTextEntry onChangeText={setPassword} value={password} />
                 <AppInput label="Confirmar senha" placeholder="Repita a nova senha" secureTextEntry onChangeText={setConfirmPassword} value={confirmPassword} />
                 <AppButton title="Atualizar senha" onPress={submitPasswordRecovery} disabled={loading} />
@@ -306,8 +322,8 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
               </>
             ) : isEmailRecoveryRequest ? (
               <>
-                <Text style={styles.helper}>Enviaremos um link para redefinir sua senha no email informado.</Text>
-                <AppButton title="Enviar link de recuperacao" onPress={submitForgotPassword} disabled={loading} />
+                <Text style={styles.helper}>Enviaremos um link para redefinir sua senha no e-mail informado.</Text>
+                <AppButton title="Enviar link de recuperação" onPress={submitForgotPassword} disabled={loading} />
                 <AppButton title="Voltar para login" onPress={() => setIsForgotPassword(false)} variant="secondary" />
               </>
             ) : isTutorStep ? (
@@ -319,7 +335,7 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
                   }}
                   disabled={loading}
                 />
-                <AppButton title="Ja tenho conta" onPress={resetSignUpFlow} variant="secondary" disabled={loading} />
+                <AppButton title="Já tenho conta" onPress={resetSignUpFlow} variant="secondary" disabled={loading} />
               </>
             ) : isPetStep ? (
               <>
@@ -371,5 +387,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  photoLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' }
+  photoLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  selectorBlock: { gap: spacing.xs },
+  selectorLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  selectorRow: { flexDirection: 'row', gap: spacing.sm },
+  selectorOption: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    backgroundColor: colors.surface
+  },
+  selectorOptionSelected: {
+    borderColor: colors.primary,
+    backgroundColor: '#EEF6FF'
+  },
+  selectorText: { color: colors.text, fontWeight: '600' },
+  selectorTextSelected: { color: colors.primaryDark }
 });

@@ -5,6 +5,8 @@ import { fetchActiveCollarId, ingestBleEvent, IngestBlePayload, saveActiveCollar
 
 interface AppState {
   activeCollarId: string | null;
+  connectedBleDeviceId: string | null;
+  connectedBleDeviceName: string | null;
   gpsPollSeconds: number;
   routeThrottleSeconds: number;
   bleAlarmLevel: 'very_far' | 'disconnected';
@@ -13,6 +15,7 @@ interface AppState {
   silencedBleAlarmKey: string | null;
   pendingBleEvents: IngestBlePayload[];
   setActiveCollarId: (value: string | null) => Promise<void>;
+  setConnectedBleDevice: (deviceId: string | null, deviceName: string | null) => void;
   setGpsPollSeconds: (value: number) => void;
   setRouteThrottleSeconds: (value: number) => void;
   setBleAlarmLevel: (value: AppState['bleAlarmLevel']) => Promise<void>;
@@ -30,6 +33,8 @@ const BLE_ALARM_LEVEL_KEY = 'ble_alarm_level_v1';
 
 export const useAppStore = create<AppState>((set, get) => ({
   activeCollarId: null,
+  connectedBleDeviceId: null,
+  connectedBleDeviceName: null,
   gpsPollSeconds: 30,
   routeThrottleSeconds: 120,
   bleAlarmLevel: 'disconnected',
@@ -47,6 +52,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     await AsyncStorage.removeItem(ACTIVE_COLLAR_KEY);
   },
+  setConnectedBleDevice: (deviceId, deviceName) => set({ connectedBleDeviceId: deviceId, connectedBleDeviceName: deviceName }),
   setGpsPollSeconds: (value) => set({ gpsPollSeconds: value }),
   setRouteThrottleSeconds: (value) => set({ routeThrottleSeconds: value }),
   setBleAlarmLevel: async (value) => {

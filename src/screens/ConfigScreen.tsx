@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -41,47 +41,40 @@ function ConfigRow({ item, isLast }: { item: ConfigItem; isLast: boolean }) {
 export function ConfigScreen() {
   const navigation = useNavigation<any>();
 
-  const showPending = (label: string) =>
-    Alert.alert('Em desenvolvimento', `${label} ainda nao possui fluxo completo no app atual.`);
-
   const items: ConfigItem[] = [
     {
       id: 'tutor',
-      title: 'Alterar dados tutor',
+      title: 'Alterar dados do tutor',
       icon: 'account-edit-outline',
-      description: 'Atualize nome, telefone e dados do responsavel.',
+      description: 'Atualize nome, telefone e dados do responsável.',
       onPress: () => navigation.navigate('EditTutor')
     },
     {
       id: 'pet',
-      title: 'Alterar dados pet',
+      title: 'Alterar dados do pet',
       icon: 'dog-side',
-      description: 'Revise as informacoes principais do pet cadastrado.',
+      description: 'Revise as informações principais do pet cadastrado.',
       onPress: () => navigation.navigate('EditPet')
     },
     {
       id: 'device',
-      title: 'Alterar dados dispositivo',
+      title: 'Alterar dados do dispositivo',
       icon: 'bluetooth-settings',
-      description: 'Gerencie coleira ativa, BLE e novo cadastro do dispositivo.',
-      onPress: () => navigation.navigate('AddCollar')
+      description: 'Gerencie a coleira ativa, o serial, o código e o nome BLE.',
+      onPress: () => navigation.navigate('EditDevice')
     },
     {
       id: 'password',
       title: 'Redefinir senha',
       icon: 'lock-reset',
-      description: 'Para redefinir a senha, saia da conta e use "Esqueci minha senha".',
-      onPress: () =>
-        Alert.alert(
-          'Redefinir senha',
-          'O fluxo atual de redefinicao e feito pela tela de login. Faca logout e use "Esqueci minha senha".'
-        )
+      description: 'Altere sua senha diretamente pelo app.',
+      onPress: () => navigation.navigate('ResetPassword')
     },
     {
       id: 'logout',
       title: 'Sair da conta',
       icon: 'logout',
-      description: 'Encerrar sessao no dispositivo atual.',
+      description: 'Encerrar sessão no dispositivo atual.',
       onPress: async () => {
         await authService.signOut();
       }
@@ -91,20 +84,20 @@ export function ConfigScreen() {
       title: 'Excluir conta',
       icon: 'delete-outline',
       tone: 'danger',
-      description: 'Acao destrutiva. Requer fluxo protegido e confirmacao.',
-      onPress: () => showPending('Excluir conta')
+      description: 'Ação permanente e sem possibilidade de desfazer.',
+      onPress: () => navigation.navigate('DeleteAccount')
     }
   ];
 
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.pageLabel}>Configuracoes</Text>
+        <Text style={styles.pageLabel}>Configurações</Text>
 
         <AppCard>
           <View style={styles.headerBlock}>
-            <Text style={styles.title}>Configuracoes</Text>
-            <Text style={styles.subtitle}>Ajuste dados da conta, do pet e da coleira ativa em um unico lugar.</Text>
+            <Text style={styles.title}>Configurações</Text>
+            <Text style={styles.subtitle}>Ajuste dados da conta, do pet e da coleira ativa em um único lugar.</Text>
           </View>
 
           <View style={styles.listBlock}>

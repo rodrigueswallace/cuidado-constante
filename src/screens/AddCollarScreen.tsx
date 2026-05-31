@@ -18,15 +18,15 @@ interface PetOption {
 
 function getFriendlyRegisterError(errorMessage: string) {
   if (errorMessage.includes('serial_ou_codigo_invalido')) {
-    return 'Serial ou codigo de ativacao invalido. Confira os dados e tente novamente.';
+    return 'Serial ou código de ativação inválido. Confira os dados e tente novamente.';
   }
 
   if (errorMessage.includes('coleira_ja_vinculada')) {
-    return 'Essa coleira ja esta vinculada a outro pet.';
+    return 'Essa coleira já está vinculada a outro pet.';
   }
 
   if (errorMessage.includes('pet_nao_autorizado')) {
-    return 'Pet invalido para este usuario. Atualize o app e tente novamente.';
+    return 'Pet inválido para este usuário. Atualize o app e tente novamente.';
   }
 
   if (
@@ -36,14 +36,14 @@ function getFriendlyRegisterError(errorMessage: string) {
     errorMessage.includes('nao_autorizado') ||
     errorMessage.includes('token_de_outro_projeto')
   ) {
-    return 'Sessao expirada. Faca login novamente e tente ativar a coleira.';
+    return 'Sessão expirada. Faça login novamente e tente ativar a coleira.';
   }
 
   if (errorMessage.includes('Failed to send a request to the Edge Function')) {
-    return 'Nao foi possivel conectar ao servidor de cadastro da coleira.';
+    return 'Não foi possível conectar ao servidor de cadastro da coleira.';
   }
 
-  return 'Nao foi possivel ativar a coleira agora. Tente novamente em instantes.';
+  return 'Não foi possível ativar a coleira agora. Tente novamente em instantes.';
 }
 
 export function AddCollarScreen() {
@@ -92,7 +92,7 @@ export function AddCollarScreen() {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      throw new Error('Usuario invalido. Faca login novamente.');
+      throw new Error('Usuário inválido. Faça login novamente.');
     }
 
     const { data, error } = await supabase
@@ -123,7 +123,7 @@ export function AddCollarScreen() {
       });
 
       if (!result?.collar_id) {
-        throw new Error('Resposta invalida ao cadastrar coleira.');
+        throw new Error('Resposta inválida ao cadastrar coleira.');
       }
 
       await setActiveCollarId(result.collar_id);
@@ -146,7 +146,7 @@ export function AddCollarScreen() {
         }
       }
 
-      const message = err instanceof Error ? getFriendlyRegisterError(err.message) : 'Nao foi possivel ativar a coleira.';
+      const message = err instanceof Error ? getFriendlyRegisterError(err.message) : 'Não foi possível ativar a coleira.';
       Alert.alert('Erro ao ativar', message);
     } finally {
       setSubmitting(false);
@@ -164,7 +164,7 @@ export function AddCollarScreen() {
             <AppInput
               value={activationCode}
               onChangeText={setActivationCode}
-              label="Codigo de ativacao"
+              label="Código de ativação"
               autoCapitalize="none"
               editable={!submitting}
             />

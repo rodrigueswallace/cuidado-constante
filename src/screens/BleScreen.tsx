@@ -23,17 +23,17 @@ const ALARM_OPTIONS = [
 
 function getProximityLabel(rssi: number | null) {
   if (rssi === null) return 'Desconectado';
-  if (rssi >= -58) return 'Muito proximo';
-  if (rssi >= -70) return 'Proximo';
+  if (rssi >= -58) return 'Muito próximo';
+  if (rssi >= -70) return 'Próximo';
   if (rssi >= -82) return 'Distante';
   return 'Muito distante';
 }
 
 function normalizeAlarmLevel(label: string) {
   switch (label) {
-    case 'Muito proximo':
+    case 'Muito próximo':
       return 'very_near';
-    case 'Proximo':
+    case 'Próximo':
       return 'near';
     case 'Distante':
       return 'far';
@@ -46,8 +46,9 @@ function normalizeAlarmLevel(label: string) {
 
 export function BleScreen() {
   const insets = useSafeAreaInsets();
-  const { activeCollarId, bleAlarmLevel, isBleAlarmPlaying, activeBleAlarmKey, silencedBleAlarmKey, setBleAlarmLevel, setSilencedBleAlarmKey } = useAppStore();
-  const { devices, rssi, battery, connectedDevice, scan, connect, disconnect, isScanning, isConnecting, scanStatus } = useBleTracking(BLE_SERVICE_UUID);
+  const { activeCollarId, bleAlarmLevel, isBleAlarmPlaying, silencedBleAlarmKey, setBleAlarmLevel, setSilencedBleAlarmKey } = useAppStore();
+  const { devices, rssi, battery, connectedDevice, scan, connect, disconnect, isScanning, isConnecting, connectingDeviceId, scanStatus, hasConnectedOnce, lastDisconnectUnexpected } =
+    useBleTracking(BLE_SERVICE_UUID);
   const alarmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isExpectedDevice = (device: Device) => {
     if (!BLE_DEVICE_NAME_PREFIX) return false;
@@ -67,13 +68,13 @@ export function BleScreen() {
     });
   }, [devices]);
 
-  const scanButtonLabel = isScanning ? 'Escaneando...' : 'Escanear BLE';
+  const scanButtonLabel = isScanning ? 'Parar escanear' : 'Escanear BLE';
   const isConnected = !!connectedDevice;
   const proximityLabel = getProximityLabel(rssi);
   const currentAlarmLevel = normalizeAlarmLevel(proximityLabel);
-  const effectiveAlarmLevel = isConnected ? currentAlarmLevel : 'disconnected';
+  const effectiveAlarmLevel = isConnected ? currentAlarmLevel : lastDisconnectUnexpected && hasConnectedOnce ? 'disconnected' : null;
   const currentAlarmKey = `${connectedDevice?.id ?? 'none'}:${effectiveAlarmLevel}`;
-  const shouldTriggerAlarm = bleAlarmLevel === effectiveAlarmLevel;
+  const shouldTriggerAlarm = !!effectiveAlarmLevel && bleAlarmLevel === effectiveAlarmLevel;
 
   useEffect(() => {
     if (silencedBleAlarmKey && silencedBleAlarmKey !== currentAlarmKey) {
@@ -107,7 +108,7 @@ export function BleScreen() {
   return (
     <AppScreen>
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: Math.max(insets.top, spacing.sm) }]}>
-        <Text style={styles.title}>Sensor de distancia</Text>
+        <Text style={styles.title}>Sensor de distância</Text>
 
         <AppCard>
           <View style={styles.hero}>
@@ -125,7 +126,7 @@ export function BleScreen() {
           </View>
 
           <View style={styles.heroActions}>
-            <AppButton title={scanButtonLabel} onPress={scan} disabled={!activeCollarId || isScanning || isConnecting} />
+            <AppButton title={scanButtonLabel} onPress={scan} disabled={!activeCollarId || isConnecting} />
             {isConnected ? <AppButton title="Desconectar" onPress={disconnect} variant="secondary" /> : null}
           </View>
 
@@ -135,8 +136,8 @@ export function BleScreen() {
               <Text style={styles.infoValue}>{activeCollarId ?? '--'}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Status da conexao</Text>
-              <Text style={styles.infoValue}>{isConnected ? 'Conectado' : '--'}</Text>
+              <Text style={styles.infoLabel}>Status da conexão</Text>
+              <Text style={styles.infoValue}>{scanStatus ?? (isConnected ? 'Conectado' : '--')}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Sinal RSSI</Text>
@@ -157,12 +158,12 @@ export function BleScreen() {
           </View>
 
           {scanStatus ? <Text style={styles.status}>{scanStatus}</Text> : null}
-          {!activeCollarId ? <Text style={styles.warn}>Cadastre uma coleira para conectar BLE.</Text> : null}
+          {!activeCollarId ? <Text style={styles.warn}>Cadastre uma coleira para conectar ao Bluetooth.</Text> : null}
         </AppCard>
 
         <AppCard>
           <Text style={styles.sectionTitle}>Quando acionar o alarme</Text>
-          <Text style={styles.sectionHint}>Escolha apenas uma regra. A opcao selecionada sera a usada no monitoramento.</Text>
+          <Text style={styles.sectionHint}>Escolha apenas uma regra. A opção selecionada será a usada no monitoramento.</Text>
           <View style={styles.alarmOptions}>
             {ALARM_OPTIONS.map((option) => {
               const selected = bleAlarmLevel === option.value;
@@ -190,26 +191,27 @@ export function BleScreen() {
 
         <AppCard>
           <Text style={styles.sectionTitle}>Bluetooths encontrados</Text>
-          <Text style={styles.sectionHint}>{isScanning ? 'Atualizando dispositivos encontrados...' : 'Escaneie para listar e conectar um dispositivo proximo.'}</Text>
+          <Text style={styles.sectionHint}>{isScanning ? 'Atualizando dispositivos encontrados...' : 'Escaneie para listar e conectar um dispositivo próximo.'}</Text>
           {sortedDevices.length === 0 ? (
-            <Text style={styles.emptyState}>Nenhum dispositivo encontrado no ultimo scan.</Text>
+            <Text style={styles.emptyState}>Nenhum dispositivo encontrado no último escaneamento.</Text>
           ) : (
             <View style={styles.deviceList}>
               {sortedDevices.map((item) => {
                 const deviceName = item.name || item.localName || 'Dispositivo sem nome';
                 const isCurrent = connectedDevice?.id === item.id;
+                const isCurrentConnecting = connectingDeviceId === item.id;
 
                 return (
                   <View key={item.id} style={styles.deviceRow}>
                     <View style={styles.deviceMain}>
                       <Text style={styles.deviceName}>{deviceName}</Text>
                       <Text style={styles.deviceMeta}>{item.id}</Text>
-                      {isExpectedDevice(item) ? <Text style={styles.deviceHint}>Possivel coleira</Text> : null}
+                      {isExpectedDevice(item) ? <Text style={styles.deviceHint}>Possível coleira</Text> : null}
                     </View>
                     <AppButton
-                      title={isCurrent ? 'Conectado' : isConnecting ? 'Conectando...' : 'Conectar'}
+                      title={isCurrent ? 'Conectado' : isCurrentConnecting ? 'Conectando...' : 'Conectar'}
                       onPress={() => activeCollarId && connect(item, activeCollarId)}
-                      disabled={!activeCollarId || isCurrent || isConnecting}
+                      disabled={!activeCollarId || isCurrent || (isConnecting && !isCurrentConnecting)}
                       variant="secondary"
                     />
                   </View>
