@@ -9,6 +9,8 @@ import { AddCollarScreen } from '@/screens/AddCollarScreen';
 import { AuthScreen } from '@/screens/AuthScreen';
 import { BleScreen } from '@/screens/BleScreen';
 import { ConfigScreen } from '@/screens/ConfigScreen';
+import { EditPetScreen } from '@/screens/EditPetScreen';
+import { EditTutorScreen } from '@/screens/EditTutorScreen';
 import { GpsScreen } from '@/screens/GpsScreen';
 import { useAppStore } from '@/store/appStore';
 import { colors } from '@/theme/tokens';
@@ -95,6 +97,8 @@ export function RootNavigator() {
     <Stack.Navigator initialRouteName="Tabs">
       <Stack.Screen name="Tabs" component={MainTabs} />
       <Stack.Screen name="AddCollar" component={AddCollarScreen} />
+      <Stack.Screen name="EditTutor" component={EditTutorScreen} />
+      <Stack.Screen name="EditPet" component={EditPetScreen} />
     </Stack.Navigator>
   );
 }

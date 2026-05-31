@@ -151,6 +151,18 @@ end $$;
 
 do $$
 begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'pets' and policyname = 'pets_update_owner') then
+    create policy pets_update_owner
+      on public.pets
+      for update
+      to authenticated
+      using (owner_user_id = auth.uid())
+      with check (owner_user_id = auth.uid());
+  end if;
+end $$;
+
+do $$
+begin
   if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'profiles_insert_own') then
     create policy profiles_insert_own
       on public.profiles
@@ -197,12 +209,13 @@ end $$;
 
 grant select on public.pets to authenticated;
 grant insert on public.pets to authenticated;
+grant update on public.pets to authenticated;
 grant select on public.collars to authenticated;
 grant select on public.gps_events to authenticated;
 grant select on public.ble_events to authenticated;
 grant select, insert, update on public.profiles to authenticated;
 
-revoke update, delete on public.pets from authenticated;
+revoke delete on public.pets from authenticated;
 revoke insert, update, delete on public.collars from authenticated;
 revoke insert, update, delete on public.gps_events from authenticated;
 revoke insert, update, delete on public.ble_events from authenticated;
