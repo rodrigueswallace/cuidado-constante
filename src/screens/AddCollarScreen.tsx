@@ -51,73 +51,50 @@ export function AddCollarScreen() {
   const { setActiveCollarId } = useAppStore();
   const [serial, setSerial] = useState('');
   const [activationCode, setActivationCode] = useState('');
-  const [petName, setPetName] = useState('Meu pet');
-  const [pets, setPets] = useState<PetOption[]>([]);
-  const [loadingPets, setLoadingPets] = useState(true);
+  const [selectedPet, setSelectedPet] = useState<PetOption | null>(null);
+  const [loadingPet, setLoadingPet] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = useMemo(
-    () => serial.trim().length > 0 && activationCode.trim().length > 0 && petName.trim().length > 0,
-    [serial, activationCode, petName]
+    () => serial.trim().length > 0 && activationCode.trim().length > 0 && !!selectedPet?.id,
+    [activationCode, selectedPet?.id, serial]
   );
 
   useEffect(() => {
-    const loadPets = async () => {
-      setLoadingPets(true);
+    const loadPrimaryPet = async () => {
+      setLoadingPet(true);
       try {
-        const { data, error } = await supabase.from('pets').select('id, name').order('created_at', { ascending: true });
+        const { data, error } = await supabase
+          .from('pets')
+          .select('id, name')
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
 
         if (error) throw error;
 
-        const fetchedPets = (data || []).map((pet) => ({ id: pet.id, name: pet.name }));
-        setPets(fetchedPets);
-        if (fetchedPets.length > 0) setPetName(fetchedPets[0].name);
+        if (data) {
+          setSelectedPet({ id: data.id, name: data.name });
+        } else {
+          setSelectedPet(null);
+        }
       } catch {
-        setPets([]);
+        setSelectedPet(null);
       } finally {
-        setLoadingPets(false);
+        setLoadingPet(false);
       }
     };
 
-    loadPets();
+    loadPrimaryPet();
   }, []);
 
-  const ensurePetId = async () => {
-    const existingPet = pets.find((pet) => pet.name === petName.trim());
-    if (existingPet) return { petId: existingPet.id, createdNow: false };
-
-    const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      throw new Error('Usuário inválido. Faça login novamente.');
-    }
-
-    const { data, error } = await supabase
-      .from('pets')
-      .insert({ owner_user_id: user.id, name: petName.trim() })
-      .select('id, name')
-      .single();
-
-    if (error) throw error;
-
-    setPets((prev) => [...prev, data]);
-    return { petId: data.id, createdNow: true };
-  };
-
   const handleSubmit = async () => {
-    if (!canSubmit || submitting) return;
+    if (!canSubmit || submitting || !selectedPet) return;
 
     setSubmitting(true);
-    let createdPetId: string | null = null;
     try {
-      const petRef = await ensurePetId();
-      if (petRef.createdNow) createdPetId = petRef.petId;
-
       const result = await registerCollar({
-        pet_id: petRef.petId,
+        pet_id: selectedPet.id,
         serial: serial.trim().toUpperCase(),
         activation_code: activationCode.trim()
       });
@@ -130,22 +107,6 @@ export function AddCollarScreen() {
       Alert.alert('Coleira ativada', `Coleira ${result.serial} vinculada com sucesso.`);
       navigation.goBack();
     } catch (err) {
-      const rawMessage = err instanceof Error ? err.message : String(err);
-      const shouldRollbackNewPet =
-        !!createdPetId &&
-        (rawMessage.includes('serial_ou_codigo_invalido') ||
-          rawMessage.includes('coleira_ja_vinculada') ||
-          rawMessage.includes('pet_nao_autorizado'));
-
-      if (shouldRollbackNewPet && createdPetId) {
-        try {
-          await supabase.from('pets').delete().eq('id', createdPetId);
-          setPets((prev) => prev.filter((pet) => pet.id !== createdPetId));
-        } catch {
-          // Keep UX stable even if rollback fails.
-        }
-      }
-
       const message = err instanceof Error ? getFriendlyRegisterError(err.message) : 'Não foi possível ativar a coleira.';
       Alert.alert('Erro ao ativar', message);
     } finally {
@@ -156,20 +117,22 @@ export function AddCollarScreen() {
   return (
     <AppScreen>
       <View style={styles.container}>
-        <Text style={styles.title}>Adicionar coleira</Text>
+        <Text style={styles.title}>Adicionar dispositivo</Text>
         <AppCard>
           <View style={styles.form}>
-            <AppInput value={petName} onChangeText={setPetName} label="Nome do pet" editable={!submitting && !loadingPets} />
-            <AppInput value={serial} onChangeText={setSerial} label="Serial" autoCapitalize="characters" editable={!submitting} />
-            <AppInput
-              value={activationCode}
-              onChangeText={setActivationCode}
-              label="Código de ativação"
-              autoCapitalize="none"
-              editable={!submitting}
-            />
+            {loadingPet ? <ActivityIndicator color={colors.primary} /> : null}
 
-            {loadingPets || submitting ? <ActivityIndicator color={colors.primary} /> : <AppButton title="Ativar coleira" onPress={handleSubmit} disabled={!canSubmit} />}
+            <AppInput value={selectedPet?.name ?? ''} label="Nome do pet" editable={false} />
+            <AppInput value={serial} onChangeText={setSerial} label="Serial" autoCapitalize="characters" editable={!submitting && !loadingPet} />
+            <AppInput value={activationCode} onChangeText={setActivationCode} label="Código de ativação" autoCapitalize="none" editable={!submitting && !loadingPet} />
+
+            {!loadingPet && !selectedPet ? <Text style={styles.warn}>Cadastre um pet antes de adicionar um dispositivo.</Text> : null}
+
+            {submitting ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <AppButton title="Ativar dispositivo" onPress={handleSubmit} disabled={!canSubmit || loadingPet} />
+            )}
             <AppButton title="Cancelar" onPress={() => navigation.goBack()} variant="secondary" disabled={submitting} />
           </View>
         </AppCard>
@@ -181,5 +144,6 @@ export function AddCollarScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, gap: spacing.sm },
   title: { color: colors.text, fontSize: 22, fontWeight: '800' },
-  form: { gap: spacing.sm }
+  form: { gap: spacing.sm },
+  warn: { color: colors.danger }
 });

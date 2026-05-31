@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Device } from 'react-native-ble-plx';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,6 +46,7 @@ function normalizeAlarmLevel(label: string) {
 }
 
 export function BleScreen() {
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { activeCollarId, bleAlarmLevel, isBleAlarmPlaying, silencedBleAlarmKey, setBleAlarmLevel, setSilencedBleAlarmKey } = useAppStore();
   const { devices, rssi, battery, connectedDevice, scan, connect, disconnect, isScanning, isConnecting, connectingDeviceId, scanStatus, hasConnectedOnce, lastDisconnectUnexpected } =
@@ -128,6 +130,7 @@ export function BleScreen() {
           <View style={styles.heroActions}>
             <AppButton title={scanButtonLabel} onPress={scan} disabled={!activeCollarId || isConnecting} />
             {isConnected ? <AppButton title="Desconectar" onPress={disconnect} variant="secondary" /> : null}
+            {!activeCollarId ? <AppButton title="Adicionar dispositivo" onPress={() => navigation.navigate('AddCollar')} variant="secondary" /> : null}
           </View>
 
           <View style={styles.infoGrid}>
