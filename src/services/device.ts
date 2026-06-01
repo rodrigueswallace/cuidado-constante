@@ -49,38 +49,9 @@ export async function fetchEditableDeviceProfile(collarId: string): Promise<Edit
 export async function saveEditableDeviceProfile(payload: EditableDeviceProfile) {
   await getCurrentUserId();
 
-  const normalizedSerial = payload.serial.trim().toUpperCase();
-  const normalizedCode = payload.activationCode.trim();
-
-  const { data: duplicateSerial, error: duplicateSerialError } = await supabase
-    .from('collars')
-    .select('id')
-    .neq('id', payload.id)
-    .eq('serial', normalizedSerial)
-    .limit(1)
-    .maybeSingle();
-
-  if (duplicateSerialError) throw duplicateSerialError;
-
-  const { data: duplicatePair, error: duplicatePairError } = await supabase
-    .from('collars')
-    .select('id')
-    .neq('id', payload.id)
-    .eq('serial', normalizedSerial)
-    .eq('activation_code', normalizedCode)
-    .limit(1)
-    .maybeSingle();
-
-  if (duplicatePairError) throw duplicatePairError;
-  if (duplicateSerial || duplicatePair) {
-    throw new Error('dispositivo_ja_cadastrado');
-  }
-
   const { error } = await supabase
     .from('collars')
     .update({
-      serial: normalizedSerial,
-      activation_code: normalizedCode,
       display_name: payload.displayName.trim() || null,
       ble_device_name: payload.bleDeviceName.trim() || null
     })

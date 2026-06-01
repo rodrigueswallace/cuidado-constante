@@ -30,6 +30,11 @@ const SPECIES_OPTIONS = [
   { value: 'gato', label: 'Gato' }
 ] as const;
 
+const SEX_OPTIONS = [
+  { value: 'macho', label: 'Macho' },
+  { value: 'femea', label: 'Fêmea' }
+] as const;
+
 export function EditPetScreen() {
   const [form, setForm] = useState<PetProfileForm>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
@@ -116,9 +121,42 @@ export function EditPetScreen() {
                 </View>
                 <AppInput label="Data de nascimento" value={form.birthDate} onChangeText={(value) => updateField('birthDate', formatDateDigits(value))} placeholder="DD/MM/AAAA" keyboardType="number-pad" editable={!saving} />
                 <AppInput label="Cor" value={form.color} onChangeText={(value) => updateField('color', value)} editable={!saving} autoCapitalize="words" />
-                <AppInput label="Sexo" value={form.sex} onChangeText={(value) => updateField('sex', value)} editable={!saving} autoCapitalize="words" />
-                <AppInput label="Peso" value={form.weightKg} onChangeText={(value) => updateField('weightKg', formatWeightInput(value))} keyboardType="number-pad" editable={!saving} placeholder="00.0" />
-                <AppInput label="Tamanho" value={form.size} onChangeText={(value) => updateField('size', formatCmInput(value))} keyboardType="number-pad" editable={!saving} placeholder="00 cm" />
+                <View style={styles.selectorBlock}>
+                  <Text style={styles.selectorLabel}>Sexo</Text>
+                  <View style={styles.selectorRow}>
+                    {SEX_OPTIONS.map((option) => {
+                      const selected = form.sex === option.value;
+                      return (
+                        <Pressable key={option.value} style={[styles.selectorOption, selected ? styles.selectorOptionSelected : null]} onPress={() => updateField('sex', option.value)}>
+                          <Text style={[styles.selectorText, selected ? styles.selectorTextSelected : null]}>{option.label}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+                <AppInput
+                  label="Peso"
+                  value={form.weightKg}
+                  onChangeText={(value) => updateField('weightKg', formatWeightInput(value))}
+                  keyboardType="number-pad"
+                  editable={!saving}
+                  placeholder="00.0"
+                  selection={{ start: form.weightKg.length, end: form.weightKg.length }}
+                />
+                <View style={styles.unitRow}>
+                  <View style={styles.unitInput}>
+                    <AppInput
+                      label="Tamanho"
+                      value={form.size}
+                      onChangeText={(value) => updateField('size', formatCmInput(value))}
+                      keyboardType="number-pad"
+                      editable={!saving}
+                      placeholder="00"
+                      selection={{ start: form.size.length, end: form.size.length }}
+                    />
+                  </View>
+                  <Text style={styles.unitText}>cm</Text>
+                </View>
                 <AppInput label="Microchip" value={form.microchip} onChangeText={(value) => updateField('microchip', value)} editable={!saving} autoCapitalize="characters" />
                 <AppInput label="Raça" value={form.breed} onChangeText={(value) => updateField('breed', value)} editable={!saving} autoCapitalize="words" />
                 <AppInput label="Observação" value={form.notes} onChangeText={(value) => updateField('notes', value)} editable={!saving} />
@@ -154,5 +192,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEF6FF'
   },
   selectorText: { color: colors.text, fontWeight: '600' },
-  selectorTextSelected: { color: colors.primaryDark }
+  selectorTextSelected: { color: colors.primaryDark },
+  unitRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
+  unitInput: { flex: 1 },
+  unitText: {
+    color: colors.textMuted,
+    fontWeight: '700',
+    paddingBottom: spacing.sm + 5
+  }
 });

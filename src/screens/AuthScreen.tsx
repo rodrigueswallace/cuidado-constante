@@ -22,6 +22,11 @@ const SPECIES_OPTIONS = [
   { value: 'gato', label: 'Gato' }
 ] as const;
 
+const SEX_OPTIONS = [
+  { value: 'macho', label: 'Macho' },
+  { value: 'femea', label: 'Fêmea' }
+] as const;
+
 function getFriendlyAuthError(errorMessage: string) {
   const normalized = errorMessage.toLowerCase();
 
@@ -290,9 +295,40 @@ export function AuthScreen({ recoveryMode = false, onRecoveryComplete }: AuthScr
                       </View>
                       <AppInput label="Data de nascimento (opcional)" placeholder="DD/MM/AAAA" keyboardType="number-pad" onChangeText={(value) => updatePet('birthDate', formatDateDigits(value))} value={petForm.birthDate} />
                       <AppInput label="Cor (opcional)" placeholder="Cor" autoCapitalize="words" onChangeText={(value) => updatePet('color', value)} value={petForm.color} />
-                      <AppInput label="Sexo (opcional)" placeholder="Sexo" autoCapitalize="words" onChangeText={(value) => updatePet('sex', value)} value={petForm.sex} />
-                      <AppInput label="Peso (opcional)" placeholder="00.0" keyboardType="number-pad" onChangeText={(value) => updatePet('weightKg', formatWeightInput(value))} value={petForm.weightKg} />
-                      <AppInput label="Tamanho (opcional)" placeholder="00 cm" keyboardType="number-pad" onChangeText={(value) => updatePet('size', formatCmInput(value))} value={petForm.size} />
+                      <View style={styles.selectorBlock}>
+                        <Text style={styles.selectorLabel}>Sexo (opcional)</Text>
+                        <View style={styles.selectorRow}>
+                          {SEX_OPTIONS.map((option) => {
+                            const selected = petForm.sex === option.value;
+                            return (
+                              <Pressable key={option.value} style={[styles.selectorOption, selected ? styles.selectorOptionSelected : null]} onPress={() => updatePet('sex', option.value)}>
+                                <Text style={[styles.selectorText, selected ? styles.selectorTextSelected : null]}>{option.label}</Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </View>
+                      <AppInput
+                        label="Peso (opcional)"
+                        placeholder="00.0"
+                        keyboardType="number-pad"
+                        onChangeText={(value) => updatePet('weightKg', formatWeightInput(value))}
+                        value={petForm.weightKg}
+                        selection={{ start: petForm.weightKg.length, end: petForm.weightKg.length }}
+                      />
+                      <View style={styles.unitRow}>
+                        <View style={styles.unitInput}>
+                          <AppInput
+                            label="Tamanho (opcional)"
+                            placeholder="00"
+                            keyboardType="number-pad"
+                            onChangeText={(value) => updatePet('size', formatCmInput(value))}
+                            value={petForm.size}
+                            selection={{ start: petForm.size.length, end: petForm.size.length }}
+                          />
+                        </View>
+                        <Text style={styles.unitText}>cm</Text>
+                      </View>
                       <AppInput label="Microchip (opcional)" placeholder="Microchip" autoCapitalize="characters" onChangeText={(value) => updatePet('microchip', value)} value={petForm.microchip} />
                       <AppInput label="Raça (opcional)" placeholder="Raça" autoCapitalize="words" onChangeText={(value) => updatePet('breed', value)} value={petForm.breed} />
                       <AppInput label="Observação (opcional)" placeholder="Observação" onChangeText={(value) => updatePet('notes', value)} value={petForm.notes} />
@@ -405,5 +441,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEF6FF'
   },
   selectorText: { color: colors.text, fontWeight: '600' },
-  selectorTextSelected: { color: colors.primaryDark }
+  selectorTextSelected: { color: colors.primaryDark },
+  unitRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
+  unitInput: { flex: 1 },
+  unitText: {
+    color: colors.textMuted,
+    fontWeight: '700',
+    paddingBottom: spacing.sm + 5
+  }
 });

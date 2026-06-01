@@ -42,12 +42,11 @@ export function displayDateToIso(value: string) {
 }
 
 export function formatWeightInput(value: string) {
-  const digits = onlyDigits(value).slice(0, 3);
+  const digits = onlyDigits(value).slice(0, 4);
 
   if (!digits) return '';
-  if (digits.length === 1) return `0${digits}.0`;
-  if (digits.length === 2) return `${digits}.0`;
-  return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, -1)}.${digits.slice(-1)}`;
 }
 
 export function weightInputToNumberString(value: string) {
@@ -56,7 +55,7 @@ export function weightInputToNumberString(value: string) {
 
 export function formatCmInput(value: string) {
   const digits = onlyDigits(value).slice(0, 3);
-  return digits ? `${digits} cm` : '';
+  return digits;
 }
 
 export function cmInputToNumberString(value: string) {

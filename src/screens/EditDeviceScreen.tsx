@@ -67,8 +67,8 @@ export function EditDeviceScreen() {
       return;
     }
 
-    if (!form.serial.trim() || !form.activationCode.trim() || !form.displayName.trim()) {
-      Alert.alert('Erro', 'Preencha nome da coleira, serial e código de ativação.');
+    if (!form.displayName.trim()) {
+      Alert.alert('Erro', 'Preencha o nome da coleira.');
       return;
     }
 
@@ -86,9 +86,7 @@ export function EditDeviceScreen() {
       let message = 'Falha ao salvar os dados do dispositivo.';
 
       if (error instanceof Error) {
-        if (error.message.includes('dispositivo_ja_cadastrado')) {
-          message = 'Já existe um dispositivo cadastrado com esse serial ou código de ativação.';
-        } else if (error.message.includes('configuracao_ble_nome_ausente')) {
+        if (error.message.includes('configuracao_ble_nome_ausente')) {
           message = 'Os UUIDs de configuração do nome BLE ainda não foram definidos no app.';
         } else if (error.message.includes('dispositivo_ble_nao_conectado')) {
           message = 'Conecte o dispositivo na tela Bluetooth antes de enviar o novo nome para a coleira.';
@@ -122,8 +120,9 @@ export function EditDeviceScreen() {
               <>
                 <AppInput label="Nome do pet" value={form.petName} editable={false} />
                 <AppInput label="Nome da coleira" value={form.displayName} onChangeText={(value) => updateField('displayName', value)} editable={!saving} />
-                <AppInput label="Serial" value={form.serial} onChangeText={(value) => updateField('serial', value.toUpperCase())} editable={!saving} autoCapitalize="characters" />
-                <AppInput label="Código de ativação" value={form.activationCode} onChangeText={(value) => updateField('activationCode', value)} editable={!saving} />
+                <AppInput label="Serial" value={form.serial} editable={false} autoCapitalize="characters" />
+                <AppInput label="Código de ativação" value={form.activationCode} editable={false} />
+                <Text style={styles.helper}>Serial e código de ativação só podem vir de coleiras pré-cadastradas pelo administrador.</Text>
                 <AppInput label="Nome do dispositivo Bluetooth" value={form.bleDeviceName} onChangeText={(value) => updateField('bleDeviceName', value)} editable={!saving} />
                 <Text style={styles.helper}>
                   {connectedBleDeviceId

@@ -60,7 +60,7 @@ export function ConfigScreen() {
       id: 'device',
       title: 'Alterar dados do dispositivo',
       icon: 'bluetooth-settings',
-      description: 'Gerencie a coleira ativa, o serial, o código e o nome BLE.',
+      description: 'Gerencie o nome da coleira ativa e o nome BLE.',
       onPress: () => navigation.navigate('EditDevice')
     },
     {
