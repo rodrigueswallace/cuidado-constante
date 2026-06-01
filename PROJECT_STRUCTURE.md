@@ -1,6 +1,6 @@
 # Estrutura do Projeto - Cuidado Constante
 
-Atualizado em: 2026-02-28
+Atualizado em: 2026-05-31
 
 ## 1) Visao geral
 
@@ -8,181 +8,137 @@ Este repositorio tem 3 blocos principais:
 
 - App mobile React Native/Expo (`src/`, `App.tsx`, configs Expo/EAS).
 - Backend Supabase (migrations SQL + Edge Functions em `supabase/`).
-- Protótipo web antigo de cadastro de coleira (`index.html`, `app.js`, etc.).
-
-Tambem existem pastas geradas localmente (ex.: `node_modules/`, `.expo/`, `dist/`, `img-log/`) usadas para build, cache e testes.
+- Firmware/prototipos Arduino e guias em `arduino/`.
+- Prototipo web legado de cadastro de coleira (`index.html`, `app.js`, etc.).
 
 ## 2) Raiz do repositorio
 
 | Caminho | Responsabilidade |
 |---|---|
-| `.env` | Variaveis locais de ambiente (nao deve ir para producao/publico). |
+| `.env` | Variaveis locais de ambiente; nao versionar valores reais. |
 | `.env.example` | Modelo das variaveis necessarias para rodar o app. |
-| `.eslintrc.json` | Configuracao antiga do ESLint (hoje o projeto nao usa `eslint.config.js`). |
-| `.gitignore` | Arquivos/pastas ignorados no Git. |
-| `.gitkeep` | Mantem pasta vazia versionada quando necessario. |
-| `app.config.js` | Injeta chave Google Maps no config Android via env. |
-| `app.json` | Config principal do Expo (nome, permissoes Android/iOS, plugins). |
-| `App.tsx` | Entrada principal da UI React Native (NavigationContainer + RootNavigator). |
-| `app.js` | Script do prototipo web antigo (tabs + validacao + mock de cadastro). |
+| `app.config.js` | Injeta Google Maps API key no config Android. |
+| `app.json` | Config principal do Expo. |
+| `App.tsx` | Entrada principal da UI React Native. |
 | `babel.config.js` | Babel + alias `@` para `src/`. |
-| `eas.json` | Perfis de build do EAS (`development`, `preview`, `production`). |
-| `eas.md` | Backup/anotacao local de config EAS (conteudo em JSON). |
-| `index.html` | Tela HTML do prototipo web antigo de cadastro de coleira. |
+| `eas.json` | Perfis de build do EAS. |
+| `eas.md` | Anotacao dos envs esperados no EAS. |
 | `index.js` | Registro do app Expo (`registerRootComponent`). |
 | `package.json` | Dependencias e scripts (`start`, `android`, `typecheck`, deploy Supabase). |
-| `package-lock.json` | Lockfile do npm. |
-| `README.md` | Guia operacional do projeto (Supabase, functions, fluxo de teste). |
-| `register-collar.js` | Mock local do endpoint `register-collar` para prototipo web. |
-| `styles.css` | Estilos do prototipo web antigo. |
-| `test.js` | Testes Node simples do prototipo web (`validation` + `register-collar`). |
-| `tsconfig.json` | Config TypeScript do app (alias `@/*`; exclui `supabase/functions/**`). |
-| `validation.js` | Validacoes de serial/codigo para prototipo web antigo. |
+| `README.md` | Guia operacional do projeto. |
+| `tsconfig.json` | Config TypeScript do app. |
+| `index.html`, `app.js`, `register-collar.js`, `styles.css`, `test.js`, `validation.js` | Prototipo web legado. |
 
-## 3) CI/CD
+## 3) App mobile (`src/`)
+
+### 3.1 Componentes
 
 | Caminho | Responsabilidade |
 |---|---|
-| `.github/workflows/android-local.yml` | Pipeline GitHub Actions para gerar APK (`eas build --local`) em push na `main` e upload de artifact. |
+| `src/components/ui/AppButton.tsx` | Botao padrao do app. |
+| `src/components/ui/AppCard.tsx` | Container visual padrao. |
+| `src/components/ui/AppInput.tsx` | Campo de texto padronizado. |
+| `src/components/ui/AppLogo.tsx` | Logo remoto do bucket `branding/logo.png` com fallback local. |
+| `src/components/ui/AppScreen.tsx` | Wrapper de tela com SafeArea. |
 
-## 4) App mobile (`src/`)
-
-### 4.1 `src/components/ui`
-
-| Caminho | Responsabilidade |
-|---|---|
-| `src/components/ui/AppButton.tsx` | Botao padrao do app (primary/secondary, disabled, texto centralizado). |
-| `src/components/ui/AppCard.tsx` | Container visual padrao em formato card. |
-| `src/components/ui/AppInput.tsx` | Campo de texto padronizado com label. |
-| `src/components/ui/AppLogo.tsx` | Logo da marca: tenta carregar logo remoto no Storage; fallback local `CC`. |
-| `src/components/ui/AppScreen.tsx` | Wrapper de tela com SafeArea + padding opcional. |
-
-### 4.2 `src/hooks`
+### 3.2 Telas
 
 | Caminho | Responsabilidade |
 |---|---|
-| `src/hooks/useAuth.ts` | Mantem sessao do Supabase em memoria e escuta mudancas de auth. |
-| `src/hooks/useBleTracking.ts` | Scan/conexao BLE, permissoes Android, leitura de RSSI e envio para fila BLE. |
-| `src/hooks/useGpsTracking.ts` | Busca eventos GPS, localizacao do usuario e recalculo de rota. |
+| `src/screens/AuthScreen.tsx` | Login, cadastro e recuperacao de senha. |
+| `src/screens/GpsScreen.tsx` | Mapa, posicao da coleira, usuario e rota. |
+| `src/screens/BleScreen.tsx` | Scan/conexao BLE, RSSI e proximidade. |
+| `src/screens/ConfigScreen.tsx` | Ajustes, atalhos de edicao, fila BLE e logout. |
+| `src/screens/AddCollarScreen.tsx` | Ativacao de coleira por serial/codigo. |
+| `src/screens/EditTutorScreen.tsx` | Edicao de perfil do tutor. |
+| `src/screens/EditPetScreen.tsx` | Edicao do perfil do pet. |
+| `src/screens/EditDeviceScreen.tsx` | Edicao da coleira e nome BLE configuravel. |
+| `src/screens/ResetPasswordScreen.tsx` | Alteracao de senha. |
+| `src/screens/DeleteAccountScreen.tsx` | Confirmacao e exclusao de conta. |
 
-### 4.3 `src/navigation`
-
-| Caminho | Responsabilidade |
-|---|---|
-| `src/navigation/RootNavigator.tsx` | Fluxo principal (Auth -> Tabs -> AddCollar) com tabs GPS/BLE/Config. |
-| `src/navigation/SimpleStackNavigator.tsx` | Implementacao leve de stack navigator customizado. |
-
-### 4.4 `src/screens`
-
-| Caminho | Responsabilidade |
-|---|---|
-| `src/screens/AddCollarScreen.tsx` | Cadastro/ativacao de coleira (serial + codigo + associacao de pet). |
-| `src/screens/AuthScreen.tsx` | Login/cadastro de conta com Supabase Auth. |
-| `src/screens/BleScreen.tsx` | Tela BLE: scan, lista ordenada, conexao e status de proximidade/sinal. |
-| `src/screens/ConfigScreen.tsx` | Ajustes do app (GPS throttle, permissoes, branding, fila BLE, logout). |
-| `src/screens/GpsScreen.tsx` | Mapa principal com marcador da coleira, usuario, rota e controles de refresh. |
-
-### 4.5 `src/services`
+### 3.3 Navegacao, hooks, services e estado
 
 | Caminho | Responsabilidade |
 |---|---|
-| `src/services/auth.ts` | Wrapper simples de auth (signIn/signUp/signOut/getSession). |
-| `src/services/branding.ts` | Config de branding remoto (`branding/logo.png`) e URL publica do logo. |
-| `src/services/edgeApi.ts` | Cliente de Edge Functions (JWT refresh, logs, chamadas GPS/BLE/register/profile). |
-| `src/services/supabase.ts` | Cria cliente Supabase, valida env e configura persistencia de sessao no AsyncStorage. |
+| `src/navigation/RootNavigator.tsx` | Fluxo Auth -> Tabs e telas auxiliares. |
+| `src/navigation/SimpleStackNavigator.tsx` | Stack navigator customizado. |
+| `src/hooks/useAuth.ts` | Sessao Supabase e recuperacao de senha. |
+| `src/hooks/useBleTracking.ts` | Scan/conexao BLE, RSSI e envio para fila. |
+| `src/hooks/useGpsTracking.ts` | Busca GPS, localizacao do usuario e rota. |
+| `src/services/auth.ts` | Wrapper de auth. |
+| `src/services/bleDeviceConfig.ts` | Escrita BLE do nome configuravel da coleira. |
+| `src/services/branding.ts` | Branding remoto. |
+| `src/services/device.ts` | Leitura/edicao de dados da coleira. |
+| `src/services/edgeApi.ts` | Cliente de Edge Functions. |
+| `src/services/profile.ts` | Leitura/edicao de tutor e pet. |
+| `src/services/supabase.ts` | Cliente Supabase e persistencia de sessao. |
+| `src/store/appStore.ts` | Coleira ativa, fila BLE offline e ajustes de rastreio. |
+| `src/theme/tokens.ts` | Tokens visuais. |
+| `src/types/` | Tipos de dominio e formularios. |
+| `src/utils/` | Direcoes, geo e formatadores. |
 
-### 4.6 `src/store`
+## 4) Backend Supabase (`supabase/`)
 
-| Caminho | Responsabilidade |
-|---|---|
-| `src/store/appStore.ts` | Estado global (coleira ativa, fila BLE offline, intervalos GPS, hydrate/flush). |
-
-### 4.7 `src/theme`
-
-| Caminho | Responsabilidade |
-|---|---|
-| `src/theme/tokens.ts` | Tokens visuais globais (cores, espacamentos, radius). |
-
-### 4.8 `src/types`
-
-| Caminho | Responsabilidade |
-|---|---|
-| `src/types/domain.ts` | Tipos de dominio (`GpsEvent`, `Collar`, `DirectionsRoute`). |
-
-### 4.9 `src/utils`
+### 4.1 Config e functions
 
 | Caminho | Responsabilidade |
 |---|---|
-| `src/utils/directions.ts` | Cliente da Google Directions API + decode de polyline. |
-| `src/utils/geo.ts` | Funcoes geograficas (haversine e estimativa de proximidade por RSSI). |
-
-## 5) Backend Supabase (`supabase/`)
-
-### 5.1 Config
-
-| Caminho | Responsabilidade |
-|---|---|
-| `supabase/config.toml` | Config local das Edge Functions e `verify_jwt` por funcao. |
-
-### 5.2 Edge Functions
-
-| Caminho | Responsabilidade |
-|---|---|
+| `supabase/config.toml` | Config local das Edge Functions e `verify_jwt`. |
 | `supabase/functions/_shared/cors.ts` | Headers CORS compartilhados. |
-| `supabase/functions/_shared/supabase.ts` | Fabrica de clients Supabase (admin/service role e user/auth header). |
-| `supabase/functions/get-latest-gps/index.ts` | Retorna ultimos eventos GPS da coleira (com auth de usuario). |
-| `supabase/functions/ingest-ble/index.ts` | Ingestao de evento BLE autenticado e autorizado por dono da coleira. |
-| `supabase/functions/ingest-gps/index.ts` | Ingestao GPS via assinatura HMAC do dispositivo + update de `last_seen`. |
-| `supabase/functions/register-collar/index.ts` | Valida serial/codigo e vincula coleira ao pet do usuario. |
+| `supabase/functions/_shared/supabase.ts` | Clients Supabase admin/user. |
+| `supabase/functions/ingest-gps/index.ts` | Ingestao GPS via HMAC do dispositivo. |
+| `supabase/functions/ingest-ble/index.ts` | Ingestao BLE autenticada pelo app. |
+| `supabase/functions/get-latest-gps/index.ts` | Retorna ultimos eventos GPS autorizados. |
+| `supabase/functions/register-collar/index.ts` | Vincula coleira ao pet por serial/codigo. |
+| `supabase/functions/delete-account/index.ts` | Exclui dados e conta do usuario logado. |
 
-### 5.3 Migrations
-
-| Caminho | Responsabilidade |
-|---|---|
-| `supabase/migrations/20260222130000_init_pet_tracking.sql` | Schema inicial (pets, collars, gps_events, ble_events, RLS e policies de leitura). |
-| `supabase/migrations/20260225120000_add_collar_activation_and_unlinked_state.sql` | Ajusta `pet_id` nullable e adiciona/forca `activation_code`. |
-| `supabase/migrations/20260226100000_allow_pet_creation_by_owner.sql` | Permite `insert` em `pets` por usuario autenticado com policy de ownership. |
-| `supabase/migrations/20260226120000_create_profiles_active_collar.sql` | Cria tabela `profiles` com `active_collar` e policies de select/insert/update proprios. |
-
-### 5.4 SQL auxiliar
+### 4.2 Migrations
 
 | Caminho | Responsabilidade |
 |---|---|
-| `supabase/sql/schema.sql` | SQL consolidado para setup manual do banco (espelho das migrations principais). |
-| `supabase/sql/seed_test_collars.sql` | Seed de coleiras de teste para fluxo de ativacao no app. |
+| `20260222130000_init_pet_tracking.sql` | Schema inicial, eventos, RLS e policies de leitura. |
+| `20260225120000_add_collar_activation_and_unlinked_state.sql` | `pet_id` nullable e `activation_code`. |
+| `20260226100000_allow_pet_creation_by_owner.sql` | Insert de pets pelo dono. |
+| `20260226120000_create_profiles_active_collar.sql` | `profiles.active_collar` e policies. |
+| `20260527210000_expand_signup_onboarding.sql` | Campos de tutor/pet e trigger de onboarding. |
+| `20260531193000_allow_pet_updates_by_owner.sql` | Update de pets pelo dono. |
+| `20260531213000_add_collar_settings_and_update_policy.sql` | Nome da coleira/nome BLE e update de collars. |
 
-## 6) Pastas locais/geradas (nao centrais para logica)
+### 4.3 SQL auxiliar
 
 | Caminho | Responsabilidade |
 |---|---|
-| `.expo/` | Cache/metadados locais do Expo. |
-| `dist/` | Saidas de build web/local quando geradas. |
-| `img-log/` | Prints e evidencias visuais de testes manuais. |
-| `inspect-android/` | Arquivos auxiliares de investigacao Android (logs, testes locais). |
-| `node_modules/` | Dependencias instaladas localmente. |
+| `supabase/sql/schema.sql` | SQL consolidado para setup manual. |
+| `supabase/sql/seed_test_collars.sql` | Seed de coleiras de teste. |
 
-## 7) Fluxo tecnico resumido
+## 5) Arduino (`arduino/`)
 
-1. Usuario autentica na `AuthScreen`.
-2. `RootNavigator` abre tabs e sincroniza coleira ativa (`profiles.active_collar`).
-3. `GpsScreen` busca eventos via `get-latest-gps` e desenha mapa/rota.
-4. `BleScreen` escaneia BLE, conecta e enfileira eventos para `ingest-ble`.
-5. `appStore` persiste fila BLE offline e permite reenviar pela tela `Config`.
-6. `register-collar` vincula coleira ao pet e atualiza contexto local.
+| Caminho | Responsabilidade |
+|---|---|
+| `arduino/esp32_ble_rename/` | Projeto/experimento Arduino para BLE rename. |
+| `arduino/guias/` | Guias de firmware, contrato IoT e integracao Arduino/Supabase. |
 
-## 8) Variaveis de ambiente usadas no app
+## 6) Variaveis de ambiente
 
 | Variavel | Uso |
 |---|---|
 | `EXPO_PUBLIC_SUPABASE_URL` | URL do projeto Supabase. |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Chave anon para client mobile. |
-| `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | Rotas no `directions.ts` e config Google Maps Android. |
-| `EXPO_PUBLIC_COLLAR_SHARED_SECRET` | Segredo usado no fluxo de testes/assinatura HMAC do dispositivo. |
-| `EXPO_PUBLIC_BLE_SERVICE_UUID` | (Opcional) filtro de scan BLE por servico. |
-| `EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX` | (Opcional) prioriza dispositivos por prefixo de nome na tela BLE. |
+| `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | Rotas e Google Maps Android. |
+| `EXPO_PUBLIC_BLE_SERVICE_UUID` | Opcional: filtro de scan BLE. |
+| `EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX` | Opcional: prioridade por prefixo de nome BLE. |
+| `EXPO_PUBLIC_BLE_CONFIG_SERVICE_UUID` | Opcional: servico BLE para configurar nome. |
+| `EXPO_PUBLIC_BLE_DEVICE_NAME_CHARACTERISTIC_UUID` | Opcional: characteristic BLE para gravar nome. |
 
-## 9) Observacoes importantes
+`COLLAR_SHARED_SECRET` e secret de Edge Function/firmware para HMAC GPS. Nao deve ser `EXPO_PUBLIC_*`.
 
-- O repositorio contem app mobile atual + prototipo web legado.
-- Arquivos do prototipo web (`index.html`, `app.js`, `register-collar.js`, etc.) nao fazem parte do runtime React Native.
-- O bucket de branding esperado pelo app e `branding`, arquivo `logo.png`.
+## 7) Fluxo tecnico resumido
+
+1. Usuario autentica na `AuthScreen`.
+2. Trigger de onboarding cria `profiles` e opcionalmente `pets`.
+3. `RootNavigator` abre tabs e sincroniza `profiles.active_collar`.
+4. `register-collar` vincula a coleira ao pet.
+5. `GpsScreen` busca eventos via `get-latest-gps`.
+6. `BleScreen` escaneia/conecta e envia eventos para `ingest-ble`.
+7. `EditDeviceScreen` pode atualizar dados da coleira e gravar nome BLE no dispositivo.
+8. `delete-account` remove dados do usuario e exclui a conta.

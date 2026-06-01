@@ -1,48 +1,42 @@
 # Contrato de Firmware - Arduino-ESP32
 
-Atualizado em: 2026-02-28
+Atualizado em: 2026-05-31
 
 ## 1) Objetivo
 
 Implementar firmware da coleira usando framework Arduino no ESP32 para:
 
 1. Enviar GPS assinado para `ingest-gps`.
-2. Anunciar BLE para detecção/conexão no app.
+2. Anunciar BLE para deteccao/conexao no app.
+3. Opcionalmente receber nome BLE configurado pelo app.
 
-## 2) Bibliotecas recomendadas (Arduino)
+## 2) Bibliotecas recomendadas
 
-1. Rede HTTP:
-- `WiFi.h`
-- `HTTPClient.h`
+1. Rede HTTP: `WiFi.h`, `HTTPClient.h`.
+2. JSON: `ArduinoJson`.
+3. HMAC SHA-256: `mbedtls/md.h`.
+4. BLE: `BLEDevice.h`, `BLEServer.h`, `BLEUtils.h`, `BLEAdvertising.h`.
+5. Persistencia local: `Preferences.h`.
 
-2. JSON:
-- `ArduinoJson`
+## 3) Configuracao persistente
 
-3. HMAC SHA-256:
-- `mbedtls/md.h` (já disponível no core ESP32)
+Salvar em `Preferences` ou equivalente:
 
-4. BLE:
-- `BLEDevice.h`, `BLEServer.h`, `BLEUtils.h`, `BLEAdvertising.h`
-
-5. Persistência local:
-- `Preferences.h` (NVS)
-
-## 3) Configuração persistente no dispositivo
-
-Salvar em `Preferences` (namespace `device_cfg`):
-
-1. `collar_id` (UUID)
+1. `collar_id`
 2. `serial`
 3. `activation_code`
 4. `ble_service_uuid`
 5. `api_base_url` (`https://<project-ref>.supabase.co/functions/v1`)
 6. `shared_secret`
+7. opcional: nome BLE configurado pelo app
 
 ## 4) Contrato HTTP do GPS
 
 Endpoint:
 
-`POST {api_base_url}/ingest-gps`
+```text
+POST {api_base_url}/ingest-gps
+```
 
 Body JSON:
 
@@ -52,16 +46,20 @@ Body JSON:
   "lat": -22.883200,
   "lng": -43.103400,
   "battery": 87,
-  "ts": "2026-02-28T18:00:00Z",
+  "ts": "2026-05-31T18:00:00Z",
   "signature": "hex_hmac_sha256"
 }
 ```
 
 Canonical para assinatura:
 
-`collar_id|lat|lng|ts`
+```text
+collar_id|lat|lng|ts
+```
 
-## 5) Exemplo base (Arduino)
+O valor de `shared_secret` deve ser igual ao secret `COLLAR_SHARED_SECRET` da Edge Function.
+
+## 5) Exemplo base
 
 ```cpp
 #include <WiFi.h>
@@ -83,12 +81,12 @@ struct DeviceConfig {
 struct GpsSample {
   double lat;
   double lng;
-  int battery;       // -1 se indisponivel
-  String tsIso;      // ISO8601 UTC
+  int battery;
+  String tsIso;
 };
 ```
 
-## 6) HMAC SHA-256 (Arduino ESP32)
+## 6) HMAC SHA-256
 
 ```cpp
 String hmacSha256Hex(const String& key, const String& msg) {
@@ -105,25 +103,26 @@ String hmacSha256Hex(const String& key, const String& msg) {
   if (rc != 0) return "";
 
   char out[65];
-  for (int i = 0; i < 32; i++) {
-    sprintf(&out[i * 2], "%02x", hmac[i]);
-  }
+  for (int i = 0; i < 32; i++) sprintf(&out[i * 2], "%02x", hmac[i]);
   out[64] = '\0';
   return String(out);
 }
 ```
 
-## 7) Montar canonical + payload JSON
+## 7) Payload e POST
 
 ```cpp
 String buildCanonical(const DeviceConfig& cfg, const GpsSample& s) {
   char buf[256];
-  snprintf(buf, sizeof(buf), "%s|%.6f|%.6f|%s",
-           cfg.collarId.c_str(), s.lat, s.lng, s.tsIso.c_str());
+  snprintf(buf, sizeof(buf), "%s|%.6f|%.6f|%s", cfg.collarId.c_str(), s.lat, s.lng, s.tsIso.c_str());
   return String(buf);
 }
 
-String buildPayloadJson(const DeviceConfig& cfg, const GpsSample& s, const String& signature) {
+bool postIngestGps(const DeviceConfig& cfg, const GpsSample& s, int& statusCode) {
+  String canonical = buildCanonical(cfg, s);
+  String signature = hmacSha256Hex(cfg.sharedSecret, canonical);
+  if (signature.length() == 0) return false;
+
   StaticJsonDocument<384> doc;
   doc["collar_id"] = cfg.collarId;
   doc["lat"] = s.lat;
@@ -134,33 +133,18 @@ String buildPayloadJson(const DeviceConfig& cfg, const GpsSample& s, const Strin
 
   String body;
   serializeJson(doc, body);
-  return body;
-}
-```
-
-## 8) POST para ingest-gps (Arduino)
-
-```cpp
-bool postIngestGps(const DeviceConfig& cfg, const GpsSample& s, int& statusCode) {
-  String canonical = buildCanonical(cfg, s);
-  String signature = hmacSha256Hex(cfg.sharedSecret, canonical);
-  if (signature.length() == 0) return false;
-
-  String body = buildPayloadJson(cfg, s, signature);
-  String url = cfg.apiBaseUrl + "/ingest-gps";
 
   HTTPClient http;
-  http.begin(url);
+  http.begin(cfg.apiBaseUrl + "/ingest-gps");
   http.addHeader("Content-Type", "application/json");
   statusCode = http.POST(body);
-  String resp = http.getString();
   http.end();
 
   return statusCode == 200;
 }
 ```
 
-## 9) BLE advertising (Arduino ESP32)
+## 8) BLE advertising
 
 ```cpp
 void setupBleAdvertising(const String& serviceUuid, const String& deviceName) {
@@ -175,6 +159,22 @@ void setupBleAdvertising(const String& serviceUuid, const String& deviceName) {
 }
 ```
 
+## 9) Nome BLE configuravel pelo app
+
+Se o app for configurar o nome BLE da coleira, o firmware deve implementar um service/characteristic de escrita com resposta.
+
+Os UUIDs precisam bater com o `.env` do app:
+
+1. `EXPO_PUBLIC_BLE_CONFIG_SERVICE_UUID`
+2. `EXPO_PUBLIC_BLE_DEVICE_NAME_CHARACTERISTIC_UUID`
+
+Ao receber escrita nessa characteristic:
+
+1. validar tamanho do nome
+2. salvar em `Preferences`
+3. atualizar/reiniciar advertising conforme a biblioteca BLE usada
+4. reaplicar o nome apos reboot
+
 ## 10) Loop principal sugerido
 
 ```cpp
@@ -185,27 +185,23 @@ void loop() {
   // 4) postIngestGps(...)
   // 5) Se falhar, enfileirar localmente
   // 6) Tentar flush da fila quando online
-  delay(30000); // ex: 30s
+  delay(30000);
 }
 ```
 
-## 11) Fila offline (recomendado)
-
-1. Guardar últimos N eventos em memória + persistência leve (Preferences/LittleFS).
-2. Tentar reenviar em cada ciclo de loop quando rede estiver disponível.
-3. Usar backoff em erro de rede.
-
-## 12) Critérios de aceite
+## 11) Criterios de aceite
 
 1. Retorno 200 em `ingest-gps` com assinatura correta.
-2. Retorno 401 com assinatura alterada (teste negativo).
-3. BLE visível no app com nome esperado.
-4. Em falta de rede, evento não é perdido.
-5. Ao retornar rede, fila é reenviada.
+2. Retorno 401 com assinatura alterada.
+3. BLE visivel no app com nome esperado.
+4. Em falta de rede, evento nao e perdido.
+5. Ao retornar rede, fila e reenviada.
+6. Se nome BLE configuravel estiver habilitado, o nome persiste apos reboot.
 
-## 13) Segurança mínima
+## 12) Seguranca minima
 
-1. Não logar `shared_secret` em serial monitor de produção.
-2. Não expor segredo por BLE.
-3. Separar segredos por ambiente (homolog/prod).
-4. Planejar atualização OTA para rotação de segredo.
+1. Nao logar `shared_secret` em serial monitor de producao.
+2. Nao expor segredo por BLE.
+3. Nao colocar `shared_secret` em variaveis `EXPO_PUBLIC_*`.
+4. Separar segredos por ambiente.
+5. Planejar OTA ou outro mecanismo para rotacao de segredo.

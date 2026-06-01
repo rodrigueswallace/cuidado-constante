@@ -55,10 +55,10 @@ Se voce quiser que o Arduino envie BLE diretamente para o backend, sera preciso 
 
 As regras abaixo vem destes arquivos:
 
-1. [supabase/functions/ingest-gps/index.ts](C:/dev/cuidado-constante/supabase/functions/ingest-gps/index.ts)
-2. [supabase/functions/ingest-ble/index.ts](C:/dev/cuidado-constante/supabase/functions/ingest-ble/index.ts)
-3. [IOT_FIRMWARE_CONTRATO.md](C:/dev/cuidado-constante/IOT_FIRMWARE_CONTRATO.md)
-4. [IOT_FIRMWARE_CONTRATO_ARDUINO_ESP32.md](C:/dev/cuidado-constante/IOT_FIRMWARE_CONTRATO_ARDUINO_ESP32.md)
+1. [supabase/functions/ingest-gps/index.ts](../../supabase/functions/ingest-gps/index.ts)
+2. [supabase/functions/ingest-ble/index.ts](../../supabase/functions/ingest-ble/index.ts)
+3. [IOT_FIRMWARE_CONTRATO.md](IOT_FIRMWARE_CONTRATO.md)
+4. [IOT_FIRMWARE_CONTRATO_ARDUINO_ESP32.md](IOT_FIRMWARE_CONTRATO_ARDUINO_ESP32.md)
 
 ## 4) Visao geral do fluxo correto
 

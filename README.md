@@ -2,21 +2,22 @@
 
 MVP Android-first para rastreamento de pets com GPS + 4G + BLE, app em Expo e backend Supabase.
 
-## Estrutura Supabase implementada
+## Estrutura Supabase
 
-- Migração principal: `supabase/migrations/20260222130000_init_pet_tracking.sql`
-- SQL espelho para SQL Editor: `supabase/sql/schema.sql`
+- Migrations: `supabase/migrations/`
+- SQL consolidado para SQL Editor: `supabase/sql/schema.sql`
 - Edge Functions:
   - `supabase/functions/ingest-gps`
   - `supabase/functions/ingest-ble`
   - `supabase/functions/get-latest-gps`
   - `supabase/functions/register-collar`
+  - `supabase/functions/delete-account`
 - Shared helpers:
   - `supabase/functions/_shared/cors.ts`
   - `supabase/functions/_shared/supabase.ts`
-- Config de JWT por função: `supabase/config.toml`
+- Config de JWT por function: `supabase/config.toml`
 
-## Provisionar no Supabase (implementação)
+## Provisionar no Supabase
 
 ### 1) Link no projeto Supabase
 
@@ -25,7 +26,7 @@ supabase login
 supabase link --project-ref <project-ref>
 ```
 
-### 2) Aplicar SQL (migrations)
+### 2) Aplicar SQL
 
 ```bash
 supabase db push
@@ -33,7 +34,7 @@ supabase db push
 
 Alternativa manual: rodar `supabase/sql/schema.sql` no SQL Editor.
 
-### 3) Configurar secrets das funções
+### 3) Configurar secrets das functions
 
 ```bash
 supabase secrets set \
@@ -43,6 +44,8 @@ supabase secrets set \
   SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 ```
 
+`COLLAR_SHARED_SECRET` deve ser o mesmo segredo usado pelo firmware para gerar HMAC. Nao coloque esse valor em docs publicas nem em variaveis `EXPO_PUBLIC_*`.
+
 ### 4) Deploy das functions
 
 ```bash
@@ -50,13 +53,60 @@ supabase functions deploy ingest-gps
 supabase functions deploy ingest-ble
 supabase functions deploy get-latest-gps
 supabase functions deploy register-collar
+supabase functions deploy delete-account
 ```
 
-## Teste rápido das functions
+Atalho do repo:
+
+```bash
+npm run supabase:functions:deploy
+```
+
+## App mobile
+
+```bash
+npm install
+cp .env.example .env
+npm run start
+```
+
+Para BLE/background em Android fisico:
+
+```bash
+npx expo prebuild
+npm run android
+```
+
+## Variaveis de ambiente do app
+
+Obrigatorias:
+
+- `EXPO_PUBLIC_SUPABASE_URL`
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`
+
+Opcionais para BLE:
+
+- `EXPO_PUBLIC_BLE_SERVICE_UUID`: filtro de scan BLE.
+- `EXPO_PUBLIC_BLE_DEVICE_NAME_PREFIX`: prioriza dispositivos por prefixo de nome.
+- `EXPO_PUBLIC_BLE_CONFIG_SERVICE_UUID`: servico BLE usado para configurar nome do dispositivo.
+- `EXPO_PUBLIC_BLE_DEVICE_NAME_CHARACTERISTIC_UUID`: characteristic usada para gravar nome BLE.
+
+## Status de JWT das Edge Functions
+
+Todas ficam com `verify_jwt = false` em `supabase/config.toml`. As functions que exigem usuario validam o JWT internamente pelo header `Authorization`.
+
+- `ingest-gps`: entrada do dispositivo por assinatura HMAC.
+- `ingest-ble`: app autenticado envia RSSI/BLE.
+- `get-latest-gps`: app autenticado busca eventos GPS.
+- `register-collar`: app autenticado vincula serial/codigo ao pet.
+- `delete-account`: app autenticado exclui a conta.
+
+## Teste rapido das functions
 
 ### ingest-gps
 
-1. Criar pet + collar no banco.
+1. Criar pet + collar no banco, ou seedar uma collar sem `pet_id`.
 2. Gerar `signature = HMAC_SHA256(secret, "collar_id|lat|lng|ts")`.
 3. Fazer POST para `/functions/v1/ingest-gps`.
 
@@ -75,7 +125,7 @@ Payload:
 
 ### ingest-ble
 
-POST autenticado por Bearer token do usuário:
+POST autenticado por Bearer token do usuario:
 
 ```json
 {
@@ -96,10 +146,9 @@ POST autenticado:
 }
 ```
 
-
 ### register-collar
 
-POST autenticado por Bearer token (JWT obrigatório) para validar `serial` + `activation_code` e vincular a coleira a um pet do usuário logado.
+POST autenticado por Bearer token para validar `serial` + `activation_code` e vincular a coleira a um pet do usuario logado.
 
 Payload:
 
@@ -111,7 +160,7 @@ Payload:
 }
 ```
 
-Resposta de sucesso (`200`):
+Resposta de sucesso:
 
 ```json
 {
@@ -121,36 +170,21 @@ Resposta de sucesso (`200`):
 }
 ```
 
-Fluxo sugerido de cadastro no app:
+### delete-account
 
-1. Usuário escolhe o pet e informa `serial` + `activation_code` da coleira.
-2. App chama `register-collar` com JWT do usuário.
-3. Backend confirma que o pet pertence ao usuário autenticado.
-4. Backend valida `serial` + `activation_code`, vincula a coleira ao pet e retorna `collar_id`, `serial` e `ble_service_uuid`.
-5. App salva essa coleira como ativa localmente para BLE/GPS.
+POST autenticado:
 
-## App mobile
-
-```bash
-npm install
-cp .env.example .env
-npm run start
+```json
+{}
 ```
 
-Para BLE/background em Android físico:
+Resposta de sucesso:
 
-```bash
-npx expo prebuild
-npm run android
+```json
+{
+  "ok": true
+}
 ```
-
-## Status atual do prototipo
-
-Configuracao de JWT usada no ambiente que funcionou:
-- `ingest-gps`: `verify_jwt = false` (entrada do dispositivo por assinatura HMAC)
-- `get-latest-gps`: `verify_jwt = false` (JWT validado dentro da function)
-- `register-collar`: `verify_jwt = false` (JWT validado dentro da function)
-- `ingest-ble`: `verify_jwt = true`
 
 ## Teste de 1 ponto GPS
 
