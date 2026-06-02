@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "supabase:db:push": "supabase db push",
-    "supabase:functions:deploy": "supabase functions deploy ingest-gps && supabase functions deploy ingest-ble && supabase functions deploy get-latest-gps && supabase functions deploy register-collar && supabase functions deploy delete-account"
+    "supabase:functions:deploy": "supabase functions deploy ingest-gps && supabase functions deploy ingest-ble && supabase functions deploy get-latest-gps && supabase functions deploy register-collar && supabase functions deploy delete-account && supabase functions deploy request-gps-update && supabase functions deploy poll-gps-request"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",

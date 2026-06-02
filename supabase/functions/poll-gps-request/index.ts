@@ -1,14 +1,10 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { createAdminClient } from '../_shared/supabase.ts';
 
-interface IngestGpsBody {
+interface PollGpsRequestBody {
   collar_id: string;
-  lat: number;
-  lng: number;
-  battery?: number | null;
   ts: string;
   signature: string;
-  request_id?: string;
 }
 
 async function hmacSha256Hex(secret: string, message: string) {
@@ -17,18 +13,6 @@ async function hmacSha256Hex(secret: string, message: string) {
   ]);
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
   return [...new Uint8Array(signature)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-function invalid(body: Partial<IngestGpsBody>) {
-  return (
-    !body.collar_id ||
-    typeof body.lat !== 'number' ||
-    typeof body.lng !== 'number' ||
-    !body.ts ||
-    !body.signature ||
-    Number.isNaN(body.lat) ||
-    Number.isNaN(body.lng)
-  );
 }
 
 Deno.serve(async (req) => {
@@ -41,9 +25,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = (await req.json()) as Partial<IngestGpsBody>;
-
-    if (invalid(body)) {
+    const body = (await req.json()) as Partial<PollGpsRequestBody>;
+    if (!body.collar_id || !body.ts || !body.signature) {
       return new Response(JSON.stringify({ error: 'payload_invalido' }), { status: 400, headers: corsHeaders });
     }
 
@@ -52,7 +35,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'server_misconfigured' }), { status: 500, headers: corsHeaders });
     }
 
-    const canonical = `${body.collar_id}|${body.lat}|${body.lng}|${body.ts}`;
+    const canonical = `${body.collar_id}|${body.ts}|poll`;
     const expected = await hmacSha256Hex(sharedSecret, canonical);
     if (expected !== body.signature) {
       return new Response(JSON.stringify({ error: 'assinatura_invalida' }), { status: 401, headers: corsHeaders });
@@ -70,43 +53,49 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'coleira_nao_encontrada' }), { status: 404, headers: corsHeaders });
     }
 
-    const payload = {
-      collar_id: body.collar_id,
-      lat: body.lat,
-      lng: body.lng,
-      battery: body.battery ?? null,
-      ts: body.ts
-    };
+    await supabase
+      .from('gps_update_requests')
+      .update({ status: 'pending', processing_at: null, error: null })
+      .eq('collar_id', body.collar_id)
+      .eq('status', 'processing')
+      .lt('processing_at', new Date(Date.now() - 5 * 60 * 1000).toISOString());
 
-    const { data: gpsEvent, error: eventError } = await supabase.from('gps_events').insert(payload).select('id').single();
-    if (eventError) throw eventError;
+    const { data: pending, error: pendingError } = await supabase
+      .from('gps_update_requests')
+      .select('id')
+      .eq('collar_id', body.collar_id)
+      .eq('status', 'pending')
+      .order('requested_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-    const { error: updateError } = await supabase
-      .from('collars')
-      .update({
-        last_seen: body.ts,
-        battery: body.battery ?? null
-      })
-      .eq('id', body.collar_id);
+    if (pendingError) throw pendingError;
 
-    if (updateError) throw updateError;
-
-    if (body.request_id) {
-      const { error: requestError } = await supabase
-        .from('gps_update_requests')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          gps_event_id: gpsEvent.id
-        })
-        .eq('id', body.request_id)
-        .eq('collar_id', body.collar_id)
-        .in('status', ['pending', 'processing']);
-
-      if (requestError) throw requestError;
+    if (!pending) {
+      return new Response(JSON.stringify({ ok: true, has_request: false }), { status: 200, headers: corsHeaders });
     }
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders });
+    const { data: claimed, error: claimError } = await supabase
+      .from('gps_update_requests')
+      .update({
+        status: 'processing',
+        processing_at: new Date().toISOString()
+      })
+      .eq('id', pending.id)
+      .eq('status', 'pending')
+      .select('id')
+      .maybeSingle();
+
+    if (claimError) throw claimError;
+
+    if (!claimed) {
+      return new Response(JSON.stringify({ ok: true, has_request: false }), { status: 200, headers: corsHeaders });
+    }
+
+    return new Response(JSON.stringify({ ok: true, has_request: true, request_id: claimed.id }), {
+      status: 200,
+      headers: corsHeaders
+    });
   } catch (error) {
     return new Response(JSON.stringify({ error: String(error) }), { status: 500, headers: corsHeaders });
   }

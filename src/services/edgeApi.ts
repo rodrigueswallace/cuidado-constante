@@ -127,6 +127,13 @@ export async function fetchLatestGps(collarId: string) {
   );
 }
 
+export async function requestGpsUpdate(collarId: string) {
+  return callEdgeFunction<{ ok: true; request_id: string; status: string; already_pending: boolean }>(
+    'request-gps-update',
+    { collar_id: collarId }
+  );
+}
+
 /* ===============================
    PROFILE / ACTIVE COLLAR
 ================================= */

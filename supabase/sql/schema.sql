@@ -48,6 +48,18 @@ create table if not exists public.ble_events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.gps_update_requests (
+  id uuid primary key default gen_random_uuid(),
+  collar_id uuid not null references public.collars(id) on delete cascade,
+  requested_by uuid not null references auth.users(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'processing', 'completed', 'failed')),
+  requested_at timestamptz not null default now(),
+  processing_at timestamptz,
+  completed_at timestamptz,
+  gps_event_id uuid references public.gps_events(id) on delete set null,
+  error text
+);
+
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
@@ -62,12 +74,15 @@ create index if not exists idx_collars_serial_activation on public.collars(seria
 create index if not exists idx_collars_last_seen on public.collars(last_seen desc);
 create index if not exists idx_gps_events_collar_ts on public.gps_events(collar_id, ts desc);
 create index if not exists idx_ble_events_collar_ts on public.ble_events(collar_id, ts desc);
+create index if not exists idx_gps_update_requests_collar_status on public.gps_update_requests(collar_id, status, requested_at);
+create unique index if not exists idx_gps_update_requests_one_open on public.gps_update_requests(collar_id) where status in ('pending', 'processing');
 create index if not exists idx_profiles_active_collar on public.profiles(active_collar);
 
 alter table public.pets enable row level security;
 alter table public.collars enable row level security;
 alter table public.gps_events enable row level security;
 alter table public.ble_events enable row level security;
+alter table public.gps_update_requests enable row level security;
 alter table public.profiles enable row level security;
 
 create or replace function public.is_owner_of_collar(target_collar_id uuid)
@@ -235,6 +250,17 @@ begin
   end if;
 end $$;
 
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'gps_update_requests' and policyname = 'gps_update_requests_select_owner') then
+    create policy gps_update_requests_select_owner
+      on public.gps_update_requests
+      for select
+      to authenticated
+      using (public.is_owner_of_collar(collar_id));
+  end if;
+end $$;
+
 grant select on public.pets to authenticated;
 grant insert on public.pets to authenticated;
 grant update on public.pets to authenticated;
@@ -242,12 +268,16 @@ grant select on public.collars to authenticated;
 grant update on public.collars to authenticated;
 grant select on public.gps_events to authenticated;
 grant select on public.ble_events to authenticated;
+revoke all on public.gps_update_requests from anon;
+revoke all on public.gps_update_requests from public;
+grant select on public.gps_update_requests to authenticated;
 grant select, insert, update on public.profiles to authenticated;
 
 revoke delete on public.pets from authenticated;
 revoke insert, delete on public.collars from authenticated;
 revoke insert, update, delete on public.gps_events from authenticated;
 revoke insert, update, delete on public.ble_events from authenticated;
+revoke insert, update, delete on public.gps_update_requests from authenticated;
 revoke delete on public.profiles from authenticated;
 
 create or replace function public.handle_new_user_onboarding()

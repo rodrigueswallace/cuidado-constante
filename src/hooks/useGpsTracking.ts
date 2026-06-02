@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 
-import { fetchLatestGps } from '@/services/edgeApi';
+import { fetchLatestGps, requestGpsUpdate } from '@/services/edgeApi';
 import { supabase } from '@/services/supabase';
 import { GpsEvent } from '@/types/domain';
 import { fetchDirections } from '@/utils/directions';
@@ -12,6 +12,7 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
   const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [route, setRoute] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [requestingUpdate, setRequestingUpdate] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const lastRouteAt = useRef(0);
@@ -63,6 +64,51 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
       setLoading(false);
     }
   }, [collarId]);
+
+  const requestPositionUpdate = useCallback(async (collarIdOverride?: string | null) => {
+    const targetCollarId = collarIdOverride ?? collarId;
+
+    if (!targetCollarId) {
+      setError('Nenhuma coleira ativa vinculada.');
+      return;
+    }
+
+    if (requestingUpdate) return;
+
+    const previousLatestId = events[0]?.id ?? null;
+    const previousLatestTs = events[0]?.ts ?? null;
+
+    setRequestingUpdate(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      await requestGpsUpdate(targetCollarId);
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        const data = await fetchLatestGps(targetCollarId);
+        const nextEvents = data?.events ?? [];
+        setEvents(nextEvents);
+
+        const latestId = nextEvents[0]?.id ?? null;
+        const latestTs = nextEvents[0]?.ts ?? null;
+        if ((latestId && latestId !== previousLatestId) || (latestTs && latestTs !== previousLatestTs)) {
+          return;
+        }
+      }
+
+      setError('Pedido enviado, mas a coleira ainda nao respondeu. Mostrando a ultima localizacao.');
+    } catch (unknownError) {
+      setError(getFriendlyGpsError(unknownError));
+      const rawMessage = unknownError instanceof Error ? unknownError.message : String(unknownError);
+      console.log('GPS REQUEST ERROR =>', { collarId: targetCollarId, error: rawMessage });
+    } finally {
+      setRequestingUpdate(false);
+      setLoading(false);
+    }
+  }, [collarId, events, requestingUpdate]);
 
   const recalcRoute = useCallback(async (force = false) => {
     if (!userLocation || events.length === 0) return;
@@ -122,8 +168,10 @@ export function useGpsTracking(collarId: string | null, throttleSeconds = 120) {
     userLocation,
     route,
     loading,
+    requestingUpdate,
     error,
     refresh,
+    requestPositionUpdate,
     recalcRoute
   };
 }

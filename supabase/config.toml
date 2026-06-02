@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.delete-account]
 verify_jwt = false
+
+[functions.request-gps-update]
+verify_jwt = false
+
+[functions.poll-gps-request]
+verify_jwt = false

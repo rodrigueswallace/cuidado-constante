@@ -18,7 +18,7 @@ export function GpsScreen() {
   const { activeCollarId, routeThrottleSeconds, hydrate, refreshActiveCollar } = useAppStore();
   const mapRef = useRef<MapView | null>(null);
 
-  const { events, route, userLocation, recalcRoute, refresh, loading, error } = useGpsTracking(activeCollarId, routeThrottleSeconds);
+  const { events, route, userLocation, recalcRoute, refresh, requestPositionUpdate, loading, requestingUpdate, error } = useGpsTracking(activeCollarId, routeThrottleSeconds);
   const pet = events[0];
 
   useEffect(() => {
@@ -44,6 +44,16 @@ export function GpsScreen() {
   const handleAddCollar = () => {
     navigation.navigate('AddCollar');
   };
+
+  const handleRequestPosition = useCallback(async () => {
+    let syncedCollarId: string | null = activeCollarId;
+    try {
+      syncedCollarId = await refreshActiveCollar();
+    } catch {
+      // Keep local active collar if profile sync fails.
+    }
+    await requestPositionUpdate(syncedCollarId ?? null);
+  }, [activeCollarId, refreshActiveCollar, requestPositionUpdate]);
 
   const distance =
     userLocation && pet
@@ -101,9 +111,9 @@ export function GpsScreen() {
             <Text style={styles.item}>Eventos GPS recebidos: {events.length}</Text>
             <Text style={styles.item}>Ultimo ponto da coleira: {pet ? `${pet.lat.toFixed(6)}, ${pet.lng.toFixed(6)}` : '--'}</Text>
             <Text style={styles.item}>Distancia pet-usuario: {distance ? `${Math.round(distance)}m` : '--'}</Text>
-            {loading && <Text style={styles.info}>Atualizando localizacao...</Text>}
+            {loading && <Text style={styles.info}>{requestingUpdate ? 'Solicitando localizacao da coleira...' : 'Atualizando localizacao...'}</Text>}
             {error && <Text style={styles.errorText}>{error}</Text>}
-            <AppButton title="Atualizar posicao" onPress={syncAndRefresh} disabled={!activeCollarId} />
+            <AppButton title="Atualizar posicao" onPress={handleRequestPosition} disabled={!activeCollarId || requestingUpdate} />
             <AppButton title="Recalcular rota" onPress={() => recalcRoute(true)} disabled={!activeCollarId} variant="secondary" />
           </View>
         </AppCard>
