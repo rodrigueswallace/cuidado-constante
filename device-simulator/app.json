@@ -30,6 +30,11 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "O simulador usa a localizacao do celular para enviar a posicao da coleira de teste."
       }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3d9595ff-1ded-409f-a7a1-49313662fb3d"
+      }
     }
   }
 }
