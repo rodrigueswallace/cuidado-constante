@@ -254,6 +254,18 @@ bool initModem() {
   return true;
 }
 
+void ensurePacketData() {
+  sendAT("AT+CPIN?", 1000);
+  sendAT("AT+CSQ", 1000);
+  sendAT("AT+CEREG?", 1000);
+  sendAT("AT+CGATT?", 1000);
+  sendAT("AT+CGDCONT?", 1000);
+
+  // Em alguns firmwares SIMCom, o HTTP precisa da rede de dados aberta antes.
+  sendAT("AT+NETOPEN", 8000);
+  sendAT("AT+IPADDR", 2000);
+}
+
 void powerGnss() {
   sendAT("AT+CGNSSPWR=1", 1500);
   sendAT("AT+CGNSSPWR?", 1000);
@@ -323,9 +335,31 @@ String extractHttpBody(const String& response) {
   return body;
 }
 
+int extractHttpStatus(const String& response) {
+  int marker = response.indexOf("+HTTPACTION:");
+  if (marker < 0) return -1;
+
+  int firstComma = response.indexOf(',', marker);
+  if (firstComma < 0) return -1;
+
+  int secondComma = response.indexOf(',', firstComma + 1);
+  if (secondComma < 0) return -1;
+
+  return response.substring(firstComma + 1, secondComma).toInt();
+}
+
 String httpPostJson(const String& url, const String& body, bool useHttps) {
   sendAT("AT+HTTPTERM", 500);
-  if (!responseHasOk(sendAT("AT+HTTPINIT", 1000))) return "";
+  String initResponse = sendAT("AT+HTTPINIT", 1000);
+  if (!responseHasOk(initResponse)) {
+    Serial.println("HTTPINIT falhou. Revalidando rede de dados e tentando novamente...");
+    ensurePacketData();
+    initResponse = sendAT("AT+HTTPINIT", 1000);
+    if (!responseHasOk(initResponse)) {
+      Serial.println("HTTPINIT continuou falhando.");
+      return "";
+    }
+  }
 
   sendAT(String("AT+HTTPSSL=") + (useHttps ? "1" : "0"), 1000);
   sendAT("AT+HTTPPARA=\"URL\",\"" + url + "\"", 1000);
@@ -351,14 +385,31 @@ String httpPostJson(const String& url, const String& body, bool useHttps) {
 
   String action = sendAT("AT+HTTPACTION=1", 12000);
   String actionResult = readModem(12000);
+  String combinedAction = action + actionResult;
+  int httpStatus = extractHttpStatus(combinedAction);
+  Serial.print("HTTP status detectado: ");
+  Serial.println(httpStatus);
+
   String readResponse = sendAT("AT+HTTPREAD=0,1024", 5000);
+  String responseBody = extractHttpBody(readResponse);
+
+  if (!responseBody.length()) {
+    Serial.println("HTTPREAD com parametros nao retornou body. Tentando AT+HTTPREAD sem parametros...");
+    readResponse = sendAT("AT+HTTPREAD", 5000);
+    responseBody = extractHttpBody(readResponse);
+  }
+
   sendAT("AT+HTTPTERM", 1000);
 
-  if (action.indexOf("+HTTPACTION: 1,200") < 0 && actionResult.indexOf("+HTTPACTION: 1,200") < 0) {
+  if (httpStatus != 200) {
+    Serial.print("HTTP falhou com status: ");
+    Serial.println(httpStatus);
+    Serial.print("Body erro: ");
+    Serial.println(responseBody);
     return "";
   }
 
-  return extractHttpBody(readResponse);
+  return responseBody;
 }
 
 bool httpPostSupabase(const String& body) {
@@ -421,6 +472,8 @@ void pollForGpsRequest() {
   body += "}";
 
   Serial.println("Consultando pedido GPS...");
+  Serial.print("COLLAR_ID do firmware: ");
+  Serial.println(COLLAR_ID);
   String response = httpPostJson(SUPABASE_POLL_URL, body, true);
   Serial.print("Resposta poll: ");
   Serial.println(response);

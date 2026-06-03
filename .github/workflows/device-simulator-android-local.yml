@@ -1,0 +1,45 @@
+name: Device Simulator Android Local Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: device-simulator
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: device-simulator/package-lock.json
+
+      - run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --clean --non-interactive
+
+      - name: Build device simulator APK locally
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+        working-directory: device-simulator/android
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: device-simulator-android-apk
+          path: device-simulator/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 1

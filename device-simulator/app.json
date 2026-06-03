@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Simulador Coleira",
+    "slug": "cuidado-constante-device-simulator",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "collarsimulator",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0E1116"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O simulador usa a localizacao do celular para enviar a posicao da coleira de teste."
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.cuidadoconstante.devicesimulator",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.INTERNET"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.cuidadoconstante.devicesimulator",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "O simulador usa a localizacao do celular para enviar a posicao da coleira de teste."
+      }
+    }
+  }
+}
