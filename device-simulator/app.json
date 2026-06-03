@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Simulador Coleira",
-    "slug": "cuidado-constante-device-simulator",
+    "slug": "cuidado-constante",
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "collarsimulator",

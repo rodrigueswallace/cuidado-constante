@@ -53,44 +53,7 @@ void saveDeviceName(const String& value) {
   prefs.end();
 }
 
-void restartAdvertisingWithName(const String& newName) {
-  if (advertising != nullptr) {
-    advertising->stop();
-  }
-
-  BLEDevice::deinit(false);
-  delay(150);
-
-  BLEDevice::init(newName.c_str());
-
-  bleServer = BLEDevice::createServer();
-  trackingService = bleServer->createService(BLEUUID(BLE_TRACKING_SERVICE_UUID));
-  configService = bleServer->createService(BLEUUID(BLE_CONFIG_SERVICE_UUID));
-
-  deviceNameCharacteristic = configService->createCharacteristic(
-    BLEUUID(BLE_DEVICE_NAME_CHARACTERISTIC_UUID),
-    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE
-  );
-
-  deviceNameCharacteristic->setValue(newName.c_str());
-
-  trackingService->start();
-  configService->start();
-
-  advertising = BLEDevice::getAdvertising();
-  advertising->addServiceUUID(BLEUUID(BLE_TRACKING_SERVICE_UUID));
-  advertising->addServiceUUID(BLEUUID(BLE_CONFIG_SERVICE_UUID));
-  advertising->setScanResponse(true);
-  advertising->setMinPreferred(0x06);
-  advertising->setMinPreferred(0x12);
-  advertising->start();
-
-  currentDeviceName = newName;
-
-  Serial.println("BLE reiniciado com novo nome.");
-  Serial.print("Novo nome: ");
-  Serial.println(currentDeviceName);
-}
+void restartAdvertisingWithName(const String& newName);
 
 class DeviceNameCallbacks : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic* characteristic) override {
@@ -99,14 +62,14 @@ class DeviceNameCallbacks : public BLECharacteristicCallbacks {
   }
 
   void onWrite(BLECharacteristic* characteristic) override {
-    std::string rawValue = characteristic->getValue();
-    if (rawValue.empty()) {
+    String rawValue = characteristic->getValue();
+    if (rawValue.length() == 0) {
       Serial.println("Nome BLE recebido vazio. Ignorando.");
       characteristic->setValue(currentDeviceName.c_str());
       return;
     }
 
-    String requestedName = sanitizeDeviceName(String(rawValue.c_str()));
+    String requestedName = sanitizeDeviceName(rawValue);
     if (requestedName == currentDeviceName) {
       Serial.println("Nome BLE igual ao atual. Nenhuma mudanca.");
       characteristic->setValue(currentDeviceName.c_str());
@@ -126,6 +89,46 @@ class DeviceNameCallbacks : public BLECharacteristicCallbacks {
 };
 
 DeviceNameCallbacks deviceNameCallbacks;
+
+void restartAdvertisingWithName(const String& newName) {
+  if (advertising != nullptr) {
+    advertising->stop();
+  }
+
+  BLEDevice::deinit(false);
+  delay(150);
+
+  BLEDevice::init(newName.c_str());
+
+  bleServer = BLEDevice::createServer();
+  trackingService = bleServer->createService(BLEUUID(BLE_TRACKING_SERVICE_UUID));
+  configService = bleServer->createService(BLEUUID(BLE_CONFIG_SERVICE_UUID));
+
+  deviceNameCharacteristic = configService->createCharacteristic(
+    BLEUUID(BLE_DEVICE_NAME_CHARACTERISTIC_UUID),
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE
+  );
+
+  deviceNameCharacteristic->setCallbacks(&deviceNameCallbacks);
+  deviceNameCharacteristic->setValue(newName.c_str());
+
+  trackingService->start();
+  configService->start();
+
+  advertising = BLEDevice::getAdvertising();
+  advertising->addServiceUUID(BLEUUID(BLE_TRACKING_SERVICE_UUID));
+  advertising->addServiceUUID(BLEUUID(BLE_CONFIG_SERVICE_UUID));
+  advertising->setScanResponse(true);
+  advertising->setMinPreferred(0x06);
+  advertising->setMinPreferred(0x12);
+  advertising->start();
+
+  currentDeviceName = newName;
+
+  Serial.println("BLE reiniciado com novo nome.");
+  Serial.print("Novo nome: ");
+  Serial.println(currentDeviceName);
+}
 
 void setupBle() {
   currentDeviceName = loadDeviceName();
