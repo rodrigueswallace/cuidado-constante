@@ -38,7 +38,7 @@ npm run android
 
 1. Abra o app simulador no celular e aceite a permissao de localizacao.
 2. No app principal, va para a tela GPS.
-3. Clique em `Atualizar posição`.
+3. Clique em `Atualizar posicao`.
 4. Volte ao simulador e veja o log:
    - `Consultando pedido GPS...`
    - `Pedido GPS encontrado`
@@ -54,10 +54,10 @@ Use o workflow manual `Device Simulator Android Local Build`.
 Ele gera o artifact `device-simulator-android-apk` com o arquivo:
 
 ```txt
-app-debug.apk
+device-simulator-preview.apk
 ```
 
-Esse APK ja recebe o bundle JavaScript embutido no workflow, entao ele deve abrir instalado no celular sem precisar do Metro/Expo rodando.
+Esse APK e gerado pelo EAS local build, igual ao workflow do app principal.
 
 O workflow do app principal tambem ficou manual, pelo workflow `Android Local Build`.
 
