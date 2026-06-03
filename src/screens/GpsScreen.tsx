@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -54,6 +54,23 @@ export function GpsScreen() {
     }
     await requestPositionUpdate(syncedCollarId ?? null);
   }, [activeCollarId, refreshActiveCollar, requestPositionUpdate]);
+
+  const handleOpenMaps = useCallback(async () => {
+    if (!pet) {
+      Alert.alert('Localizacao indisponivel', 'Atualize a posicao da coleira antes de abrir o Maps.');
+      return;
+    }
+
+    const destination = `${pet.lat},${pet.lng}`;
+    const origin = userLocation ? `&origin=${userLocation.latitude},${userLocation.longitude}` : '';
+    const url = `https://www.google.com/maps/dir/?api=1${origin}&destination=${destination}&travelmode=driving`;
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Nao foi possivel abrir o Maps', 'Verifique se existe um app de mapas instalado no celular.');
+    }
+  }, [pet, userLocation]);
 
   const distance =
     userLocation && pet
@@ -115,6 +132,7 @@ export function GpsScreen() {
             {error && <Text style={styles.errorText}>{error}</Text>}
             <AppButton title="Atualizar posicao" onPress={handleRequestPosition} disabled={!activeCollarId || requestingUpdate} />
             <AppButton title="Recalcular rota" onPress={() => recalcRoute(true)} disabled={!activeCollarId} variant="secondary" />
+            <AppButton title="Abrir no Maps" onPress={handleOpenMaps} disabled={!pet} variant="secondary" />
           </View>
         </AppCard>
       </View>

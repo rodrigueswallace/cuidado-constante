@@ -24,6 +24,8 @@ BLECharacteristic* deviceNameCharacteristic = nullptr;
 BLEAdvertising* advertising = nullptr;
 
 String currentDeviceName = DEFAULT_DEVICE_NAME;
+bool restartPending = false;
+unsigned long restartAtMs = 0;
 
 String sanitizeDeviceName(const String& input) {
   String value = input;
@@ -53,7 +55,7 @@ void saveDeviceName(const String& value) {
   prefs.end();
 }
 
-void restartAdvertisingWithName(const String& newName);
+void scheduleRestartWithName(const String& newName);
 
 class DeviceNameCallbacks : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic* characteristic) override {
@@ -84,49 +86,19 @@ class DeviceNameCallbacks : public BLECharacteristicCallbacks {
 
     saveDeviceName(requestedName);
     characteristic->setValue(requestedName.c_str());
-    restartAdvertisingWithName(requestedName);
+    scheduleRestartWithName(requestedName);
   }
 };
 
 DeviceNameCallbacks deviceNameCallbacks;
 
-void restartAdvertisingWithName(const String& newName) {
-  if (advertising != nullptr) {
-    advertising->stop();
-  }
-
-  BLEDevice::deinit(false);
-  delay(150);
-
-  BLEDevice::init(newName.c_str());
-
-  bleServer = BLEDevice::createServer();
-  trackingService = bleServer->createService(BLEUUID(BLE_TRACKING_SERVICE_UUID));
-  configService = bleServer->createService(BLEUUID(BLE_CONFIG_SERVICE_UUID));
-
-  deviceNameCharacteristic = configService->createCharacteristic(
-    BLEUUID(BLE_DEVICE_NAME_CHARACTERISTIC_UUID),
-    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE
-  );
-
-  deviceNameCharacteristic->setCallbacks(&deviceNameCallbacks);
-  deviceNameCharacteristic->setValue(newName.c_str());
-
-  trackingService->start();
-  configService->start();
-
-  advertising = BLEDevice::getAdvertising();
-  advertising->addServiceUUID(BLEUUID(BLE_TRACKING_SERVICE_UUID));
-  advertising->addServiceUUID(BLEUUID(BLE_CONFIG_SERVICE_UUID));
-  advertising->setScanResponse(true);
-  advertising->setMinPreferred(0x06);
-  advertising->setMinPreferred(0x12);
-  advertising->start();
-
+void scheduleRestartWithName(const String& newName) {
   currentDeviceName = newName;
+  restartPending = true;
+  restartAtMs = millis() + 1200;
 
-  Serial.println("BLE reiniciado com novo nome.");
-  Serial.print("Novo nome: ");
+  Serial.println("Nome BLE salvo.");
+  Serial.print("Novo nome sera aplicado apos reiniciar: ");
   Serial.println(currentDeviceName);
 }
 
@@ -180,5 +152,11 @@ void setup() {
 }
 
 void loop() {
-  delay(1000);
+  if (restartPending && millis() >= restartAtMs) {
+    Serial.println("Reiniciando ESP32 para anunciar com o novo nome BLE...");
+    delay(100);
+    ESP.restart();
+  }
+
+  delay(100);
 }
