@@ -57,6 +57,8 @@ Ele gera o artifact `device-simulator-android-apk` com o arquivo:
 app-debug.apk
 ```
 
+Esse APK ja recebe o bundle JavaScript embutido no workflow, entao ele deve abrir instalado no celular sem precisar do Metro/Expo rodando.
+
 O workflow do app principal tambem ficou manual, pelo workflow `Android Local Build`.
 
 ## Observacao de seguranca
