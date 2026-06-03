@@ -1,6 +1,6 @@
-import { BleManager } from 'react-native-ble-plx';
+import { PermissionsAndroid, Platform } from 'react-native';
 
-const manager = new BleManager();
+import { bleManager } from '@/services/bleManager';
 
 const BLE_CONFIG_SERVICE_UUID = process.env.EXPO_PUBLIC_BLE_CONFIG_SERVICE_UUID?.trim() ?? '';
 const BLE_DEVICE_NAME_CHARACTERISTIC_UUID = process.env.EXPO_PUBLIC_BLE_DEVICE_NAME_CHARACTERISTIC_UUID?.trim() ?? '';
@@ -25,6 +25,28 @@ function encodeBase64(value: string) {
   return output;
 }
 
+async function requestBleWritePermissions() {
+  if (Platform.OS !== 'android') return true;
+
+  if (Platform.Version < 31) {
+    const coarse = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION);
+    const fine = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+    return coarse === PermissionsAndroid.RESULTS.GRANTED || fine === PermissionsAndroid.RESULTS.GRANTED;
+  }
+
+  const result = await PermissionsAndroid.requestMultiple([
+    PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+  ]);
+
+  return (
+    result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] === PermissionsAndroid.RESULTS.GRANTED &&
+    result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] === PermissionsAndroid.RESULTS.GRANTED &&
+    result[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] === PermissionsAndroid.RESULTS.GRANTED
+  );
+}
+
 export async function writeBleDeviceName(deviceId: string, name: string) {
   if (!BLE_CONFIG_SERVICE_UUID || !BLE_DEVICE_NAME_CHARACTERISTIC_UUID) {
     throw new Error('configuracao_ble_nome_ausente');
@@ -35,12 +57,19 @@ export async function writeBleDeviceName(deviceId: string, name: string) {
     throw new Error('nome_ble_invalido');
   }
 
-  const isConnected = await manager.isDeviceConnected(deviceId);
-  if (!isConnected) {
-    throw new Error('dispositivo_ble_nao_conectado');
+  const hasPermission = await requestBleWritePermissions();
+  if (!hasPermission) {
+    throw new Error('permissao_ble_negada');
   }
+
+  const isConnected = await bleManager.isDeviceConnected(deviceId);
+  if (!isConnected) {
+    await bleManager.connectToDevice(deviceId, { timeout: 10000 });
+  }
+
+  await bleManager.discoverAllServicesAndCharacteristicsForDevice(deviceId);
 
   const payload = encodeBase64(normalizedName);
 
-  await manager.writeCharacteristicWithResponseForDevice(deviceId, BLE_CONFIG_SERVICE_UUID, BLE_DEVICE_NAME_CHARACTERISTIC_UUID, payload);
+  await bleManager.writeCharacteristicWithResponseForDevice(deviceId, BLE_CONFIG_SERVICE_UUID, BLE_DEVICE_NAME_CHARACTERISTIC_UUID, payload);
 }

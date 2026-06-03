@@ -26,6 +26,8 @@ BLEAdvertising* advertising = nullptr;
 String currentDeviceName = DEFAULT_DEVICE_NAME;
 bool restartPending = false;
 unsigned long restartAtMs = 0;
+bool restartTaskStarted = false;
+bool advertisingConfigured = false;
 
 String sanitizeDeviceName(const String& input) {
   String value = input;
@@ -56,6 +58,25 @@ void saveDeviceName(const String& value) {
 }
 
 void scheduleRestartWithName(const String& newName);
+void startAdvertising();
+
+class ServerCallbacks : public BLEServerCallbacks {
+  void onConnect(BLEServer* server) override {
+    Serial.println("Cliente BLE conectado.");
+  }
+
+  void onDisconnect(BLEServer* server) override {
+    Serial.println("Cliente BLE desconectado.");
+
+    if (restartPending) {
+      Serial.println("Restart pendente. Advertising nao sera reiniciado antes do reboot.");
+      return;
+    }
+
+    delay(150);
+    startAdvertising();
+  }
+};
 
 class DeviceNameCallbacks : public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic* characteristic) override {
@@ -91,6 +112,14 @@ class DeviceNameCallbacks : public BLECharacteristicCallbacks {
 };
 
 DeviceNameCallbacks deviceNameCallbacks;
+ServerCallbacks serverCallbacks;
+
+void restartTask(void* parameter) {
+  delay(1200);
+  Serial.println("Reiniciando ESP32 para anunciar com o novo nome BLE...");
+  delay(100);
+  ESP.restart();
+}
 
 void scheduleRestartWithName(const String& newName) {
   currentDeviceName = newName;
@@ -100,6 +129,29 @@ void scheduleRestartWithName(const String& newName) {
   Serial.println("Nome BLE salvo.");
   Serial.print("Novo nome sera aplicado apos reiniciar: ");
   Serial.println(currentDeviceName);
+
+  if (!restartTaskStarted) {
+    restartTaskStarted = true;
+    xTaskCreate(restartTask, "restartTask", 2048, nullptr, 1, nullptr);
+  }
+}
+
+void startAdvertising() {
+  advertising = BLEDevice::getAdvertising();
+
+  if (!advertisingConfigured) {
+    advertising->addServiceUUID(BLEUUID(BLE_TRACKING_SERVICE_UUID));
+    advertising->addServiceUUID(BLEUUID(BLE_CONFIG_SERVICE_UUID));
+    advertising->setScanResponse(true);
+    advertising->setMinPreferred(0x06);
+    advertising->setMinPreferred(0x12);
+    advertisingConfigured = true;
+  }
+
+  advertising->start();
+
+  Serial.print("Advertising BLE ativo com nome: ");
+  Serial.println(currentDeviceName);
 }
 
 void setupBle() {
@@ -108,6 +160,7 @@ void setupBle() {
   BLEDevice::init(currentDeviceName.c_str());
 
   bleServer = BLEDevice::createServer();
+  bleServer->setCallbacks(&serverCallbacks);
   trackingService = bleServer->createService(BLEUUID(BLE_TRACKING_SERVICE_UUID));
   configService = bleServer->createService(BLEUUID(BLE_CONFIG_SERVICE_UUID));
 
@@ -122,13 +175,7 @@ void setupBle() {
   trackingService->start();
   configService->start();
 
-  advertising = BLEDevice::getAdvertising();
-  advertising->addServiceUUID(BLEUUID(BLE_TRACKING_SERVICE_UUID));
-  advertising->addServiceUUID(BLEUUID(BLE_CONFIG_SERVICE_UUID));
-  advertising->setScanResponse(true);
-  advertising->setMinPreferred(0x06);
-  advertising->setMinPreferred(0x12);
-  advertising->start();
+  startAdvertising();
 
   Serial.println("BLE iniciado.");
   Serial.print("Tracking service UUID: ");

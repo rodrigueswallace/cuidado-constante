@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
-import { BleManager, Device } from 'react-native-ble-plx';
+import { Device } from 'react-native-ble-plx';
 
 import { saveBleDeviceName } from '@/services/device';
+import { bleManager } from '@/services/bleManager';
 import { useAppStore } from '@/store/appStore';
 import { estimateProximityFromRssi } from '@/utils/geo';
 
@@ -12,7 +13,7 @@ function getDeviceName(device: Device | null) {
 }
 
 export function useBleTracking(serviceUuid: string) {
-  const manager = useMemo(() => new BleManager(), []);
+  const manager = bleManager;
   const connected = useRef<Device | null>(null);
   const rssiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const userDisconnectRef = useRef(false);
@@ -35,8 +36,6 @@ export function useBleTracking(serviceUuid: string) {
     return () => {
       if (rssiTimerRef.current) clearInterval(rssiTimerRef.current);
       manager.stopDeviceScan();
-      connected.current?.cancelConnection().catch(() => null);
-      manager.destroy();
     };
   }, [manager]);
 

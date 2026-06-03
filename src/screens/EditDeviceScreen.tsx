@@ -90,6 +90,8 @@ export function EditDeviceScreen() {
           message = 'Os UUIDs de configuração do nome BLE ainda não foram definidos no app.';
         } else if (error.message.includes('dispositivo_ble_nao_conectado')) {
           message = 'Conecte o dispositivo na tela Bluetooth antes de enviar o novo nome para a coleira.';
+        } else if (error.message.includes('permissao_ble_negada')) {
+          message = 'Permita o uso do Bluetooth para enviar o novo nome para a coleira.';
         } else if (error.message.includes('nome_ble_invalido')) {
           message = 'Informe um nome válido para o dispositivo Bluetooth.';
         } else {
