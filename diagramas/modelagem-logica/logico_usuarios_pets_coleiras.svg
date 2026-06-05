@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="720" viewBox="0 0 1300 720">
+  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.h{font:700 18px Arial;fill:#111}.f{font:15px Arial;fill:#111}.rel{stroke:#111;stroke-width:2;fill:none}.card{fill:#fff;stroke:#111;stroke-width:2}</style>
+  <rect class="bg" width="1300" height="720"/>
+  <text class="title" x="50" y="55">Modelagem logica - Usuarios, pets e coleiras</text>
+  <g transform="translate(70,120)">
+    <rect class="tbl" width="330" height="210"/><rect class="head" width="330" height="38"/>
+    <text class="h" x="12" y="25">profiles</text>
+    <text class="f" x="12" y="68">PK id uuid</text><text class="f" x="12" y="94">full_name text</text><text class="f" x="12" y="120">phone text</text><text class="f" x="12" y="146">FK active_collar uuid</text><text class="f" x="12" y="172">updated_at timestamptz</text>
+  </g>
+  <g transform="translate(500,120)">
+    <rect class="tbl" width="360" height="320"/><rect class="head" width="360" height="38"/>
+    <text class="h" x="12" y="25">pets</text>
+    <text class="f" x="12" y="68">PK id uuid</text><text class="f" x="12" y="94">FK owner_user_id uuid</text><text class="f" x="12" y="120">name text</text><text class="f" x="12" y="146">species text</text><text class="f" x="12" y="172">birth_date date</text><text class="f" x="12" y="198">color text</text><text class="f" x="12" y="224">sex text</text><text class="f" x="12" y="250">weight_kg numeric(6,2)</text><text class="f" x="12" y="276">size, microchip, breed, notes text</text><text class="f" x="12" y="302">created_at timestamptz</text>
+  </g>
+  <g transform="translate(960,120)">
+    <rect class="tbl" width="330" height="320"/><rect class="head" width="330" height="38"/>
+    <text class="h" x="12" y="25">collars</text>
+    <text class="f" x="12" y="68">PK id uuid</text><text class="f" x="12" y="94">FK pet_id uuid</text><text class="f" x="12" y="120">serial text unique</text><text class="f" x="12" y="146">activation_code text</text><text class="f" x="12" y="172">ble_service_uuid text</text><text class="f" x="12" y="198">display_name text</text><text class="f" x="12" y="224">ble_device_name text</text><text class="f" x="12" y="250">last_seen timestamptz</text><text class="f" x="12" y="276">battery numeric(5,2)</text><text class="f" x="12" y="302">created_at timestamptz</text>
+  </g>
+  <path class="rel" d="M400 225 H500"/><text class="f" x="425" y="213">1:N</text>
+  <path class="rel" d="M860 240 H960"/><text class="f" x="895" y="228">1:N</text>
+  <path class="rel" d="M235 330 V610 H1125 V440"/><text class="f" x="590" y="600">profiles.active_collar referencia uma coleira ativa</text>
+</svg>
+

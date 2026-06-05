@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6}.h{font:700 16px Arial}.f{font:15px Arial}</style>
+  <rect class="bg" width="900" height="360"/><text class="title" x="40" y="50">Dicionario de dados - profiles</text>
+  <rect class="tbl" x="40" y="85" width="820" height="235"/><rect class="head" x="40" y="85" width="820" height="34"/>
+  <text class="h" x="55" y="108">Campo</text><text class="h" x="260" y="108">Tipo</text><text class="h" x="470" y="108">Descricao</text>
+  <text class="f" x="55" y="150">id</text><text class="f" x="260" y="150">uuid</text><text class="f" x="470" y="150">Identificador do tutor e FK de auth.users</text>
+  <text class="f" x="55" y="185">full_name</text><text class="f" x="260" y="185">text</text><text class="f" x="470" y="185">Nome completo do tutor</text>
+  <text class="f" x="55" y="220">phone</text><text class="f" x="260" y="220">text</text><text class="f" x="470" y="220">Telefone do tutor</text>
+  <text class="f" x="55" y="255">active_collar</text><text class="f" x="260" y="255">uuid</text><text class="f" x="470" y="255">Coleira ativa selecionada</text>
+  <text class="f" x="55" y="290">updated_at</text><text class="f" x="260" y="290">timestamptz</text><text class="f" x="470" y="290">Data da ultima atualizacao</text>
+</svg>
+

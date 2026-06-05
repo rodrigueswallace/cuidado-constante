@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850">
+  <style>.page{fill:#fff}.title{font:700 28px Arial;fill:#111}.sys{fill:none;stroke:#111;stroke-width:2}.actor{stroke:#111;stroke-width:2;fill:none}.use{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none}</style>
+  <rect class="page" width="1200" height="850"/>
+  <text class="title" x="60" y="55">Diagrama de caso de uso - Tutor no aplicativo</text>
+  <rect class="sys" x="260" y="95" width="850" height="690"/>
+  <text class="txt" x="560" y="125">Aplicativo Cuidado Constante</text>
+  <circle class="actor" cx="125" cy="230" r="28"/>
+  <line class="actor" x1="125" y1="258" x2="125" y2="340"/>
+  <line class="actor" x1="75" y1="295" x2="175" y2="295"/>
+  <line class="actor" x1="125" y1="340" x2="80" y2="410"/>
+  <line class="actor" x1="125" y1="340" x2="170" y2="410"/>
+  <text class="txt" x="85" y="445">Tutor</text>
+  <ellipse class="use" cx="460" cy="190" rx="145" ry="38"/><text class="txt" x="405" y="195">Cadastrar conta</text>
+  <ellipse class="use" cx="775" cy="190" rx="145" ry="38"/><text class="txt" x="720" y="195">Autenticar-se</text>
+  <ellipse class="use" cx="460" cy="290" rx="145" ry="38"/><text class="txt" x="392" y="295">Cadastrar pet</text>
+  <ellipse class="use" cx="775" cy="290" rx="145" ry="38"/><text class="txt" x="690" y="295">Ativar coleira</text>
+  <ellipse class="use" cx="460" cy="400" rx="145" ry="38"/><text class="txt" x="380" y="405">Atualizar posicao</text>
+  <ellipse class="use" cx="775" cy="400" rx="145" ry="38"/><text class="txt" x="700" y="405">Recalcular rota</text>
+  <ellipse class="use" cx="460" cy="510" rx="145" ry="38"/><text class="txt" x="370" y="515">Abrir rota no Maps</text>
+  <ellipse class="use" cx="775" cy="510" rx="145" ry="38"/><text class="txt" x="680" y="515">Monitorar Bluetooth</text>
+  <ellipse class="use" cx="460" cy="620" rx="145" ry="38"/><text class="txt" x="365" y="625">Editar dados do tutor</text>
+  <ellipse class="use" cx="775" cy="620" rx="145" ry="38"/><text class="txt" x="690" y="625">Editar dados do pet</text>
+  <ellipse class="use" cx="620" cy="720" rx="170" ry="38"/><text class="txt" x="500" y="725">Visualizar dados do dispositivo</text>
+  <line class="line" x1="175" y1="260" x2="330" y2="190"/><line class="line" x1="180" y1="275" x2="630" y2="190"/>
+  <line class="line" x1="185" y1="300" x2="320" y2="290"/><line class="line" x1="185" y1="320" x2="630" y2="290"/>
+  <line class="line" x1="180" y1="340" x2="320" y2="400"/><line class="line" x1="175" y1="360" x2="630" y2="400"/>
+  <line class="line" x1="165" y1="385" x2="320" y2="510"/><line class="line" x1="150" y1="410" x2="630" y2="510"/>
+  <line class="line" x1="145" y1="430" x2="320" y2="620"/><line class="line" x1="160" y1="445" x2="630" y2="620"/>
+  <line class="line" x1="170" y1="455" x2="455" y2="720"/>
+</svg>
+

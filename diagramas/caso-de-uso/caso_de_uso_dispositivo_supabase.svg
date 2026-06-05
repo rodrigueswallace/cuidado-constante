@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720">
+  <style>.page{fill:#fff}.title{font:700 28px Arial;fill:#111}.sys{fill:none;stroke:#111;stroke-width:2}.actor{stroke:#111;stroke-width:2;fill:none}.use{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none}</style>
+  <rect class="page" width="1100" height="720"/>
+  <text class="title" x="60" y="55">Diagrama de caso de uso - Dispositivo, simulador e Supabase</text>
+  <rect class="sys" x="260" y="100" width="760" height="520"/>
+  <text class="txt" x="560" y="130">Backend Supabase</text>
+  <circle class="actor" cx="120" cy="250" r="28"/>
+  <line class="actor" x1="120" y1="278" x2="120" y2="350"/><line class="actor" x1="70" y1="310" x2="170" y2="310"/>
+  <line class="actor" x1="120" y1="350" x2="80" y2="420"/><line class="actor" x1="120" y1="350" x2="160" y2="420"/>
+  <text class="txt" x="45" y="455">Dispositivo ou</text><text class="txt" x="65" y="478">simulador</text>
+  <circle class="actor" cx="940" cy="250" r="28"/>
+  <line class="actor" x1="940" y1="278" x2="940" y2="350"/><line class="actor" x1="890" y1="310" x2="990" y2="310"/>
+  <line class="actor" x1="940" y1="350" x2="900" y2="420"/><line class="actor" x1="940" y1="350" x2="980" y2="420"/>
+  <text class="txt" x="895" y="455">Administrador</text>
+  <ellipse class="use" cx="500" cy="220" rx="155" ry="42"/><text class="txt" x="405" y="225">Consultar pedido GPS</text>
+  <ellipse class="use" cx="500" cy="340" rx="155" ry="42"/><text class="txt" x="395" y="345">Enviar evento de GPS</text>
+  <ellipse class="use" cx="500" cy="460" rx="155" ry="42"/><text class="txt" x="405" y="465">Enviar evento BLE</text>
+  <ellipse class="use" cx="770" cy="220" rx="150" ry="42"/><text class="txt" x="675" y="225">Cadastrar codigos</text>
+  <ellipse class="use" cx="770" cy="340" rx="150" ry="42"/><text class="txt" x="675" y="345">Validar ativacao</text>
+  <line class="line" x1="170" y1="285" x2="350" y2="220"/><line class="line" x1="175" y1="330" x2="350" y2="340"/>
+  <line class="line" x1="160" y1="375" x2="350" y2="460"/><line class="line" x1="900" y1="285" x2="895" y2="240"/>
+  <line class="line" x1="900" y1="315" x2="895" y2="330"/>
+</svg>

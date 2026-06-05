@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="330" viewBox="0 0 850 330">
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6}.h{font:700 16px Arial}.f{font:15px Arial}</style>
+  <rect class="bg" width="850" height="330"/><text class="title" x="40" y="50">Dicionario de dados - ble_events</text>
+  <rect class="tbl" x="40" y="85" width="780" height="220"/><rect class="head" x="40" y="85" width="780" height="34"/>
+  <text class="h" x="55" y="108">Campo</text><text class="h" x="250" y="108">Tipo</text><text class="h" x="450" y="108">Descricao</text>
+  <text class="f" x="55" y="150">id</text><text class="f" x="250" y="150">uuid</text><text class="f" x="450" y="150">Identificador do evento</text>
+  <text class="f" x="55" y="185">collar_id</text><text class="f" x="250" y="185">uuid</text><text class="f" x="450" y="185">Coleira relacionada</text>
+  <text class="f" x="55" y="220">rssi</text><text class="f" x="250" y="220">integer</text><text class="f" x="450" y="220">Intensidade do sinal Bluetooth</text>
+  <text class="f" x="55" y="255">battery</text><text class="f" x="250" y="255">numeric(5,2)</text><text class="f" x="450" y="255">Bateria opcional enviada pelo dispositivo</text>
+</svg>
+

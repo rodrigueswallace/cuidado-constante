@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <style>
+      .bg{fill:#f7fafc}
+      .title{font:700 34px Arial;fill:#12324a}
+      .subtitle{font:400 18px Arial;fill:#52616f}
+      .band{fill:#ffffff;stroke:#cbd8e3;stroke-width:2}
+      .box{fill:#ffffff;stroke:#2f6ea3;stroke-width:2}
+      .box2{fill:#eef7ff;stroke:#2f6ea3;stroke-width:2}
+      .box3{fill:#f0fbf4;stroke:#2f8c56;stroke-width:2}
+      .box4{fill:#fff7e8;stroke:#b7791f;stroke-width:2}
+      .label{font:700 20px Arial;fill:#1f2933}
+      .text{font:400 16px Arial;fill:#374151}
+      .small{font:400 14px Arial;fill:#52616f}
+      .arrow{stroke:#374151;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1400" height="900"/>
+  <text class="title" x="60" y="70">Arquitetura do sistema Cuidado Constante</text>
+  <text class="subtitle" x="60" y="102">Aplicativo mobile, backend Supabase e camada IoT para rastreamento e proximidade</text>
+
+  <rect class="band" x="60" y="150" width="1280" height="150" rx="8"/>
+  <text class="label" x="90" y="190">Camada de interface - App Mobile</text>
+  <rect class="box2" x="90" y="215" width="210" height="55" rx="6"/>
+  <text class="text" x="110" y="250">Telas React Native</text>
+  <rect class="box2" x="330" y="215" width="210" height="55" rx="6"/>
+  <text class="text" x="350" y="250">Mapa e rotas</text>
+  <rect class="box2" x="570" y="215" width="210" height="55" rx="6"/>
+  <text class="text" x="590" y="250">Bluetooth BLE</text>
+  <rect class="box2" x="810" y="215" width="210" height="55" rx="6"/>
+  <text class="text" x="830" y="250">Cadastro e login</text>
+  <rect class="box2" x="1050" y="215" width="260" height="55" rx="6"/>
+  <text class="text" x="1070" y="250">Solicitar posicao</text>
+
+  <rect class="band" x="60" y="350" width="1280" height="160" rx="8"/>
+  <text class="label" x="90" y="390">Camada de aplicacao - Hooks e Services</text>
+  <rect class="box" x="90" y="420" width="230" height="55" rx="6"/>
+  <text class="text" x="110" y="455">useGpsTracking</text>
+  <rect class="box" x="350" y="420" width="230" height="55" rx="6"/>
+  <text class="text" x="370" y="455">useBleTracking</text>
+  <rect class="box" x="610" y="420" width="230" height="55" rx="6"/>
+  <text class="text" x="630" y="455">edgeApi.ts</text>
+  <rect class="box" x="870" y="420" width="230" height="55" rx="6"/>
+  <text class="text" x="890" y="455">profile/device</text>
+  <rect class="box" x="1130" y="420" width="230" height="55" rx="6"/>
+  <text class="text" x="1150" y="455">appStore</text>
+
+  <rect class="band" x="60" y="560" width="760" height="190" rx="8"/>
+  <text class="label" x="90" y="600">Backend Supabase</text>
+  <rect class="box3" x="90" y="630" width="210" height="55" rx="6"/>
+  <text class="text" x="110" y="665">Auth</text>
+  <rect class="box3" x="330" y="630" width="210" height="55" rx="6"/>
+  <text class="text" x="350" y="665">PostgreSQL + RLS</text>
+  <rect class="box3" x="570" y="630" width="210" height="55" rx="6"/>
+  <text class="text" x="590" y="665">Edge Functions</text>
+  <text class="small" x="90" y="715">register-collar, get-latest-gps, request-gps-update, poll-gps-request, ingest-gps, ingest-ble</text>
+
+  <rect class="band" x="870" y="560" width="470" height="190" rx="8"/>
+  <text class="label" x="900" y="600">Camada IoT</text>
+  <rect class="box4" x="900" y="630" width="150" height="55" rx="6"/>
+  <text class="text" x="920" y="665">ESP32-C6</text>
+  <rect class="box4" x="1080" y="630" width="150" height="55" rx="6"/>
+  <text class="text" x="1100" y="665">A7670SA</text>
+  <rect class="box4" x="990" y="700" width="210" height="55" rx="6"/>
+  <text class="text" x="1010" y="735">Simulador GPS</text>
+
+  <path class="arrow" d="M700 300 L700 350"/>
+  <path class="arrow" d="M700 510 L620 560"/>
+  <path class="arrow" d="M1030 560 L890 510"/>
+  <path class="arrow" d="M1050 750 L760 750 L760 690"/>
+  <path class="arrow" d="M650 630 L900 630"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="390" viewBox="0 0 900 390">
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6}.h{font:700 16px Arial}.f{font:15px Arial}</style>
+  <rect class="bg" width="900" height="390"/><text class="title" x="40" y="50">Dicionario de dados - gps_update_requests</text>
+  <rect class="tbl" x="40" y="85" width="820" height="280"/><rect class="head" x="40" y="85" width="820" height="34"/>
+  <text class="h" x="55" y="108">Campo</text><text class="h" x="260" y="108">Tipo</text><text class="h" x="470" y="108">Descricao</text>
+  <text class="f" x="55" y="145">id</text><text class="f" x="260" y="145">uuid</text><text class="f" x="470" y="145">Identificador do pedido</text>
+  <text class="f" x="55" y="175">collar_id</text><text class="f" x="260" y="175">uuid</text><text class="f" x="470" y="175">Coleira consultada</text>
+  <text class="f" x="55" y="205">requested_by</text><text class="f" x="260" y="205">uuid</text><text class="f" x="470" y="205">Tutor que solicitou a atualizacao</text>
+  <text class="f" x="55" y="235">status</text><text class="f" x="260" y="235">text</text><text class="f" x="470" y="235">pending, processing, completed ou failed</text>
+  <text class="f" x="55" y="265">requested_at</text><text class="f" x="260" y="265">timestamptz</text><text class="f" x="470" y="265">Data da solicitacao</text>
+  <text class="f" x="55" y="295">gps_event_id</text><text class="f" x="260" y="295">uuid</text><text class="f" x="470" y="295">Evento GPS gerado ao concluir</text>
+  <text class="f" x="55" y="325">error</text><text class="f" x="260" y="325">text</text><text class="f" x="470" y="325">Erro quando o pedido falha</text>
+</svg>

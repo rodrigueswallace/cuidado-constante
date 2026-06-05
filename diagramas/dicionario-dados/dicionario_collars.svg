@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="430" viewBox="0 0 900 430">
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6}.h{font:700 16px Arial}.f{font:15px Arial}</style>
+  <rect class="bg" width="900" height="430"/><text class="title" x="40" y="50">Dicionario de dados - collars</text>
+  <rect class="tbl" x="40" y="85" width="820" height="325"/><rect class="head" x="40" y="85" width="820" height="34"/>
+  <text class="h" x="55" y="108">Campo</text><text class="h" x="260" y="108">Tipo</text><text class="h" x="470" y="108">Descricao</text>
+  <text class="f" x="55" y="145">id</text><text class="f" x="260" y="145">uuid</text><text class="f" x="470" y="145">Identificador da coleira</text>
+  <text class="f" x="55" y="175">pet_id</text><text class="f" x="260" y="175">uuid</text><text class="f" x="470" y="175">Pet vinculado</text>
+  <text class="f" x="55" y="205">serial</text><text class="f" x="260" y="205">text</text><text class="f" x="470" y="205">Codigo serial unico</text>
+  <text class="f" x="55" y="235">activation_code</text><text class="f" x="260" y="235">text</text><text class="f" x="470" y="235">Codigo de ativacao cadastrado por admin</text>
+  <text class="f" x="55" y="265">ble_service_uuid</text><text class="f" x="260" y="265">text</text><text class="f" x="470" y="265">Servico BLE usado no monitoramento</text>
+  <text class="f" x="55" y="295">display_name</text><text class="f" x="260" y="295">text</text><text class="f" x="470" y="295">Nome exibido no app</text>
+  <text class="f" x="55" y="325">last_seen</text><text class="f" x="260" y="325">timestamptz</text><text class="f" x="470" y="325">Ultimo evento recebido</text>
+  <text class="f" x="55" y="355">battery</text><text class="f" x="260" y="355">numeric(5,2)</text><text class="f" x="470" y="355">Bateria informada pelo dispositivo</text>
+</svg>
+

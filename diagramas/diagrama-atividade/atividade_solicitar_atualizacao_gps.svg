@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="720" viewBox="0 0 850 720">
+  <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.small{font:14px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#m)}.dot{fill:#111}</style>
+  <rect class="bg" width="850" height="720"/>
+  <text class="title" x="45" y="52">Atividade - Solicitar atualizacao GPS pelo app</text>
+  <circle class="dot" cx="425" cy="100" r="13"/>
+  <rect class="act" x="285" y="145" width="280" height="58" rx="6"/><text class="txt" x="335" y="180">Abrir tela de GPS</text>
+  <rect class="act" x="285" y="240" width="280" height="58" rx="6"/><text class="txt" x="320" y="275">Clicar Atualizar posicao</text>
+  <polygon class="dec" points="425,335 545,405 425,475 305,405"/><text class="txt" x="355" y="400">Existe pedido</text><text class="txt" x="350" y="420">pendente?</text>
+  <rect class="act" x="585" y="375" width="220" height="58" rx="6"/><text class="txt" x="622" y="410">Manter bloqueado</text>
+  <rect class="act" x="285" y="520" width="280" height="58" rx="6"/><text class="txt" x="310" y="555">Criar pedido no Supabase</text>
+  <rect class="act" x="285" y="625" width="280" height="58" rx="6"/><text class="txt" x="325" y="660">Bloquear novo pedido</text>
+  <path class="line" d="M425 113 V145"/><path class="line" d="M425 203 V240"/><path class="line" d="M425 298 V335"/>
+  <path class="line" d="M545 405 H585"/><text class="small" x="555" y="392">sim</text>
+  <path class="line" d="M425 475 V520"/><text class="small" x="440" y="500">nao</text>
+  <path class="line" d="M425 578 V625"/>
+</svg>
+

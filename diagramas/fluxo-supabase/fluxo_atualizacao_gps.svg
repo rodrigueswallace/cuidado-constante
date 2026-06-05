@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="760" viewBox="0 0 1500 760">
+  <defs>
+    <style>
+      .bg{fill:#f8fafc}
+      .title{font:700 34px Arial;fill:#12324a}
+      .step{fill:#fff;stroke:#2f6ea3;stroke-width:2}
+      .backend{fill:#f0fbf4;stroke:#2f8c56;stroke-width:2}
+      .device{fill:#fff7e8;stroke:#b7791f;stroke-width:2}
+      .label{font:700 18px Arial;fill:#1f2933}
+      .text{font:400 15px Arial;fill:#374151}
+      .num{font:700 16px Arial;fill:#fff}
+      .circle{fill:#2f6ea3}
+      .arrow{stroke:#374151;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1500" height="760"/>
+  <text class="title" x="60" y="70">Fluxo de atualizacao de localizacao GPS</text>
+
+  <rect class="step" x="60" y="150" width="230" height="120" rx="8"/>
+  <circle class="circle" cx="90" cy="180" r="18"/><text class="num" x="85" y="186">1</text>
+  <text class="label" x="115" y="185">App principal</text>
+  <text class="text" x="85" y="220">Usuario clica em</text>
+  <text class="text" x="85" y="245">Atualizar posicao</text>
+
+  <rect class="backend" x="360" y="150" width="260" height="120" rx="8"/>
+  <circle class="circle" cx="390" cy="180" r="18"/><text class="num" x="385" y="186">2</text>
+  <text class="label" x="415" y="185">request-gps-update</text>
+  <text class="text" x="385" y="220">Cria pedido pendente</text>
+  <text class="text" x="385" y="245">em gps_update_requests</text>
+
+  <rect class="device" x="690" y="150" width="280" height="120" rx="8"/>
+  <circle class="circle" cx="720" cy="180" r="18"/><text class="num" x="715" y="186">3</text>
+  <text class="label" x="745" y="185">Dispositivo ou simulador</text>
+  <text class="text" x="715" y="220">Consulta pedidos</text>
+  <text class="text" x="715" y="245">periodicamente</text>
+
+  <rect class="backend" x="1040" y="150" width="260" height="120" rx="8"/>
+  <circle class="circle" cx="1070" cy="180" r="18"/><text class="num" x="1065" y="186">4</text>
+  <text class="label" x="1095" y="185">poll-gps-request</text>
+  <text class="text" x="1065" y="220">Marca pedido como</text>
+  <text class="text" x="1065" y="245">processing</text>
+
+  <rect class="device" x="690" y="390" width="280" height="120" rx="8"/>
+  <circle class="circle" cx="720" cy="420" r="18"/><text class="num" x="715" y="426">5</text>
+  <text class="label" x="745" y="425">Captura coordenadas</text>
+  <text class="text" x="715" y="460">GNSS do modulo ou</text>
+  <text class="text" x="715" y="485">localizacao do celular</text>
+
+  <rect class="backend" x="1040" y="390" width="260" height="120" rx="8"/>
+  <circle class="circle" cx="1070" cy="420" r="18"/><text class="num" x="1065" y="426">6</text>
+  <text class="label" x="1095" y="425">ingest-gps</text>
+  <text class="text" x="1065" y="460">Salva gps_events e</text>
+  <text class="text" x="1065" y="485">conclui o pedido</text>
+
+  <rect class="step" x="360" y="390" width="260" height="120" rx="8"/>
+  <circle class="circle" cx="390" cy="420" r="18"/><text class="num" x="385" y="426">7</text>
+  <text class="label" x="415" y="425">get-latest-gps</text>
+  <text class="text" x="385" y="460">App consulta eventos</text>
+  <text class="text" x="385" y="485">mais recentes</text>
+
+  <rect class="step" x="60" y="390" width="230" height="120" rx="8"/>
+  <circle class="circle" cx="90" cy="420" r="18"/><text class="num" x="85" y="426">8</text>
+  <text class="label" x="115" y="425">Mapa atualizado</text>
+  <text class="text" x="85" y="460">Exibe marcador do pet</text>
+  <text class="text" x="85" y="485">e abre rota no Maps</text>
+
+  <path class="arrow" d="M290 210 L360 210"/>
+  <path class="arrow" d="M620 210 L690 210"/>
+  <path class="arrow" d="M970 210 L1040 210"/>
+  <path class="arrow" d="M1170 270 L1170 390"/>
+  <path class="arrow" d="M1040 450 L970 450"/>
+  <path class="arrow" d="M690 450 L620 450"/>
+  <path class="arrow" d="M360 450 L290 450"/>
+  <path class="arrow" d="M830 270 L830 390"/>
+</svg>

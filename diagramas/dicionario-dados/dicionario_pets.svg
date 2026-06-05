@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="430" viewBox="0 0 900 430">
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6}.h{font:700 16px Arial}.f{font:15px Arial}</style>
+  <rect class="bg" width="900" height="430"/><text class="title" x="40" y="50">Dicionario de dados - pets</text>
+  <rect class="tbl" x="40" y="85" width="820" height="325"/><rect class="head" x="40" y="85" width="820" height="34"/>
+  <text class="h" x="55" y="108">Campo</text><text class="h" x="260" y="108">Tipo</text><text class="h" x="470" y="108">Descricao</text>
+  <text class="f" x="55" y="145">id</text><text class="f" x="260" y="145">uuid</text><text class="f" x="470" y="145">Identificador do pet</text>
+  <text class="f" x="55" y="175">owner_user_id</text><text class="f" x="260" y="175">uuid</text><text class="f" x="470" y="175">Tutor proprietario</text>
+  <text class="f" x="55" y="205">name</text><text class="f" x="260" y="205">text</text><text class="f" x="470" y="205">Nome do pet</text>
+  <text class="f" x="55" y="235">species/color</text><text class="f" x="260" y="235">text</text><text class="f" x="470" y="235">Especie e cor</text>
+  <text class="f" x="55" y="265">sex</text><text class="f" x="260" y="265">text</text><text class="f" x="470" y="265">Macho ou femea</text>
+  <text class="f" x="55" y="295">weight_kg</text><text class="f" x="260" y="295">numeric(6,2)</text><text class="f" x="470" y="295">Peso em quilogramas</text>
+  <text class="f" x="55" y="325">size</text><text class="f" x="260" y="325">text</text><text class="f" x="470" y="325">Tamanho do pet</text>
+  <text class="f" x="55" y="355">birth_date</text><text class="f" x="260" y="355">date</text><text class="f" x="470" y="355">Data de nascimento</text>
+  <text class="f" x="55" y="385">created_at</text><text class="f" x="260" y="385">timestamptz</text><text class="f" x="470" y="385">Data de cadastro</text>
+</svg>
+

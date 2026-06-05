@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="820" viewBox="0 0 900 820">
+  <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 26px Arial;fill:#111}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.small{font:14px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#m)}.dot{fill:#111}.end{fill:#fff;stroke:#111;stroke-width:4}</style>
+  <rect class="bg" width="900" height="820"/>
+  <text class="title" x="45" y="52">Atividade - Dispositivo ou simulador atende pedido GPS</text>
+  <circle class="dot" cx="450" cy="100" r="13"/>
+  <rect class="act" x="300" y="145" width="300" height="58" rx="6"/><text class="txt" x="335" y="180">Consultar poll-gps-request</text>
+  <polygon class="dec" points="450,245 570,315 450,385 330,315"/><text class="txt" x="395" y="310">Tem pedido?</text>
+  <rect class="act" x="625" y="285" width="220" height="58" rx="6"/><text class="txt" x="672" y="320">Aguardar ciclo</text>
+  <rect class="act" x="300" y="430" width="300" height="58" rx="6"/><text class="txt" x="330" y="465">Capturar localizacao</text>
+  <polygon class="dec" points="450,530 570,600 450,670 330,600"/><text class="txt" x="385" y="595">Obteve GPS?</text>
+  <rect class="act" x="625" y="570" width="220" height="58" rx="6"/><text class="txt" x="650" y="605">Usar coordenada padrao</text>
+  <rect class="act" x="300" y="710" width="300" height="58" rx="6"/><text class="txt" x="330" y="745">Enviar ingest-gps</text>
+  <circle class="end" cx="735" cy="390" r="14"/><circle class="dot" cx="735" cy="390" r="8"/>
+  <path class="line" d="M450 113 V145"/><path class="line" d="M450 203 V245"/>
+  <path class="line" d="M570 315 H625"/><text class="small" x="585" y="302">nao</text><path class="line" d="M735 343 V376"/>
+  <path class="line" d="M450 385 V430"/><text class="small" x="465" y="410">sim</text>
+  <path class="line" d="M450 488 V530"/>
+  <path class="line" d="M570 600 H625"/><text class="small" x="585" y="588">nao</text>
+  <path class="line" d="M450 670 V710"/><text class="small" x="465" y="695">sim</text>
+  <path class="line" d="M735 628 V740 H600"/>
+</svg>
