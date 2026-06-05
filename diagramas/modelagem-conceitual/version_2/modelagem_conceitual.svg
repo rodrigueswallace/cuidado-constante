@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <style>
+    .bg{fill:#fff}
+    .title{font:700 30px Arial;fill:#111}
+    .entity{fill:#fff;stroke:#111;stroke-width:2}
+    .head{fill:#e7e6e6;stroke:#111;stroke-width:2}
+    .name{font:700 19px Arial;fill:#111}
+    .attr{font:15px Arial;fill:#111}
+    .rel{stroke:#111;stroke-width:2;fill:none}
+    .label{font:14px Arial;fill:#111}
+    .card{font:700 14px Arial;fill:#111}
+  </style>
+
+  <rect class="bg" width="1400" height="900"/>
+  <text class="title" x="50" y="55">Modelagem conceitual - Cuidado Constante</text>
+
+  <g transform="translate(70,130)">
+    <rect class="entity" width="320" height="205"/>
+    <rect class="head" width="320" height="38"/>
+    <text class="name" x="132" y="25">Tutor</text>
+    <text class="attr" x="14" y="68">nome completo</text>
+    <text class="attr" x="14" y="94">telefone</text>
+    <text class="attr" x="14" y="120">e-mail de acesso</text>
+    <text class="attr" x="14" y="146">coleira ativa</text>
+    <text class="attr" x="14" y="172">data de atualizacao</text>
+  </g>
+
+  <g transform="translate(500,130)">
+    <rect class="entity" width="320" height="235"/>
+    <rect class="head" width="320" height="38"/>
+    <text class="name" x="148" y="25">Pet</text>
+    <text class="attr" x="14" y="68">nome</text>
+    <text class="attr" x="14" y="94">especie</text>
+    <text class="attr" x="14" y="120">data de nascimento</text>
+    <text class="attr" x="14" y="146">cor, sexo e raca</text>
+    <text class="attr" x="14" y="172">peso e tamanho</text>
+    <text class="attr" x="14" y="198">microchip e observacoes</text>
+  </g>
+
+  <g transform="translate(930,130)">
+    <rect class="entity" width="320" height="235"/>
+    <rect class="head" width="320" height="38"/>
+    <text class="name" x="132" y="25">Coleira</text>
+    <text class="attr" x="14" y="68">serial</text>
+    <text class="attr" x="14" y="94">codigo de ativacao</text>
+    <text class="attr" x="14" y="120">servico Bluetooth</text>
+    <text class="attr" x="14" y="146">nome de exibicao</text>
+    <text class="attr" x="14" y="172">ultimo contato</text>
+    <text class="attr" x="14" y="198">bateria</text>
+  </g>
+
+  <g transform="translate(70,545)">
+    <rect class="entity" width="320" height="205"/>
+    <rect class="head" width="320" height="38"/>
+    <text class="name" x="70" y="25">Pedido de GPS</text>
+    <text class="attr" x="14" y="68">status</text>
+    <text class="attr" x="14" y="94">data da solicitacao</text>
+    <text class="attr" x="14" y="120">inicio do processamento</text>
+    <text class="attr" x="14" y="146">conclusao</text>
+    <text class="attr" x="14" y="172">erro</text>
+  </g>
+
+  <g transform="translate(500,545)">
+    <rect class="entity" width="320" height="205"/>
+    <rect class="head" width="320" height="38"/>
+    <text class="name" x="80" y="25">Evento GPS</text>
+    <text class="attr" x="14" y="68">latitude</text>
+    <text class="attr" x="14" y="94">longitude</text>
+    <text class="attr" x="14" y="120">bateria</text>
+    <text class="attr" x="14" y="146">data/hora do evento</text>
+    <text class="attr" x="14" y="172">data de recebimento</text>
+  </g>
+
+  <g transform="translate(930,545)">
+    <rect class="entity" width="320" height="205"/>
+    <rect class="head" width="320" height="38"/>
+    <text class="name" x="80" y="25">Evento BLE</text>
+    <text class="attr" x="14" y="68">intensidade do sinal</text>
+    <text class="attr" x="14" y="94">bateria</text>
+    <text class="attr" x="14" y="120">data/hora do evento</text>
+    <text class="attr" x="14" y="146">data de recebimento</text>
+  </g>
+
+  <path class="rel" d="M390 230 H500"/>
+  <text class="label" x="425" y="215">possui</text>
+  <text class="card" x="405" y="250">1</text>
+  <text class="card" x="475" y="250">0..N</text>
+
+  <path class="rel" d="M820 240 H930"/>
+  <text class="label" x="850" y="225">vincula</text>
+  <text class="card" x="835" y="260">1</text>
+  <text class="card" x="900" y="260">0..N</text>
+
+  <path class="rel" d="M230 335 V545"/>
+  <text class="label" x="245" y="455">solicita</text>
+  <text class="card" x="245" y="355">1</text>
+  <text class="card" x="245" y="530">0..N</text>
+
+  <path class="rel" d="M390 650 H500"/>
+  <text class="label" x="420" y="635">gera ao concluir</text>
+  <text class="card" x="405" y="670">0..1</text>
+  <text class="card" x="470" y="670">1</text>
+
+  <path class="rel" d="M1090 365 V475 H660 V545"/>
+  <text class="label" x="760" y="460">gera</text>
+  <text class="card" x="1110" y="390">1</text>
+  <text class="card" x="675" y="530">0..N</text>
+
+  <path class="rel" d="M1090 365 V545"/>
+  <text class="label" x="1105" y="460">gera</text>
+  <text class="card" x="1110" y="390">1</text>
+  <text class="card" x="1110" y="530">0..N</text>
+
+  <path class="rel" d="M930 305 H890 V650 H820"/>
+  <text class="label" x="835" y="635">atende</text>
+  <text class="card" x="895" y="300">1</text>
+  <text class="card" x="835" y="670">0..N</text>
+
+  <path class="rel" d="M930 285 H875 V430 H230 V545"/>
+  <text class="label" x="500" y="415">recebe pedido</text>
+  <text class="card" x="895" y="280">1</text>
+  <text class="card" x="300" y="530">0..N</text>
+</svg>

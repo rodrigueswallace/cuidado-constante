@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="820" viewBox="0 0 1050 820">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.small{font:14px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#arrow)}.dot{fill:#111}</style>
+  <rect class="bg" width="1050" height="820"/>
+  <text class="title" x="50" y="55">Atividade - Configuracoes da conta</text>
+  <circle class="dot" cx="525" cy="105" r="13"/>
+  <rect class="act" x="375" y="150" width="300" height="58" rx="6"/><text class="txt" x="440" y="185">Abrir configuracoes</text>
+  <polygon class="dec" points="525,255 665,330 525,405 385,330"/><text class="txt" x="465" y="325">Escolher opcao</text>
+  <rect class="act" x="60" y="500" width="210" height="58" rx="6"/><text class="txt" x="95" y="535">Editar tutor</text>
+  <rect class="act" x="300" y="500" width="210" height="58" rx="6"/><text class="txt" x="338" y="535">Editar pet</text>
+  <rect class="act" x="540" y="500" width="210" height="58" rx="6"/><text class="txt" x="570" y="535">Ver dispositivo</text>
+  <rect class="act" x="780" y="500" width="210" height="58" rx="6"/><text class="txt" x="815" y="535">Conta e senha</text>
+  <rect class="act" x="60" y="650" width="210" height="58" rx="6"/><text class="txt" x="95" y="685">Salvar profile</text>
+  <rect class="act" x="300" y="650" width="210" height="58" rx="6"/><text class="txt" x="338" y="685">Salvar pet</text>
+  <rect class="act" x="540" y="650" width="210" height="58" rx="6"/><text class="txt" x="570" y="685">Exibir leitura</text>
+  <rect class="act" x="780" y="650" width="210" height="58" rx="6"/><text class="txt" x="810" y="685">Redefinir/sair/excluir</text>
+  <path class="line" d="M525 118 V150"/><path class="line" d="M525 208 V255"/>
+  <path class="line" d="M385 330 H165 V500"/><text class="small" x="205" y="315">tutor</text>
+  <path class="line" d="M465 405 V455 H405 V500"/><text class="small" x="410" y="440">pet</text>
+  <path class="line" d="M585 405 V455 H645 V500"/><text class="small" x="610" y="440">dispositivo</text>
+  <path class="line" d="M665 330 H885 V500"/><text class="small" x="805" y="315">conta</text>
+  <path class="line" d="M165 558 V650"/><path class="line" d="M405 558 V650"/><path class="line" d="M645 558 V650"/><path class="line" d="M885 558 V650"/>
+</svg>
+

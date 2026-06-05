@@ -23,6 +23,7 @@ Thumbs.db
 # Logs
 logs/
 *.log
+coverage/
 
 # Cache / Temp
 .cache/

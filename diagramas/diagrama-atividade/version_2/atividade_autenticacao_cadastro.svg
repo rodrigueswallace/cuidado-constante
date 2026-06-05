@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1040" viewBox="0 0 900 1040">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.small{font:14px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#arrow)}.dot{fill:#111}.end{fill:#fff;stroke:#111;stroke-width:3}</style>
+  <rect class="bg" width="900" height="1040"/>
+  <text class="title" x="50" y="55">Atividade - Autenticacao e cadastro</text>
+  <circle class="dot" cx="450" cy="105" r="13"/>
+  <rect class="act" x="300" y="150" width="300" height="58" rx="6"/><text class="txt" x="360" y="185">Abrir tela inicial</text>
+  <polygon class="dec" points="450,250 570,320 450,390 330,320"/><text class="txt" x="400" y="315">Usuario tem</text><text class="txt" x="410" y="335">conta?</text>
+  <rect class="act" x="95" y="455" width="300" height="58" rx="6"/><text class="txt" x="145" y="490">Informar email e senha</text>
+  <polygon class="dec" points="245,555 360,625 245,695 130,625"/><text class="txt" x="195" y="620">Credenciais</text><text class="txt" x="210" y="640">validas?</text>
+  <rect class="act" x="95" y="755" width="300" height="58" rx="6"/><text class="txt" x="157" y="790">Entrar no aplicativo</text>
+  <rect class="act" x="505" y="455" width="300" height="58" rx="6"/><text class="txt" x="555" y="490">Preencher tutor</text>
+  <rect class="act" x="505" y="555" width="300" height="58" rx="6"/><text class="txt" x="560" y="590">Preencher pet</text>
+  <polygon class="dec" points="655,655 770,725 655,795 540,725"/><text class="txt" x="600" y="720">Dados validos?</text>
+  <rect class="act" x="505" y="855" width="300" height="58" rx="6"/><text class="txt" x="545" y="890">Criar usuario no Auth</text>
+  <rect class="act" x="300" y="940" width="300" height="58" rx="6"/><text class="txt" x="350" y="975">Criar profile e pet</text>
+  <circle class="end" cx="450" cy="1015" r="14"/><circle class="dot" cx="450" cy="1015" r="8"/>
+  <path class="line" d="M450 118 V150"/><path class="line" d="M450 208 V250"/>
+  <path class="line" d="M330 320 H245 V455"/><text class="small" x="260" y="305">sim</text>
+  <path class="line" d="M570 320 H655 V455"/><text class="small" x="610" y="305">nao</text>
+  <path class="line" d="M245 513 V555"/><path class="line" d="M245 695 V755"/><text class="small" x="260" y="725">sim</text>
+  <path class="line" d="M360 625 H430 V485 H395"/><text class="small" x="375" y="610">nao</text>
+  <path class="line" d="M655 513 V555"/><path class="line" d="M655 613 V655"/><path class="line" d="M655 795 V855"/><text class="small" x="670" y="825">sim</text>
+  <path class="line" d="M540 725 H470 V585 H505"/><text class="small" x="500" y="710">nao</text>
+  <path class="line" d="M245 813 V915 H450 V940"/><path class="line" d="M655 913 V940 H450"/><path class="line" d="M450 998 V1001"/>
+</svg>
+

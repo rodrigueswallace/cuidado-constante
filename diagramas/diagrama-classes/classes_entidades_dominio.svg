@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1150" viewBox="0 0 1500 1150">
+  <defs>
+    <marker id="openArrow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11" fill="none" stroke="#111" stroke-width="2"/>
+    </marker>
+    <style>
+      .bg{fill:#fff}.title{font:700 30px Arial;fill:#111}.class{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.name{font:700 18px Arial;fill:#111}.txt{font:15px Arial;fill:#111}.line{stroke:#111;stroke-width:2}.rel{stroke:#111;stroke-width:2;fill:none}.dep{stroke:#111;stroke-width:2;fill:none;stroke-dasharray:8 6;marker-end:url(#openArrow)}.label{font:14px Arial;fill:#111}
+    </style>
+  </defs>
+  <rect class="bg" width="1500" height="1150"/>
+  <text class="title" x="50" y="55">Diagrama de classes - Entidades do dominio</text>
+
+  <g transform="translate(590,100)">
+    <rect class="class" width="330" height="220"/><rect class="head" width="330" height="38"/>
+    <text class="name" x="115" y="25">Profile</text>
+    <line class="line" x1="0" y1="150" x2="330" y2="150"/>
+    <text class="txt" x="12" y="66">+ id: uuid</text><text class="txt" x="12" y="92">+ fullName: string</text><text class="txt" x="12" y="118">+ phone: string</text><text class="txt" x="12" y="144">+ activeCollar: uuid</text>
+    <text class="txt" x="12" y="178">+ atualizarDados(): void</text><text class="txt" x="12" y="204">+ selecionarColeira(): void</text>
+  </g>
+
+  <g transform="translate(590,405)">
+    <rect class="class" width="360" height="300"/><rect class="head" width="360" height="38"/>
+    <text class="name" x="165" y="25">Pet</text>
+    <line class="line" x1="0" y1="225" x2="360" y2="225"/>
+    <text class="txt" x="12" y="66">+ id: uuid</text><text class="txt" x="12" y="92">+ ownerUserId: uuid</text><text class="txt" x="12" y="118">+ name: string</text><text class="txt" x="12" y="144">+ species: string</text><text class="txt" x="12" y="170">+ sex: string</text><text class="txt" x="12" y="196">+ weightKg: number</text><text class="txt" x="12" y="222">+ size: string</text>
+    <text class="txt" x="12" y="253">+ cadastrar(): void</text><text class="txt" x="12" y="279">+ atualizarCadastro(): void</text>
+  </g>
+
+  <g transform="translate(590,805)">
+    <rect class="class" width="360" height="300"/><rect class="head" width="360" height="38"/>
+    <text class="name" x="155" y="25">Collar</text>
+    <line class="line" x1="0" y1="225" x2="360" y2="225"/>
+    <text class="txt" x="12" y="66">+ id: uuid</text><text class="txt" x="12" y="92">+ petId: uuid</text><text class="txt" x="12" y="118">+ serial: string</text><text class="txt" x="12" y="144">+ activationCode: string</text><text class="txt" x="12" y="170">+ bleServiceUuid: string</text><text class="txt" x="12" y="196">+ lastSeen: datetime</text><text class="txt" x="12" y="222">+ battery: number</text>
+    <text class="txt" x="12" y="253">+ ativar(): void</text><text class="txt" x="12" y="279">+ registrarEvento(): void</text>
+  </g>
+
+  <g transform="translate(70,805)">
+    <rect class="class" width="340" height="220"/><rect class="head" width="340" height="38"/>
+    <text class="name" x="125" y="25">GpsEvent</text>
+    <line class="line" x1="0" y1="150" x2="340" y2="150"/>
+    <text class="txt" x="12" y="66">+ id: uuid</text><text class="txt" x="12" y="92">+ collarId: uuid</text><text class="txt" x="12" y="118">+ lat: number</text><text class="txt" x="12" y="144">+ lng: number</text>
+    <text class="txt" x="12" y="178">+ salvarLocalizacao(): void</text>
+  </g>
+
+  <g transform="translate(1090,805)">
+    <rect class="class" width="340" height="220"/><rect class="head" width="340" height="38"/>
+    <text class="name" x="125" y="25">BleEvent</text>
+    <line class="line" x1="0" y1="150" x2="340" y2="150"/>
+    <text class="txt" x="12" y="66">+ id: uuid</text><text class="txt" x="12" y="92">+ collarId: uuid</text><text class="txt" x="12" y="118">+ rssi: number</text><text class="txt" x="12" y="144">+ battery: number</text>
+    <text class="txt" x="12" y="178">+ salvarProximidade(): void</text>
+  </g>
+
+  <g transform="translate(1050,405)">
+    <rect class="class" width="380" height="260"/><rect class="head" width="380" height="38"/>
+    <text class="name" x="95" y="25">GpsUpdateRequest</text>
+    <line class="line" x1="0" y1="176" x2="380" y2="176"/>
+    <text class="txt" x="12" y="66">+ id: uuid</text><text class="txt" x="12" y="92">+ collarId: uuid</text><text class="txt" x="12" y="118">+ requestedBy: uuid</text><text class="txt" x="12" y="144">+ status: string</text><text class="txt" x="12" y="170">+ gpsEventId: uuid</text>
+    <text class="txt" x="12" y="205">+ marcarProcessando(): void</text><text class="txt" x="12" y="231">+ concluir(): void</text>
+  </g>
+
+  <path class="rel" d="M755 320 V405"/><text class="label" x="770" y="365">1 para 0..*</text>
+  <path class="rel" d="M770 705 V805"/><text class="label" x="785" y="760">1 para 0..*</text>
+  <path class="rel" d="M590 955 H410"/><text class="label" x="455" y="940">1 para 0..*</text>
+  <path class="rel" d="M950 955 H1090"/><text class="label" x="980" y="940">1 para 0..*</text>
+  <path class="rel" d="M950 555 H1050"/><text class="label" x="965" y="540">0..*</text>
+  <path class="dep" d="M1240 665 V740 H240 V805"/><text class="label" x="820" y="730">referencia GPS gerado</text>
+</svg>

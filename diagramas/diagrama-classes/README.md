@@ -1,8 +1,10 @@
 # Diagrama de classes
 
-O diagrama foi separado em partes para manter legibilidade no documento:
+Diagramas em padrao UML, separados para manter legibilidade no documento:
 
-- `classes_telas_app.svg`: principais telas e responsabilidades.
-- `classes_servicos_app.svg`: servicos usados pelo aplicativo.
-- `classes_entidades_banco.svg`: entidades persistidas no Supabase.
+- `classes_entidades_dominio.svg`: entidades persistidas no Supabase e seus relacionamentos.
+- `classes_servicos_app.svg`: servicos do aplicativo e operacoes principais.
+- `classes_telas_fluxo.svg`: telas principais e dependencia com hooks/servicos.
+
+Padrao usado: nome da classe, atributos, operacoes e relacionamentos com multiplicidade.
 

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="980" viewBox="0 0 1450 980">
+  <style>
+    .bg{fill:#fff}.title{font:700 30px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.name{font:700 18px Arial;fill:#111}.field{font:14px Arial;fill:#111}.rel{stroke:#111;stroke-width:2;fill:none}.card{font:700 14px Arial;fill:#111}.label{font:14px Arial;fill:#111}
+  </style>
+  <rect class="bg" width="1450" height="980"/>
+  <text class="title" x="50" y="55">Modelagem logica - Eventos e pedidos</text>
+
+  <g transform="translate(525,100)">
+    <rect class="tbl" width="370" height="250"/>
+    <rect class="head" width="370" height="36"/>
+    <text class="name" x="14" y="24">collars</text>
+    <text class="field" x="14" y="64">PK id: uuid</text>
+    <text class="field" x="14" y="90">FK pet_id: uuid</text>
+    <text class="field" x="14" y="116">serial: text unique</text>
+    <text class="field" x="14" y="142">activation_code: text</text>
+    <text class="field" x="14" y="168">ble_service_uuid: text</text>
+    <text class="field" x="14" y="194">last_seen: timestamptz</text>
+    <text class="field" x="14" y="220">battery: numeric(5,2)</text>
+  </g>
+
+  <g transform="translate(70,570)">
+    <rect class="tbl" width="350" height="250"/>
+    <rect class="head" width="350" height="36"/>
+    <text class="name" x="14" y="24">gps_events</text>
+    <text class="field" x="14" y="64">PK id: uuid</text>
+    <text class="field" x="14" y="90">FK collar_id: uuid - collars(id)</text>
+    <text class="field" x="14" y="116">lat: double precision</text>
+    <text class="field" x="14" y="142">lng: double precision</text>
+    <text class="field" x="14" y="168">battery: numeric(5,2)</text>
+    <text class="field" x="14" y="194">ts: timestamptz</text>
+    <text class="field" x="14" y="220">created_at: timestamptz</text>
+  </g>
+
+  <g transform="translate(525,570)">
+    <rect class="tbl" width="350" height="230"/>
+    <rect class="head" width="350" height="36"/>
+    <text class="name" x="14" y="24">ble_events</text>
+    <text class="field" x="14" y="64">PK id: uuid</text>
+    <text class="field" x="14" y="90">FK collar_id: uuid - collars(id)</text>
+    <text class="field" x="14" y="116">rssi: integer</text>
+    <text class="field" x="14" y="142">battery: numeric(5,2)</text>
+    <text class="field" x="14" y="168">ts: timestamptz</text>
+    <text class="field" x="14" y="194">created_at: timestamptz</text>
+  </g>
+
+  <g transform="translate(980,570)">
+    <rect class="tbl" width="380" height="285"/>
+    <rect class="head" width="380" height="36"/>
+    <text class="name" x="14" y="24">gps_update_requests</text>
+    <text class="field" x="14" y="64">PK id: uuid</text>
+    <text class="field" x="14" y="90">FK collar_id: uuid - collars(id)</text>
+    <text class="field" x="14" y="116">FK requested_by: uuid - auth.users(id)</text>
+    <text class="field" x="14" y="142">status: text</text>
+    <text class="field" x="14" y="168">requested_at: timestamptz</text>
+    <text class="field" x="14" y="194">processing_at: timestamptz</text>
+    <text class="field" x="14" y="220">completed_at: timestamptz</text>
+    <text class="field" x="14" y="246">FK gps_event_id: uuid - gps_events(id)</text>
+    <text class="field" x="14" y="272">error: text</text>
+  </g>
+
+  <path class="rel" d="M710 350 V570"/>
+  <text class="label" x="725" y="480">collar_id</text>
+  <text class="card" x="725" y="370">1</text>
+  <text class="card" x="725" y="555">0..N</text>
+
+  <path class="rel" d="M610 350 V460 H245 V570"/>
+  <text class="label" x="360" y="445">collar_id</text>
+  <text class="card" x="625" y="370">1</text>
+  <text class="card" x="260" y="555">0..N</text>
+
+  <path class="rel" d="M810 350 V460 H1170 V570"/>
+  <text class="label" x="960" y="445">collar_id</text>
+  <text class="card" x="825" y="370">1</text>
+  <text class="card" x="1185" y="555">0..N</text>
+
+  <path class="rel" d="M980 720 H930 V880 H245 V820"/>
+  <text class="label" x="550" y="865">gps_event_id</text>
+  <text class="card" x="940" y="740">0..1</text>
+  <text class="card" x="260" y="840">1</text>
+</svg>

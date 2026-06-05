@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="880" viewBox="0 0 900 880">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.small{font:14px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#arrow)}.dot{fill:#111}.end{fill:#fff;stroke:#111;stroke-width:3}</style>
+  <rect class="bg" width="900" height="880"/>
+  <text class="title" x="50" y="55">Atividade - Monitoramento Bluetooth</text>
+  <circle class="dot" cx="450" cy="105" r="13"/>
+  <rect class="act" x="300" y="150" width="300" height="58" rx="6"/><text class="txt" x="350" y="185">Abrir tela Bluetooth</text>
+  <polygon class="dec" points="450,250 570,320 450,390 330,320"/><text class="txt" x="390" y="315">Coleira ativa?</text>
+  <rect class="act" x="620" y="290" width="220" height="58" rx="6"/><text class="txt" x="650" y="325">Solicitar cadastro</text>
+  <rect class="act" x="300" y="435" width="300" height="58" rx="6"/><text class="txt" x="370" y="470">Escanear BLE</text>
+  <polygon class="dec" points="450,535 570,605 450,675 330,605"/><text class="txt" x="390" y="600">Dispositivo</text><text class="txt" x="390" y="620">encontrado?</text>
+  <rect class="act" x="620" y="575" width="220" height="58" rx="6"/><text class="txt" x="650" y="610">Exibir vazio</text>
+  <rect class="act" x="300" y="715" width="300" height="58" rx="6"/><text class="txt" x="370" y="750">Conectar BLE</text>
+  <rect class="act" x="300" y="805" width="300" height="58" rx="6"/><text class="txt" x="340" y="840">Monitorar RSSI e fila</text>
+  <path class="line" d="M450 118 V150"/><path class="line" d="M450 208 V250"/>
+  <path class="line" d="M570 320 H620"/><text class="small" x="585" y="305">nao</text>
+  <path class="line" d="M450 390 V435"/><text class="small" x="465" y="415">sim</text>
+  <path class="line" d="M450 493 V535"/>
+  <path class="line" d="M570 605 H620"/><text class="small" x="585" y="590">nao</text>
+  <path class="line" d="M450 675 V715"/><text class="small" x="465" y="700">sim</text>
+  <path class="line" d="M450 773 V805"/>
+</svg>
+

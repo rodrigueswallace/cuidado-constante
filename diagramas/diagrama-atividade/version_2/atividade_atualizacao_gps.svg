@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="900" viewBox="0 0 1150 900">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.lane{fill:none;stroke:#999;stroke-width:2}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:15px Arial;fill:#111}.small{font:13px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#arrow)}.dot{fill:#111}.end{fill:#fff;stroke:#111;stroke-width:3}</style>
+  <rect class="bg" width="1150" height="900"/>
+  <text class="title" x="50" y="55">Atividade - Atualizacao de posicao GPS</text>
+  <rect class="lane" x="55" y="90" width="300" height="760"/><text class="txt" x="175" y="120">App</text>
+  <rect class="lane" x="425" y="90" width="300" height="760"/><text class="txt" x="540" y="120">Supabase</text>
+  <rect class="lane" x="795" y="90" width="300" height="760"/><text class="txt" x="865" y="120">Dispositivo / simulador</text>
+  <circle class="dot" cx="205" cy="165" r="12"/>
+  <rect class="act" x="85" y="215" width="240" height="58" rx="6"/><text class="txt" x="118" y="250">Clicar atualizar posicao</text>
+  <polygon class="dec" points="205,320 310,380 205,440 100,380"/><text class="txt" x="150" y="375">Existe pedido</text><text class="txt" x="155" y="395">pendente?</text>
+  <rect class="act" x="455" y="475" width="240" height="58" rx="6"/><text class="txt" x="490" y="510">Criar pedido pending</text>
+  <rect class="act" x="825" y="215" width="240" height="58" rx="6"/><text class="txt" x="855" y="250">Consultar pedido</text>
+  <polygon class="dec" points="945,320 1050,380 945,440 840,380"/><text class="txt" x="895" y="385">Tem pedido?</text>
+  <rect class="act" x="825" y="500" width="240" height="58" rx="6"/><text class="txt" x="855" y="535">Capturar localizacao</text>
+  <rect class="act" x="455" y="620" width="240" height="58" rx="6"/><text class="txt" x="492" y="655">Salvar gps_event</text>
+  <rect class="act" x="455" y="725" width="240" height="58" rx="6"/><text class="txt" x="480" y="760">Concluir pedido GPS</text>
+  <rect class="act" x="85" y="725" width="240" height="58" rx="6"/><text class="txt" x="120" y="760">Atualizar mapa</text>
+  <circle class="end" cx="205" cy="830" r="14"/><circle class="dot" cx="205" cy="830" r="8"/>
+  <path class="line" d="M205 177 V215"/><path class="line" d="M205 273 V320"/>
+  <path class="line" d="M310 380 H340 V475 H455"/><text class="small" x="325" y="365">nao</text>
+  <path class="line" d="M100 380 H75 V270 H85"/><text class="small" x="80" y="365">sim</text>
+  <path class="line" d="M695 505 H825"/>
+  <path class="line" d="M945 273 V320"/>
+  <path class="line" d="M945 440 V500"/><text class="small" x="960" y="470">sim</text>
+  <path class="line" d="M1050 380 H1080 V220 H1065"/><text class="small" x="1060" y="365">nao</text>
+  <path class="line" d="M825 529 H695 V620"/>
+  <path class="line" d="M575 678 V725"/>
+  <path class="line" d="M455 754 H325"/>
+  <path class="line" d="M205 783 V816"/>
+</svg>
+

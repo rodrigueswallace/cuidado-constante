@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820">
+  <style>
+    .bg{fill:#fff}.title{font:700 30px Arial;fill:#111}.tbl{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.name{font:700 18px Arial;fill:#111}.field{font:14px Arial;fill:#111}.rel{stroke:#111;stroke-width:2;fill:none}.card{font:700 14px Arial;fill:#111}.label{font:14px Arial;fill:#111}
+  </style>
+  <rect class="bg" width="1400" height="820"/>
+  <text class="title" x="50" y="55">Modelagem logica - Tabelas principais</text>
+
+  <g transform="translate(70,150)">
+    <rect class="tbl" width="335" height="230"/>
+    <rect class="head" width="335" height="36"/>
+    <text class="name" x="14" y="24">profiles</text>
+    <text class="field" x="14" y="64">PK/FK id: uuid - auth.users(id)</text>
+    <text class="field" x="14" y="90">full_name: text</text>
+    <text class="field" x="14" y="116">phone: text</text>
+    <text class="field" x="14" y="142">FK active_collar: uuid</text>
+    <text class="field" x="14" y="168">updated_at: timestamptz</text>
+  </g>
+
+  <g transform="translate(515,150)">
+    <rect class="tbl" width="370" height="335"/>
+    <rect class="head" width="370" height="36"/>
+    <text class="name" x="14" y="24">pets</text>
+    <text class="field" x="14" y="64">PK id: uuid</text>
+    <text class="field" x="14" y="90">FK owner_user_id: uuid - auth.users(id)</text>
+    <text class="field" x="14" y="116">name: text not null</text>
+    <text class="field" x="14" y="142">species: text</text>
+    <text class="field" x="14" y="168">birth_date: date</text>
+    <text class="field" x="14" y="194">color: text</text>
+    <text class="field" x="14" y="220">sex: text</text>
+    <text class="field" x="14" y="246">weight_kg: numeric(6,2)</text>
+    <text class="field" x="14" y="272">size, microchip, breed: text</text>
+    <text class="field" x="14" y="298">notes: text</text>
+    <text class="field" x="14" y="324">created_at: timestamptz</text>
+  </g>
+
+  <g transform="translate(995,150)">
+    <rect class="tbl" width="350" height="335"/>
+    <rect class="head" width="350" height="36"/>
+    <text class="name" x="14" y="24">collars</text>
+    <text class="field" x="14" y="64">PK id: uuid</text>
+    <text class="field" x="14" y="90">FK pet_id: uuid - pets(id)</text>
+    <text class="field" x="14" y="116">serial: text unique not null</text>
+    <text class="field" x="14" y="142">activation_code: text not null</text>
+    <text class="field" x="14" y="168">ble_service_uuid: text not null</text>
+    <text class="field" x="14" y="194">display_name: text</text>
+    <text class="field" x="14" y="220">ble_device_name: text</text>
+    <text class="field" x="14" y="246">last_seen: timestamptz</text>
+    <text class="field" x="14" y="272">battery: numeric(5,2)</text>
+    <text class="field" x="14" y="298">created_at: timestamptz</text>
+  </g>
+
+  <path class="rel" d="M405 245 H515"/>
+  <text class="label" x="430" y="230">owner_user_id</text>
+  <text class="card" x="420" y="265">1</text>
+  <text class="card" x="490" y="265">0..N</text>
+
+  <path class="rel" d="M885 280 H995"/>
+  <text class="label" x="910" y="265">pet_id</text>
+  <text class="card" x="900" y="300">1</text>
+  <text class="card" x="970" y="300">0..N</text>
+
+  <path class="rel" d="M235 380 V650 H1170 V485"/>
+  <text class="label" x="560" y="635">profiles.active_collar</text>
+  <text class="card" x="250" y="405">0..1</text>
+  <text class="card" x="1185" y="505">1</text>
+</svg>
+

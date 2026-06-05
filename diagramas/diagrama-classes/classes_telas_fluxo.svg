@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050">
+  <defs>
+    <marker id="openArrow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11" fill="none" stroke="#111" stroke-width="2"/>
+    </marker>
+    <style>
+      .bg{fill:#fff}.title{font:700 30px Arial;fill:#111}.class{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.name{font:700 18px Arial;fill:#111}.txt{font:15px Arial;fill:#111}.line{stroke:#111;stroke-width:2}.dep{stroke:#111;stroke-width:2;fill:none;stroke-dasharray:8 6;marker-end:url(#openArrow)}.label{font:14px Arial;fill:#111}
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="1050"/>
+  <text class="title" x="50" y="55">Diagrama de classes - Telas e hooks</text>
+
+  <g transform="translate(70,105)">
+    <rect class="class" width="320" height="205"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="112" y="25">AuthScreen</text>
+    <line class="line" x1="0" y1="90" x2="320" y2="90"/>
+    <text class="txt" x="12" y="66">+ mode: Login | Cadastro</text>
+    <text class="txt" x="12" y="119">+ login(): void</text><text class="txt" x="12" y="145">+ cadastrarTutorPet(): void</text><text class="txt" x="12" y="171">+ recuperarSenha(): void</text>
+  </g>
+
+  <g transform="translate(520,105)">
+    <rect class="class" width="320" height="230"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="110" y="25">GpsScreen</text>
+    <line class="line" x1="0" y1="90" x2="320" y2="90"/>
+    <text class="txt" x="12" y="66">+ activeCollarId: string</text>
+    <text class="txt" x="12" y="119">+ refresh(): void</text><text class="txt" x="12" y="145">+ requestPositionUpdate(): void</text><text class="txt" x="12" y="171">+ recalcRoute(): void</text><text class="txt" x="12" y="197">+ openMapsRoute(): void</text>
+  </g>
+
+  <g transform="translate(970,105)">
+    <rect class="class" width="320" height="230"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="112" y="25">BleScreen</text>
+    <line class="line" x1="0" y1="90" x2="320" y2="90"/>
+    <text class="txt" x="12" y="66">+ connectedDevice: Device</text>
+    <text class="txt" x="12" y="119">+ scan(): void</text><text class="txt" x="12" y="145">+ connect(): void</text><text class="txt" x="12" y="171">+ disconnect(): void</text><text class="txt" x="12" y="197">+ monitorRssi(): void</text>
+  </g>
+
+  <g transform="translate(70,465)">
+    <rect class="class" width="320" height="180"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="86" y="25">AddCollarScreen</text>
+    <line class="line" x1="0" y1="90" x2="320" y2="90"/>
+    <text class="txt" x="12" y="66">+ pets: PetOption[]</text>
+    <text class="txt" x="12" y="119">+ loadPets(): void</text><text class="txt" x="12" y="145">+ activateCollar(): void</text>
+  </g>
+
+  <g transform="translate(520,465)">
+    <rect class="class" width="320" height="180"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="94" y="25">ConfigScreen</text>
+    <line class="line" x1="0" y1="90" x2="320" y2="90"/>
+    <text class="txt" x="12" y="66">+ userSession: Session</text>
+    <text class="txt" x="12" y="119">+ abrirPerfil(): void</text><text class="txt" x="12" y="145">+ logout(): void</text>
+  </g>
+
+  <g transform="translate(970,465)">
+    <rect class="class" width="320" height="180"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="82" y="25">EditDeviceScreen</text>
+    <line class="line" x1="0" y1="90" x2="320" y2="90"/>
+    <text class="txt" x="12" y="66">+ deviceProfile: Profile</text>
+    <text class="txt" x="12" y="119">+ loadDeviceProfile(): void</text><text class="txt" x="12" y="145">+ renderReadOnly(): void</text>
+  </g>
+
+  <g transform="translate(520,805)">
+    <rect class="class" width="320" height="150"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="108" y="25">useGpsTracking</text>
+    <line class="line" x1="0" y1="88" x2="320" y2="88"/>
+    <text class="txt" x="12" y="66">+ events: GpsEvent[]</text>
+    <text class="txt" x="12" y="116">+ refresh(): void</text><text class="txt" x="12" y="140">+ requestPositionUpdate(): void</text>
+  </g>
+
+  <g transform="translate(970,805)">
+    <rect class="class" width="320" height="150"/><rect class="head" width="320" height="38"/>
+    <text class="name" x="108" y="25">useBleTracking</text>
+    <line class="line" x1="0" y1="88" x2="320" y2="88"/>
+    <text class="txt" x="12" y="66">+ devices: Device[]</text>
+    <text class="txt" x="12" y="116">+ scan(): void</text><text class="txt" x="12" y="140">+ connect(): void</text>
+  </g>
+
+  <path class="dep" d="M680 335 V390 H450 V730 H680 V805"/><text class="label" x="465" y="715">usa</text>
+  <path class="dep" d="M1130 335 V390 H1340 V730 H1130 V805"/><text class="label" x="1245" y="715">usa</text>
+  <path class="dep" d="M390 555 H520"/><text class="label" x="430" y="540">navega</text>
+  <path class="dep" d="M840 555 H970"/><text class="label" x="875" y="540">abre</text>
+  <path class="dep" d="M520 205 H390"/><text class="label" x="430" y="190">sessao</text>
+</svg>

@@ -7,7 +7,7 @@ function required(value: string | undefined, key: string) {
 }
 
 const GOOGLE_MAPS_API_KEY = required(
-  process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+  process.env['EXPO_PUBLIC_GOOGLE_MAPS_API_KEY'],
   'EXPO_PUBLIC_GOOGLE_MAPS_API_KEY'
 );
 

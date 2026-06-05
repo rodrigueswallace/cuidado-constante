@@ -2,9 +2,6 @@ import { PermissionsAndroid, Platform } from 'react-native';
 
 import { bleManager } from '@/services/bleManager';
 
-const BLE_CONFIG_SERVICE_UUID = process.env.EXPO_PUBLIC_BLE_CONFIG_SERVICE_UUID?.trim() ?? '';
-const BLE_DEVICE_NAME_CHARACTERISTIC_UUID = process.env.EXPO_PUBLIC_BLE_DEVICE_NAME_CHARACTERISTIC_UUID?.trim() ?? '';
-
 function encodeBase64(value: string) {
   const bytes = new TextEncoder().encode(value);
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -48,7 +45,10 @@ async function requestBleWritePermissions() {
 }
 
 export async function writeBleDeviceName(deviceId: string, name: string) {
-  if (!BLE_CONFIG_SERVICE_UUID || !BLE_DEVICE_NAME_CHARACTERISTIC_UUID) {
+  const bleConfigServiceUuid = process.env['EXPO_PUBLIC_BLE_CONFIG_SERVICE_UUID']?.trim() ?? '';
+  const bleDeviceNameCharacteristicUuid = process.env['EXPO_PUBLIC_BLE_DEVICE_NAME_CHARACTERISTIC_UUID']?.trim() ?? '';
+
+  if (!bleConfigServiceUuid || !bleDeviceNameCharacteristicUuid) {
     throw new Error('configuracao_ble_nome_ausente');
   }
 
@@ -71,5 +71,5 @@ export async function writeBleDeviceName(deviceId: string, name: string) {
 
   const payload = encodeBase64(normalizedName);
 
-  await bleManager.writeCharacteristicWithResponseForDevice(deviceId, BLE_CONFIG_SERVICE_UUID, BLE_DEVICE_NAME_CHARACTERISTIC_UUID, payload);
+  await bleManager.writeCharacteristicWithResponseForDevice(deviceId, bleConfigServiceUuid, bleDeviceNameCharacteristicUuid, payload);
 }

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="780" viewBox="0 0 850 780">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#111"/></marker></defs>
+  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.act{fill:#fff;stroke:#111;stroke-width:2}.dec{fill:#fff;stroke:#111;stroke-width:2}.txt{font:16px Arial;fill:#111}.small{font:14px Arial;fill:#111}.line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#arrow)}.dot{fill:#111}.end{fill:#fff;stroke:#111;stroke-width:3}</style>
+  <rect class="bg" width="850" height="780"/>
+  <text class="title" x="50" y="55">Atividade - Ativar coleira</text>
+  <circle class="dot" cx="425" cy="105" r="13"/>
+  <rect class="act" x="275" y="150" width="300" height="58" rx="6"/><text class="txt" x="330" y="185">Abrir adicionar coleira</text>
+  <rect class="act" x="275" y="250" width="300" height="58" rx="6"/><text class="txt" x="315" y="285">Informar serial e codigo</text>
+  <rect class="act" x="275" y="350" width="300" height="58" rx="6"/><text class="txt" x="340" y="385">Selecionar pet</text>
+  <polygon class="dec" points="425,455 545,525 425,595 305,525"/><text class="txt" x="365" y="520">Serial e codigo</text><text class="txt" x="388" y="540">existem?</text>
+  <rect class="act" x="585" y="495" width="220" height="58" rx="6"/><text class="txt" x="620" y="530">Exibir erro</text>
+  <rect class="act" x="275" y="635" width="300" height="58" rx="6"/><text class="txt" x="310" y="670">Vincular coleira ao pet</text>
+  <rect class="act" x="275" y="715" width="300" height="45" rx="6"/><text class="txt" x="315" y="743">Definir coleira ativa</text>
+  <path class="line" d="M425 118 V150"/><path class="line" d="M425 208 V250"/><path class="line" d="M425 308 V350"/><path class="line" d="M425 408 V455"/>
+  <path class="line" d="M545 525 H585"/><text class="small" x="560" y="512">nao</text>
+  <path class="line" d="M425 595 V635"/><text class="small" x="440" y="620">sim</text>
+  <path class="line" d="M425 693 V715"/>
+</svg>
+

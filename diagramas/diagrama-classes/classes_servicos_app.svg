@@ -1,13 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="760" viewBox="0 0 1250 760">
-  <style>.bg{fill:#fff}.title{font:700 28px Arial;fill:#111}.cls{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.h{font:700 17px Arial;fill:#111}.m{font:14px Arial;fill:#111}.rel{stroke:#111;stroke-width:2;fill:none}</style>
-  <rect class="bg" width="1250" height="760"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980">
+  <defs>
+    <marker id="openArrow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11" fill="none" stroke="#111" stroke-width="2"/>
+    </marker>
+    <style>
+      .bg{fill:#fff}.title{font:700 30px Arial;fill:#111}.class{fill:#fff;stroke:#111;stroke-width:2}.head{fill:#e7e6e6;stroke:#111;stroke-width:2}.name{font:700 18px Arial;fill:#111}.txt{font:15px Arial;fill:#111}.line{stroke:#111;stroke-width:2}.dep{stroke:#111;stroke-width:2;fill:none;stroke-dasharray:8 6;marker-end:url(#openArrow)}.label{font:14px Arial;fill:#111}
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="980"/>
   <text class="title" x="50" y="55">Diagrama de classes - Servicos do aplicativo</text>
-  <g transform="translate(70,120)"><rect class="cls" width="310" height="170"/><rect class="head" width="310" height="34"/><text class="h" x="12" y="23">supabaseClient</text><text class="m" x="12" y="62">auth.signInWithPassword()</text><text class="m" x="12" y="88">auth.signUp()</text><text class="m" x="12" y="114">from(table).select()</text><text class="m" x="12" y="140">functions.invoke()</text></g>
-  <g transform="translate(470,120)"><rect class="cls" width="310" height="170"/><rect class="head" width="310" height="34"/><text class="h" x="12" y="23">deviceService</text><text class="m" x="12" y="62">fetchDeviceProfile()</text><text class="m" x="12" y="88">saveDeviceProfile()</text><text class="m" x="12" y="114">registerCollar()</text><text class="m" x="12" y="140">getActiveCollar()</text></g>
-  <g transform="translate(870,120)"><rect class="cls" width="310" height="170"/><rect class="head" width="310" height="34"/><text class="h" x="12" y="23">gpsService</text><text class="m" x="12" y="62">fetchLatestGps()</text><text class="m" x="12" y="88">requestGpsUpdate()</text><text class="m" x="12" y="114">getPendingRequest()</text></g>
-  <g transform="translate(70,420)"><rect class="cls" width="310" height="170"/><rect class="head" width="310" height="34"/><text class="h" x="12" y="23">bleService</text><text class="m" x="12" y="62">scan()</text><text class="m" x="12" y="88">connect()</text><text class="m" x="12" y="114">monitorCharacteristic()</text><text class="m" x="12" y="140">sendBleEvent()</text></g>
-  <g transform="translate(470,420)"><rect class="cls" width="310" height="170"/><rect class="head" width="310" height="34"/><text class="h" x="12" y="23">profileService</text><text class="m" x="12" y="62">fetchProfile()</text><text class="m" x="12" y="88">saveProfile()</text><text class="m" x="12" y="114">deleteAccount()</text></g>
-  <g transform="translate(870,420)"><rect class="cls" width="310" height="170"/><rect class="head" width="310" height="34"/><text class="h" x="12" y="23">petService</text><text class="m" x="12" y="62">fetchPet()</text><text class="m" x="12" y="88">savePet()</text><text class="m" x="12" y="114">formatWeight()</text><text class="m" x="12" y="140">formatSize()</text></g>
-  <path class="rel" d="M380 205 H470"/><path class="rel" d="M780 205 H870"/><path class="rel" d="M225 290 V420"/><path class="rel" d="M625 290 V420"/><path class="rel" d="M1025 290 V420"/>
-</svg>
 
+  <g transform="translate(505,95)">
+    <rect class="class" width="390" height="245"/><rect class="head" width="390" height="38"/>
+    <text class="name" x="128" y="25">SupabaseClient</text>
+    <line class="line" x1="0" y1="116" x2="390" y2="116"/>
+    <text class="txt" x="12" y="66">+ supabaseUrl: string</text><text class="txt" x="12" y="92">+ supabaseAnonKey: string</text>
+    <text class="txt" x="12" y="145">+ auth.getSession(): Session</text><text class="txt" x="12" y="171">+ auth.refreshSession(): Session</text><text class="txt" x="12" y="197">+ from(table): QueryBuilder</text><text class="txt" x="12" y="223">+ functions.invoke(name): Response</text>
+  </g>
+
+  <g transform="translate(70,505)">
+    <rect class="class" width="380" height="255"/><rect class="head" width="380" height="38"/>
+    <text class="name" x="125" y="25">EdgeApiService</text>
+    <line class="line" x1="0" y1="90" x2="380" y2="90"/>
+    <text class="txt" x="12" y="66">- callEdgeFunction(fn, payload): Promise</text>
+    <text class="txt" x="12" y="119">+ requestGpsUpdate(collarId): Promise</text><text class="txt" x="12" y="145">+ fetchLatestGps(collarId): Promise</text><text class="txt" x="12" y="171">+ ingestBleEvent(payload): Promise</text><text class="txt" x="12" y="197">+ registerCollar(payload): Promise</text><text class="txt" x="12" y="223">+ deleteAccount(): Promise</text>
+  </g>
+
+  <g transform="translate(510,505)">
+    <rect class="class" width="380" height="230"/><rect class="head" width="380" height="38"/>
+    <text class="name" x="118" y="25">DeviceService</text>
+    <line class="line" x1="0" y1="90" x2="380" y2="90"/>
+    <text class="txt" x="12" y="66">- getCurrentUserId(): string</text>
+    <text class="txt" x="12" y="119">+ fetchEditableDeviceProfile(id): Profile</text><text class="txt" x="12" y="145">+ saveEditableDeviceProfile(data): void</text><text class="txt" x="12" y="171">+ saveBleDeviceName(id, name): void</text>
+  </g>
+
+  <g transform="translate(950,505)">
+    <rect class="class" width="380" height="255"/><rect class="head" width="380" height="38"/>
+    <text class="name" x="142" y="25">AppStore</text>
+    <line class="line" x1="0" y1="142" x2="380" y2="142"/>
+    <text class="txt" x="12" y="66">+ activeCollarId: string</text><text class="txt" x="12" y="92">+ connectedBleDeviceId: string</text><text class="txt" x="12" y="118">+ pendingBleEvents: IngestBlePayload[]</text>
+    <text class="txt" x="12" y="171">+ setActiveCollarId(value): void</text><text class="txt" x="12" y="197">+ enqueueBleEvent(event): void</text><text class="txt" x="12" y="223">+ flushBleQueue(): Result</text>
+  </g>
+
+  <path class="dep" d="M260 505 V340 H505"/><text class="label" x="280" y="360">usa</text>
+  <path class="dep" d="M700 505 V340"/><text class="label" x="715" y="455">consulta</text>
+  <path class="dep" d="M1140 505 V340 H895"/><text class="label" x="1020" y="360">usa</text>
+  <path class="dep" d="M950 625 H890"/><text class="label" x="905" y="610">fila BLE</text>
+  <path class="dep" d="M510 625 H450"/><text class="label" x="462" y="610">coleira</text>
+</svg>
