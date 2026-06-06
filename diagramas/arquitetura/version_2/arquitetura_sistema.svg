@@ -1,113 +1,157 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1350" viewBox="0 0 2200 1350">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
-      <path d="M0 0 L10 5 L0 10 Z" fill="#111"/>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#111111"/>
     </marker>
     <style>
-      .bg{fill:#fff}
-      .title{font:700 30px Arial;fill:#111}
-      .subtitle{font:400 17px Arial;fill:#333}
-      .box{fill:#fff;stroke:#111;stroke-width:2}
-      .head{fill:#e7e6e6;stroke:#111;stroke-width:2}
-      .h{font:700 18px Arial;fill:#111}
-      .t{font:15px Arial;fill:#111}
-      .small{font:13px Arial;fill:#333}
-      .line{stroke:#111;stroke-width:2;fill:none;marker-end:url(#arrow)}
-      .dash{stroke:#111;stroke-width:2;fill:none;stroke-dasharray:8 7;marker-end:url(#arrow)}
-      .group{fill:none;stroke:#999;stroke-width:2}
+      .bg { fill: #ffffff; }
+      .title { font: 800 44px Arial, sans-serif; fill: #111111; }
+      .subtitle { font: 400 24px Arial, sans-serif; fill: #444444; }
+      .group { fill: #ffffff; stroke: #111111; stroke-width: 3; }
+      .box { fill: #ffffff; stroke: #111111; stroke-width: 2.5; }
+      .head { fill: #eeeeee; stroke: #111111; stroke-width: 2.5; }
+      .groupTitle { font: 800 30px Arial, sans-serif; fill: #111111; }
+      .boxTitle { font: 800 24px Arial, sans-serif; fill: #111111; }
+      .text { font: 400 21px Arial, sans-serif; fill: #111111; }
+      .small { font: 400 18px Arial, sans-serif; fill: #333333; }
+      .arrow { stroke: #111111; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #111111; stroke-width: 3; stroke-dasharray: 12 10; fill: none; marker-end: url(#arrow); }
+      .labelBox { fill: #ffffff; stroke: #111111; stroke-width: 1.5; }
+      .label { font: 700 18px Arial, sans-serif; fill: #111111; }
     </style>
   </defs>
 
-  <rect class="bg" width="1400" height="900"/>
-  <text class="title" x="60" y="55">Arquitetura do sistema Cuidado Constante</text>
-  <text class="subtitle" x="60" y="85">Arquitetura cliente-servidor em camadas, com backend serverless e comunicacao IoT assincrona</text>
+  <rect class="bg" width="2200" height="1350"/>
 
-  <rect class="group" x="50" y="120" width="360" height="650"/>
-  <text class="h" x="155" y="155">Aplicativo Mobile</text>
-  <g transform="translate(85,185)">
-    <rect class="box" width="290" height="155"/>
-    <rect class="head" width="290" height="36"/>
-    <text class="h" x="14" y="24">React Native / Expo</text>
-    <text class="t" x="14" y="68">Telas de login e cadastro</text>
-    <text class="t" x="14" y="96">Tela GPS e mapa</text>
-    <text class="t" x="14" y="124">Tela BLE e configuracoes</text>
-  </g>
-  <g transform="translate(85,395)">
-    <rect class="box" width="290" height="175"/>
-    <rect class="head" width="290" height="36"/>
-    <text class="h" x="14" y="24">Servicos e hooks</text>
-    <text class="t" x="14" y="68">Supabase SDK</text>
-    <text class="t" x="14" y="96">Servicos de pet, tutor e coleira</text>
-    <text class="t" x="14" y="124">Hooks de GPS e Bluetooth</text>
-    <text class="t" x="14" y="152">Abertura do Google Maps</text>
+  <text class="title" x="1100" y="72" text-anchor="middle">Arquitetura do Sistema Cuidado Constante</text>
+  <text class="subtitle" x="1100" y="115" text-anchor="middle">Aplicativo mobile, backend serverless, camada IoT e servicos externos</text>
+
+  <!-- Aplicativo -->
+  <rect class="group" x="80" y="185" width="560" height="760" rx="10"/>
+  <text class="groupTitle" x="360" y="235" text-anchor="middle">Aplicativo Mobile</text>
+
+  <g transform="translate(125,280)">
+    <rect class="box" width="470" height="150" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Interface</text>
+    <text class="text" x="24" y="88">React Native / Expo</text>
+    <text class="text" x="24" y="122">Telas GPS, BLE e configuracoes</text>
   </g>
 
-  <rect class="group" x="510" y="120" width="390" height="650"/>
-  <text class="h" x="665" y="155">Supabase</text>
-  <g transform="translate(555,185)">
-    <rect class="box" width="300" height="130"/>
-    <rect class="head" width="300" height="36"/>
-    <text class="h" x="14" y="24">Auth</text>
-    <text class="t" x="14" y="68">Autenticacao do tutor</text>
-    <text class="t" x="14" y="96">Recuperacao de senha</text>
-  </g>
-  <g transform="translate(555,355)">
-    <rect class="box" width="300" height="175"/>
-    <rect class="head" width="300" height="36"/>
-    <text class="h" x="14" y="24">PostgreSQL + RLS</text>
-    <text class="t" x="14" y="68">profiles, pets e collars</text>
-    <text class="t" x="14" y="96">gps_events e ble_events</text>
-    <text class="t" x="14" y="124">gps_update_requests</text>
-    <text class="t" x="14" y="152">Politicas por tutor autenticado</text>
-  </g>
-  <g transform="translate(555,585)">
-    <rect class="box" width="300" height="150"/>
-    <rect class="head" width="300" height="36"/>
-    <text class="h" x="14" y="24">Edge Functions</text>
-    <text class="t" x="14" y="64">request-gps-update</text>
-    <text class="t" x="14" y="88">poll-gps-request</text>
-    <text class="t" x="14" y="112">ingest-gps e ingest-ble</text>
-    <text class="t" x="14" y="136">register-collar e get-latest-gps</text>
+  <g transform="translate(125,485)">
+    <rect class="box" width="470" height="175" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Logica do app</text>
+    <text class="text" x="24" y="88">Hooks de GPS e Bluetooth</text>
+    <text class="text" x="24" y="122">Services e Supabase SDK</text>
+    <text class="text" x="24" y="156">Estado global da aplicacao</text>
   </g>
 
-  <rect class="group" x="1000" y="120" width="350" height="650"/>
-  <text class="h" x="1095" y="155">Dispositivo / IoT</text>
-  <g transform="translate(1035,185)">
-    <rect class="box" width="280" height="150"/>
-    <rect class="head" width="280" height="36"/>
-    <text class="h" x="14" y="24">ESP32-C6 + A7670SA</text>
-    <text class="t" x="14" y="68">Rede 4G</text>
-    <text class="t" x="14" y="96">GPS/GNSS</text>
-    <text class="t" x="14" y="124">Bluetooth BLE</text>
-  </g>
-  <g transform="translate(1035,395)">
-    <rect class="box" width="280" height="130"/>
-    <rect class="head" width="280" height="36"/>
-    <text class="h" x="14" y="24">App simulador</text>
-    <text class="t" x="14" y="68">Consulta pedidos pendentes</text>
-    <text class="t" x="14" y="96">Envia localizacao do celular</text>
-  </g>
-  <g transform="translate(1035,585)">
-    <rect class="box" width="280" height="135"/>
-    <rect class="head" width="280" height="36"/>
-    <text class="h" x="14" y="24">Comunicacao segura</text>
-    <text class="t" x="14" y="68">HTTP para Edge Functions</text>
-    <text class="t" x="14" y="96">COLLAR_SHARED_SECRET</text>
+  <g transform="translate(125,715)">
+    <rect class="box" width="470" height="140" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Recursos locais</text>
+    <text class="text" x="24" y="88">Fila BLE</text>
+    <text class="text" x="24" y="122">Coleira ativa</text>
   </g>
 
-  <g transform="translate(80,810)">
-    <rect class="box" width="1240" height="55"/>
-    <text class="t" x="18" y="34">Servicos externos: Google Maps para navegacao e rotas; rede 4G para comunicacao do modulo; Bluetooth para monitoramento por proximidade.</text>
+  <!-- Backend -->
+  <rect class="group" x="820" y="185" width="560" height="760" rx="10"/>
+  <text class="groupTitle" x="1100" y="235" text-anchor="middle">Supabase</text>
+
+  <g transform="translate(865,280)">
+    <rect class="box" width="470" height="140" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Auth</text>
+    <text class="text" x="24" y="88">Login e cadastro</text>
+    <text class="text" x="24" y="122">Recuperacao de senha</text>
   </g>
 
-  <path class="line" d="M375 470 H555"/>
-  <text class="small" x="405" y="455">Auth, consultas e Edge Functions via HTTPS</text>
-  <path class="line" d="M1035 635 H855"/>
-  <text class="small" x="880" y="620">consulta pedido GPS</text>
-  <path class="line" d="M1035 695 H855"/>
-  <text class="small" x="880" y="680">envia eventos GPS/BLE</text>
-  <path class="dash" d="M1035 455 H855"/>
-  <text class="small" x="895" y="438">fluxo assincrono</text>
-  <path class="line" d="M230 570 V810"/>
-  <text class="small" x="245" y="740">abre rota</text>
+  <g transform="translate(865,475)">
+    <rect class="box" width="470" height="175" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Banco de dados</text>
+    <text class="text" x="24" y="88">PostgreSQL</text>
+    <text class="text" x="24" y="122">Tabelas GPS, BLE, pets e coleiras</text>
+    <text class="text" x="24" y="156">Politicas RLS</text>
+  </g>
+
+  <g transform="translate(865,705)">
+    <rect class="box" width="470" height="170" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Edge Functions</text>
+    <text class="text" x="24" y="88">Pedidos GPS</text>
+    <text class="text" x="24" y="122">Ingestao de eventos</text>
+    <text class="text" x="24" y="156">Ativacao de coleira</text>
+  </g>
+
+  <!-- IoT -->
+  <rect class="group" x="1560" y="185" width="560" height="760" rx="10"/>
+  <text class="groupTitle" x="1840" y="235" text-anchor="middle">Dispositivo / IoT</text>
+
+  <g transform="translate(1605,280)">
+    <rect class="box" width="470" height="150" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Hardware</text>
+    <text class="text" x="24" y="88">ESP32-C6</text>
+    <text class="text" x="24" y="122">Modulo 4G A7670SA</text>
+  </g>
+
+  <g transform="translate(1605,485)">
+    <rect class="box" width="470" height="150" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Comunicacao</text>
+    <text class="text" x="24" y="88">4G para Supabase</text>
+    <text class="text" x="24" y="122">Bluetooth BLE</text>
+  </g>
+
+  <g transform="translate(1605,690)">
+    <rect class="box" width="470" height="150" rx="8"/>
+    <rect class="head" width="470" height="48" rx="8"/>
+    <text class="boxTitle" x="24" y="33">Simulador</text>
+    <text class="text" x="24" y="88">Consulta pedidos</text>
+    <text class="text" x="24" y="122">Envia localizacao</text>
+  </g>
+
+  <!-- Externos -->
+  <rect class="group" x="320" y="1090" width="1560" height="135" rx="10"/>
+  <text class="groupTitle" x="1100" y="1138" text-anchor="middle">Servicos externos</text>
+
+  <rect class="box" x="390" y="1160" width="390" height="48" rx="8"/>
+  <text class="text" x="420" y="1191">Google Maps</text>
+
+  <rect class="box" x="855" y="1160" width="390" height="48" rx="8"/>
+  <text class="text" x="885" y="1191">Rede 4G</text>
+
+  <rect class="box" x="1320" y="1160" width="390" height="48" rx="8"/>
+  <text class="text" x="1350" y="1191">Bluetooth</text>
+
+  <!-- Setas -->
+  <path class="arrow" d="M640 565 H820"/>
+  <rect class="labelBox" x="665" y="505" width="150" height="38" rx="6"/>
+  <text class="label" x="682" y="530">HTTPS/SDK</text>
+
+  <path class="arrow" d="M1380 800 H1560"/>
+  <rect class="labelBox" x="1400" y="740" width="150" height="38" rx="6"/>
+  <text class="label" x="1417" y="765">Pedido GPS</text>
+
+  <path class="arrow" d="M1560 860 H1380"/>
+  <rect class="labelBox" x="1395" y="890" width="160" height="38" rx="6"/>
+  <text class="label" x="1408" y="915">GPS/BLE</text>
+
+  <path class="dash" d="M1560 565 H1380"/>
+  <rect class="labelBox" x="1395" y="505" width="160" height="38" rx="6"/>
+  <text class="label" x="1408" y="530">Assincrono</text>
+
+  <path class="arrow" d="M360 855 V1090"/>
+  <rect class="labelBox" x="385" y="980" width="145" height="38" rx="6"/>
+  <text class="label" x="402" y="1005">Rotas</text>
+
+  <path class="arrow" d="M1840 840 V1090"/>
+  <rect class="labelBox" x="1865" y="980" width="145" height="38" rx="6"/>
+  <text class="label" x="1882" y="1005">4G/BLE</text>
+
+  <text class="small" x="1100" y="1300" text-anchor="middle">
+    Arquitetura em camadas com app mobile, backend Supabase, dispositivo IoT e servicos externos.
+  </text>
 </svg>
