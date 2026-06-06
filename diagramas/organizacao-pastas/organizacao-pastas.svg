@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1180" viewBox="0 0 900 1180">
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font: 800 30px Arial, sans-serif; fill: #111827; }
+      .tree { font: 500 18px Consolas, "Courier New", monospace; fill: #111827; }
+      .root { font: 800 20px Consolas, "Courier New", monospace; fill: #1d4ed8; }
+      .folder { fill: #111827; }
+      .muted { fill: #6b7280; }
+      .line { stroke: #d1d5db; stroke-width: 2; fill: none; }
+      .dot { fill: #2563eb; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="900" height="1180"/>
+
+  <text class="title" x="450" y="48" text-anchor="middle">Organizacao de Pastas</text>
+
+  <circle class="dot" cx="80" cy="95" r="5"/>
+  <text class="root" x="105" y="102">cuidado-constante/</text>
+  <path class="line" d="M80 110 V1095"/>
+
+  <path class="line" d="M80 145 H120"/>
+  <text class="tree folder" x="135" y="151">src/</text>
+  <path class="line" d="M120 160 V525"/>
+
+  <path class="line" d="M120 190 H160"/>
+  <text class="tree" x="175" y="196">components/</text>
+  <path class="line" d="M160 205 V232"/>
+  <path class="line" d="M160 230 H200"/>
+  <text class="tree muted" x="215" y="236">ui/</text>
+
+  <path class="line" d="M120 270 H160"/>
+  <text class="tree" x="175" y="276">screens/</text>
+
+  <path class="line" d="M120 310 H160"/>
+  <text class="tree" x="175" y="316">navigation/</text>
+
+  <path class="line" d="M120 350 H160"/>
+  <text class="tree" x="175" y="356">hooks/</text>
+
+  <path class="line" d="M120 390 H160"/>
+  <text class="tree" x="175" y="396">services/</text>
+
+  <path class="line" d="M120 430 H160"/>
+  <text class="tree" x="175" y="436">store/</text>
+
+  <path class="line" d="M120 470 H160"/>
+  <text class="tree" x="175" y="476">utils/</text>
+
+  <path class="line" d="M120 510 H160"/>
+  <text class="tree" x="175" y="516">types/</text>
+
+  <path class="line" d="M120 550 H160"/>
+  <text class="tree" x="175" y="556">theme/</text>
+
+  <path class="line" d="M120 590 H160"/>
+  <text class="tree" x="175" y="596">config/</text>
+
+  <path class="line" d="M80 640 H120"/>
+  <text class="tree folder" x="135" y="646">supabase/</text>
+  <path class="line" d="M120 655 V875"/>
+
+  <path class="line" d="M120 690 H160"/>
+  <text class="tree" x="175" y="696">functions/</text>
+  <path class="line" d="M160 705 V875"/>
+
+  <path class="line" d="M160 735 H200"/>
+  <text class="tree muted" x="215" y="741">_shared/</text>
+
+  <path class="line" d="M160 775 H200"/>
+  <text class="tree muted" x="215" y="781">ingest-gps/</text>
+
+  <path class="line" d="M160 815 H200"/>
+  <text class="tree muted" x="215" y="821">get-latest-gps/</text>
+
+  <path class="line" d="M160 855 H200"/>
+  <text class="tree muted" x="215" y="861">request-gps-update/</text>
+
+  <path class="line" d="M160 895 H200"/>
+  <text class="tree muted" x="215" y="901">poll-gps-request/</text>
+
+  <path class="line" d="M160 935 H200"/>
+  <text class="tree muted" x="215" y="941">register-collar/</text>
+
+  <path class="line" d="M160 975 H200"/>
+  <text class="tree muted" x="215" y="981">delete-account/</text>
+
+  <path class="line" d="M80 1025 H120"/>
+  <text class="tree folder" x="135" y="1031">arduino/</text>
+
+  <path class="line" d="M80 1065 H120"/>
+  <text class="tree folder" x="135" y="1071">device-simulator/</text>
+
+  <path class="line" d="M80 1105 H120"/>
+  <text class="tree folder" x="135" y="1111">assets/</text>
+
+  <path class="line" d="M80 1145 H120"/>
+  <text class="tree folder" x="135" y="1151">__tests__/</text>
+  <path class="line" d="M405 1145 H445"/>
+  <text class="tree muted" x="460" y="1151">unit/</text>
+  <path class="line" d="M555 1145 H595"/>
+  <text class="tree muted" x="610" y="1151">integration/</text>
+
+</svg>
